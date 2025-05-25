@@ -23,6 +23,7 @@ Ticketon은 대규모 트래픽 속에서도 안정적으로 티켓을 예매할
 
 ###기술 스택  
 
+**Version** : `JDK21`  
 **Backend** : `Spring Boot`, `JPA`, `QueryDSL`  
 **Database** : `MySQL`, `Redis`  
 **Devops** : `Nginx`, `Docker`,
