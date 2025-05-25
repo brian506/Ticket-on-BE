@@ -1,0 +1,9 @@
+package com.ticketon.ticketon.domain.ticket.repository;
+
+import com.ticketon.ticketon.domain.ticket.entity.Ticket;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface TicketRepository extends JpaRepository<Ticket, Long> {
+}
