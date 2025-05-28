@@ -29,7 +29,7 @@ dependencies {
 	implementation 'io.opentelemetry:opentelemetry-sdk:1.50.0'
 	implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.50.0'
 	implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.50.0'
-	implementation 'io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:1.30.0-alpha' // 자동 추적
+//	implementation 'io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:1.30.0-alpha'
 
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
