@@ -1,29 +1,41 @@
 version: '3.7'
 
 services:
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: tempo
+    ports:
+      - "3200:3200"    # 메트릭, 상태 확인 등
+
+    volumes:
+      - ./tempo/tempo-config.yml:/etc/tempo-config.yml
+    command: --config.file=/etc/tempo-config.yml
+    networks:
+      - monitoring
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.93.0
     container_name: otel-collector
     ports:
-      - "4317:4317"
-      - "4318:4318"
-      - "8889:8889"
+      - "4317:4317"  # OTLP gRPC 수신 포트 (애플리케이션이 Collector로 보낼 때 사용)
+      - "4319:4319"  # 일반적으로 OTLP gRPC exporter용 포트 아님 (혼동 주의)
+      - "8889:8889"  # Prometheus metrics endpoint (ex: /metrics)
     volumes:
-      - ./otel/otel-collector-config.yaml:/etc/otel/otel-collector-config.yaml
-    command: --config=/etc/otel/otel-collector-config.yaml
+      - ./otel/otel-collector-config.yml:/etc/otel/otel-collector-config.yml
+    command: --config=/etc/otel/otel-collector-config.yml
     networks:
       - monitoring
-
+    depends_on:
+      - tempo
 
   loki:
     image: grafana/loki:2.9.4
     container_name: loki
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yml
     volumes:
-      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./loki/loki-config.yml:/etc/loki/local-config.yml
     networks:
       - monitoring
 

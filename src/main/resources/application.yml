@@ -25,20 +25,20 @@ spring:
       root: INFO
       io.opentelemetry: DEBUG
 
-otel:
-  exporter:
-    otlp:
-      endpoint: http://localhost:4318
-      protocol: http/protobuf
-  resource:
-    attributes: service.name=my-spring-app
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: prometheus
-  metrics:
-    export:
-      prometheus:
-        enabled: false # Prometheus 직접 내보내는 건 끔
+#otel:
+#  exporter:
+#    otlp:
+#      endpoint: http://localhost:4318 # spring 에서 감지한 트레이스를 http://localhost:4317(otel collector) 로 전송
+#      protocol: grpc
+#  resource:
+#    attributes: service.name=my-spring-app
+#
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: prometheus
+#  metrics:
+#    export:
+#      prometheus:
+#        enabled: true

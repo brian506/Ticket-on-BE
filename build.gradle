@@ -2,10 +2,18 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.google.cloud.tools.jib' version '3.3.1'
 }
 
 group = 'com.ticketon'
 version = '0.0.1-SNAPSHOT'
+
+configurations {
+	agent
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
 
 java {
 	toolchain {
@@ -13,24 +21,27 @@ java {
 	}
 }
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
 repositories {
 	mavenCentral()
 }
 
-dependencies {
-	// OpenTelemetry API 및 SDK
-	implementation 'io.opentelemetry:opentelemetry-api:1.50.0'
-	implementation 'io.opentelemetry:opentelemetry-sdk:1.50.0'
-	implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.50.0'
-	implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.50.0'
-//	implementation 'io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:1.30.0-alpha'
+bootRun {
+	jvmArgs = [
+			"-javaagent:${buildDir}/agent/opentelemetry-javaagent.jar",
+			"-Dotel.metrics.exporter=otlp",
+			"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
+			"-Dotel.exporter.otlp.protocol=grpc",
+			"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
+			"-Dotel.resource.attributes=service.name=ticketon-service",
+			"-Dotel.javaagent.debug=true",
+			"-Dotel.logs.exporter=none"
+	]
+}
 
+bootRun.dependsOn("copyAgent")
+
+dependencies {
+	agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
@@ -40,6 +51,47 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
+tasks.register("copyAgent", Copy) {
+	from(configurations.agent)
+	into(layout.buildDirectory.dir("agent"))
+	rename { 'opentelemetry-javaagent.jar' }
+}
+
+jib {
+	from {
+		image = "eclipse-temurin:21-jdk"
+		platforms {
+			platform {
+				architecture = "arm64"
+				os = "linux"
+			}
+		}
+	}
+	extraDirectories {
+		paths {
+			path {
+				setFrom(layout.buildDirectory.dir("agent"))
+				into = "/otelagent"
+			}
+		}
+	}
+	container {
+		mainClass = "com.huisam.orderapplication.OrderApplicationKt"
+		jvmFlags = [
+				"-javaagent:${buildDir}/agent/opentelemetry-javaagent.jar",
+				"-Dotel.metrics.exporter=otlp",
+				"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
+				"-Dotel.exporter.otlp.protocol=grpc",
+				"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
+				"-Dotel.resource.attributes=service.name=ticketon-service",
+				"-Dotel.javaagent.debug=true",
+				"-Dotel.logs.exporter=none"
+		]
+	}
+}
+
+jibDockerBuild.dependsOn("copyAgent")
+
+test {
 	useJUnitPlatform()
 }
