@@ -1,4 +1,5 @@
 spring:
+
   config:
     import: "optional:file:.env[.properties]"
   datasource:
@@ -25,20 +26,28 @@ spring:
       root: INFO
       io.opentelemetry: DEBUG
 
-#otel:
-#  exporter:
-#    otlp:
-#      endpoint: http://localhost:4318 # spring 에서 감지한 트레이스를 http://localhost:4317(otel collector) 로 전송
-#      protocol: grpc
-#  resource:
-#    attributes: service.name=my-spring-app
-#
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: prometheus
-#  metrics:
-#    export:
-#      prometheus:
-#        enabled: true
+management:
+  metrics:
+    export:
+      otlp:
+        enabled: true
+        endpoint: http://localhost:4317 # OTEL Collector의 gRPC 포트
+    enable:
+      all: true
+      jvm: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    prometheus:
+      enabled: true
+
+
+otel:
+  resource:
+    attributes:
+      service.name: ticketon-service
+  exporter:
+    otlp:
+      endpoint: http://localhost:4317
+      protocol: grpc
