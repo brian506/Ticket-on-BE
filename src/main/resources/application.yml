@@ -1,5 +1,4 @@
 spring:
-
   config:
     import: "optional:file:.env[.properties]"
   datasource:
@@ -20,6 +19,10 @@ spring:
         show_sql: false
         format_sql: false
 
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 60000ms
 
   logging:
     level:
