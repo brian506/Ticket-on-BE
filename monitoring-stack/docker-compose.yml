@@ -1,6 +1,16 @@
 version: '3.7'
 
 services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
+    networks:
+      - monitoring
+
   tempo:
     image: grafana/tempo:2.4.1
     container_name: tempo
@@ -86,3 +96,4 @@ networks:
 
 volumes:
   grafana-storage:
+  influxdb-storage:
