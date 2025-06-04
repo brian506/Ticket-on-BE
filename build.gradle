@@ -32,12 +32,16 @@ bootRun {
 			"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
 			"-Dotel.exporter.otlp.protocol=grpc",
 			"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
-			"-Dotel.resource.attributes=service.name=ticketon-service",
-			"-Dotel.javaagent.debug=true",
 			"-Dotel.instrumentation.runtime-metrics.enabled=true",
 			"-Dotel.instrumentation.system-metrics.enabled=true",
+			"-Dotel.instrumentation.micrometer.enabled=true", // 추가
+			"-Dotel.resource.attributes=service.name=ticketon-service",
 			"-Dotel.metrics.export.interval=1000",
-			"-Dotel.logs.exporter=none"
+			"-Dotel.javaagent.debug=true",
+			"-Dotel.logs.exporter=none",
+
+			// 여기서 덮어쓰기 허용 플래그 추가
+			"-Dspring.main.allow-bean-definition-overriding=true"
 	]
 }
 
@@ -45,10 +49,8 @@ bootRun.dependsOn("copyAgent")
 
 dependencies {
 	agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	implementation 'io.lettuce:lettuce-core'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'io.opentelemetry:opentelemetry-api:1.50.0'
 	implementation 'io.opentelemetry:opentelemetry-sdk:1.50.0'
 	implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.50.0'
@@ -58,6 +60,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 
+	implementation 'io.lettuce:lettuce-core'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -93,11 +99,19 @@ jib {
 		mainClass = "com.huisam.orderapplication.OrderApplicationKt"
 		jvmFlags = [
 				"-javaagent:${buildDir}/agent/opentelemetry-javaagent.jar",
-				"-Dotel.metrics.exporter=none",  // Agent 메트릭 비활성화
+				"-Dotel.metrics.exporter=otlp",
+				"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
+				"-Dotel.exporter.otlp.protocol=grpc",
 				"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
 				"-Dotel.resource.attributes=service.name=ticketon-service",
 				"-Dotel.javaagent.debug=true",
-				"-Dotel.logs.exporter=none"
+				"-Dotel.instrumentation.runtime-metrics.enabled=true",
+				"-Dotel.instrumentation.system-metrics.enabled=true",
+				"-Dotel.metrics.export.interval=1000",
+				"-Dotel.logs.exporter=none",
+
+				// Jib 컨테이너에도 덮어쓰기 허용 옵션 추가
+				"-Dspring.main.allow-bean-definition-overriding=true"
 		]
 	}
 }
@@ -107,105 +121,3 @@ jibDockerBuild.dependsOn("copyAgent")
 test {
 	useJUnitPlatform()
 }
-
-//
-//plugins {
-//	id 'java'
-//	id 'org.springframework.boot' version '3.5.0'
-//	id 'io.spring.dependency-management' version '1.1.7'
-//	id 'com.google.cloud.tools.jib' version '3.3.1'
-//}
-//
-//group = 'com.ticketon'
-//version = '0.0.1-SNAPSHOT'
-//
-//configurations {
-//	agent
-//	compileOnly {
-//		extendsFrom annotationProcessor
-//	}
-//}
-//
-//java {
-//	toolchain {
-//		languageVersion = JavaLanguageVersion.of(21)
-//	}
-//}
-//
-//repositories {
-//	mavenCentral()
-//}
-//
-//bootRun {
-//	jvmArgs = [
-//			"-javaagent:${buildDir}/agent/opentelemetry-javaagent.jar",
-//			"-Dotel.metrics.exporter=otlp",
-//			"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
-//			"-Dotel.exporter.otlp.protocol=grpc",
-//			"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
-//			"-Dotel.resource.attributes=service.name=ticketon-service",
-//			"-Dotel.javaagent.debug=true",
-//			"-Dotel.instrumentation.runtime-metrics.enabled=true",
-//			"-Dotel.instrumentation.system-metrics.enabled=true",
-//			"-Dotel.metrics.export.interval=1000",
-//			"-Dotel.logs.exporter=none"
-//	]
-//}
-//
-//bootRun.dependsOn("copyAgent")
-//
-//dependencies {
-//	agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
-//	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//	implementation 'org.springframework.boot:spring-boot-starter-web'
-//	compileOnly 'org.projectlombok:lombok'
-//	runtimeOnly 'com.mysql:mysql-connector-j'
-//	annotationProcessor 'org.projectlombok:lombok'
-//	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-//}
-//
-//tasks.register("copyAgent", Copy) {
-//	from(configurations.agent)
-//	into(layout.buildDirectory.dir("agent"))
-//	rename { 'opentelemetry-javaagent.jar' }
-//}
-//
-//jib {
-//	from {
-//		image = "eclipse-temurin:21-jdk"
-//		platforms {
-//			platform {
-//				architecture = "arm64"
-//				os = "linux"
-//			}
-//		}
-//	}
-//	extraDirectories {
-//		paths {
-//			path {
-//				setFrom(layout.buildDirectory.dir("agent"))
-//				into = "/otelagent"
-//			}
-//		}
-//	}
-//	container {
-//		mainClass = "com.huisam.orderapplication.OrderApplicationKt"
-//		jvmFlags = [
-//				"-javaagent:${buildDir}/agent/opentelemetry-javaagent.jar",
-//				"-Dotel.metrics.exporter=otlp",
-//				"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
-//				"-Dotel.exporter.otlp.protocol=grpc",
-//				"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
-//				"-Dotel.resource.attributes=service.name=ticketon-service",
-//				"-Dotel.javaagent.debug=true",
-//				"-Dotel.logs.exporter=none"
-//		]
-//	}
-//}
-//
-//jibDockerBuild.dependsOn("copyAgent")
-//
-//test {
-//	useJUnitPlatform()
-//}

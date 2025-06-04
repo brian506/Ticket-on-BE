@@ -28,7 +28,7 @@ services:
     container_name: otel-collector
     ports:
       - "4317:4317"  # OTLP gRPC 수신 포트 (애플리케이션이 Collector로 보낼 때 사용)
-      - "4319:4319"  # 일반적으로 OTLP gRPC exporter용 포트 아님 (혼동 주의)
+      - "4318:4318"  # HTTP 수신 포트
       - "8889:8889"  # Prometheus metrics endpoint (ex: /metrics)
     volumes:
       - ./otel/otel-collector-config.yml:/etc/otel/otel-collector-config.yml
