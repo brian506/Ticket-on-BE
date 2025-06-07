@@ -1,7 +1,7 @@
 package com.ticketon.ticketon.domain.member.service;
 
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
-import com.ticketon.ticketon.exception.custom.MemberNotFoundException;
+import com.ticketon.ticketon.exception.custom.NotFoundDataException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,6 +16,6 @@ public class MemberDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return memberRepository.findByEmail(email).orElseThrow(() -> new MemberNotFoundException(email));
+        return memberRepository.findByEmail(email).orElseThrow(() -> new NotFoundDataException("[" + email + "] email에 해당하는 member를 찾을 수 없습니다."));
     }
 }
