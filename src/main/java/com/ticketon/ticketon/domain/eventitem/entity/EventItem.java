@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.List;
 
-@Table(name = "event_item")
+@Table(name = "event_items")
 @Entity
 @Getter
 @Builder
