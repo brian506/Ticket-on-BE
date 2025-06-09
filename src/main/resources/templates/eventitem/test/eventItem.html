@@ -10,7 +10,7 @@
     <p><p th:text="${eventItem.title}">이벤트명</p> <strong>날짜:</strong> <span th:text="${eventItem.startDate}">####-##-##</span> ~ <span th:text="${eventItem.endDate}">####-##-##</span></p>
     <div th:each="ticketType : ${eventItem.TicketTypes}">
         <span th:text="${ticketType.name}"></span> <span th:text="${ticketType.description}"></span>
-        <form action="/ticket" method="post">
+        <form th:action="@{${urls.TICKET_PURCHASE}}" method="post">
             <input type="hidden" name="ticketTypeId" th:value="${ticketType.id}">
             <input type="number" name="quantity" min="1" max="100">
             <input type="submit" value="구매">

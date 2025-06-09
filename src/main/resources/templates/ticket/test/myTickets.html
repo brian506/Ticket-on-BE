@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My tickets</title>
+</head>
+<body>
+<h2>내 티켓 구매 목록</h2>
+<div th:each="ticket : ${tickets}" style="border: 1px solid black;">
+    <span th:text="${ticket.eventTitle}"></span>
+    <span th:text="${ticket.ticketTypeName}"></span>
+    <span th:text="${ticket.ticketStatus}"></span>
+    <form th:action="@{${urls.TICKET_CANCEL}}" method="post">
+        <input type="hidden" name="ticketId" th:value="${ticket.id}">
+        <input type="submit" value="취소">
+    </form>
+</div>
+</body>
+</html>
