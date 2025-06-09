@@ -3,6 +3,7 @@ package com.ticketon.ticketon.domain.ticket.entity;
 import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketTypeStatus;
 import com.ticketon.ticketon.exception.custom.ExceededTicketQuantityException;
+import com.ticketon.ticketon.exception.custom.InvalidTicketCancellationException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,12 +53,21 @@ public class TicketType {
     @Column(name = "status", nullable = false)
     private TicketTypeStatus status;
 
-    public void issueTicket() {
+
+    public void increaseIssuedQuantity() {
         if (this.issuedQuantity >= this.maxQuantity) {
-            // 남은 티켓보다 더 많은 티켓 발급 요청시 예외처리
+            // 남은 티켓보다 더 많은 티켓 발급 요청시 예외 처리
             throw new ExceededTicketQuantityException(this);
         }
         this.issuedQuantity++;
+    }
+
+    public void decreaseTicketQuantity() {
+        if (this.issuedQuantity < 1) {
+            // 발급된 티켓 개수가 0일때 취소 요청시 예외 처리
+            throw new InvalidTicketCancellationException(this);
+        }
+        this.issuedQuantity--;
     }
 
 }

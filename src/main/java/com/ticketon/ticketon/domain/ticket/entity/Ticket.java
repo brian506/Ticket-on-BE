@@ -1,6 +1,7 @@
 package com.ticketon.ticketon.domain.ticket.entity;
 
 import com.ticketon.ticketon.domain.member.entity.Member;
+import com.ticketon.ticketon.exception.custom.TicketAlreadyCancelledException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,6 +31,13 @@ public class Ticket {
 
     @Enumerated(EnumType.STRING)
     private TicketStatus ticketStatus;
+
+    public void cancel(){
+        if (this.ticketStatus.equals(TicketStatus.CANCELLED)) {
+            throw new TicketAlreadyCancelledException();
+        }
+        this.ticketStatus = TicketStatus.CANCELLED;
+    }
 
     public static Ticket createNormalTicket(TicketType ticketType, Member member) {
         return Ticket.builder().
