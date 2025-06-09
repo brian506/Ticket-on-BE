@@ -1,6 +1,6 @@
 package com.ticketon.ticketon.domain.member.config;
 
-import com.ticketon.ticketon.domain.member.service.MemberDetailService;
+import com.ticketon.ticketon.domain.member.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +16,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class WebSecurityConfig {
 
-    private final MemberDetailService memberService;
+    private final CustomUserDetailService customUserDetailService;
 
 
 
@@ -38,16 +38,17 @@ public class WebSecurityConfig {
                         .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                 )
-                .csrf(csrf -> csrf.disable())
+                .userDetailsService(customUserDetailService)
+                .csrf(csrf -> csrf.disable()) // 개발 테스트를 위해 임시로 비활성화
                 .build();
     }
 
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder, MemberDetailService memberDetailService)
+    public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder, CustomUserDetailService memberDetailService)
             throws Exception{
         return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(memberService)
+                .userDetailsService(customUserDetailService)
                 .passwordEncoder(bCryptPasswordEncoder)
                 .and()
                 .build();

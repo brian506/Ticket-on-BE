@@ -30,8 +30,8 @@ public class TicketController {
 
     // 티켓 구매
     @PostMapping("/ticket")
-    public String purchaseTicket(TicketPurchaseRequestDto ticketPurchaseRequestDto, @AuthenticationPrincipal Member member) { //AuthenticationPrincipal 나중에 CustomUserDetails 만들어서 리팩토링 해줘야 함.
-        ticketService.purchaseTicket(ticketPurchaseRequestDto, member.getId());
+    public String purchaseTicket(TicketPurchaseRequestDto ticketPurchaseRequestDto, @CurrentUser CustomUserDetails customUserDetails) {
+        ticketService.purchaseTicket(ticketPurchaseRequestDto, customUserDetails.getMember().getId());
         return "redirect:/success";
     }
 
