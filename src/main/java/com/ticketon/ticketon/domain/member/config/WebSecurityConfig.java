@@ -1,6 +1,7 @@
 package com.ticketon.ticketon.domain.member.config;
 
 import com.ticketon.ticketon.domain.member.service.CustomUserDetailService;
+import com.ticketon.ticketon.global.constants.Urls;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,17 +26,17 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/signup").permitAll()
+                        .requestMatchers(Urls.LOGIN, Urls.SIGN_UP).permitAll()
 //                        .anyRequest().authenticated()
                         .anyRequest().permitAll()
                 )
                 .httpBasic(withDefaults())
                 .formLogin(form -> form
 //                        .loginPage("/login")
-                        .defaultSuccessUrl("/events")
+                        .defaultSuccessUrl(Urls.EVENTS)
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessUrl(Urls.EVENTS)
                         .invalidateHttpSession(true)
                 )
                 .userDetailsService(customUserDetailService)

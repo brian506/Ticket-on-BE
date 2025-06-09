@@ -8,7 +8,7 @@
 <h1>이벤트 목록</h1>
 
 <div th:each="event : ${eventItems}" class="event-card">
-    <a th:href="@{/event/{id}(id=${event.id})}">
+    <a th:href="@{${urls.EVENT_DETAIL}(id=${event.id})}">
         <div>
             <h2 th:text="${event.title}">이벤트명</h2>
             <p><strong>날짜:</strong> <span th:text="${event.startDate}">####-##-##</span> ~ <span th:text="${event.endDate}">####-##-##</span></p>
