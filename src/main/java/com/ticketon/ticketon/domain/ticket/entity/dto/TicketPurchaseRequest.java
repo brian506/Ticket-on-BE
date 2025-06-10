@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TicketPurchaseRequestDto {
+public class TicketPurchaseRequest {
 
     private Long ticketTypeId;
     private Integer quantity;

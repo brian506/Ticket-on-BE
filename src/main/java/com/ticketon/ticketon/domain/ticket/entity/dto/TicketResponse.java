@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class TicketResponseDto {
+public class TicketResponse {
 
     private Long id;
     private Long ticketTypeId;
@@ -21,8 +21,8 @@ public class TicketResponseDto {
     @Enumerated(EnumType.STRING)
     private TicketStatus ticketStatus;
 
-    public static TicketResponseDto from(Ticket ticket) {
-        return TicketResponseDto.builder()
+    public static TicketResponse from(Ticket ticket) {
+        return TicketResponse.builder()
                 .id(ticket.getId())
                 .ticketTypeId(ticket.getTicketType().getId())
                 .ticketTypeName(ticket.getTicketType().getName())

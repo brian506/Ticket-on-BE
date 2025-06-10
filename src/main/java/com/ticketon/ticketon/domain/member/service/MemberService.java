@@ -14,11 +14,9 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public long save(MemberSingupRequest dto) {
-        return memberRepository.save(Member.builder()
-                        .email(dto.getEmail())
-                        .password(bCryptPasswordEncoder.encode(dto.getPassword()))
-                .build()).getId();
+    public long save(MemberSingupRequest request) {
+        return memberRepository.save(request.toEntity(bCryptPasswordEncoder)).getId();
+
     }
 
 

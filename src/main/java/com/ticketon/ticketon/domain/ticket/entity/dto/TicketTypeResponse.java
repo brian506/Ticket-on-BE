@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class TicketTypeResponseDto {
+public class TicketTypeResponse {
 
     private Long id;
     private String name;
@@ -17,8 +17,8 @@ public class TicketTypeResponseDto {
     private Long price;
     private TicketTypeStatus ticketTypeStatus;
 
-    public static TicketTypeResponseDto from(TicketType ticketType) {
-        return TicketTypeResponseDto.builder()
+    public static TicketTypeResponse from(TicketType ticketType) {
+        return TicketTypeResponse.builder()
                 .id(ticketType.getId())
                 .name(ticketType.getName())
                 .description(ticketType.getDescription())

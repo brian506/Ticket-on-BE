@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class EventItemCreateRequestDto {
+public class EventItemCreateRequest {
     private String title;
     private LocalDate startDate;
     private LocalDate endDate;

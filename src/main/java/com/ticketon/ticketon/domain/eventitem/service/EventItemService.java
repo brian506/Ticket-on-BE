@@ -1,9 +1,10 @@
 package com.ticketon.ticketon.domain.eventitem.service;
 
 import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
-import com.ticketon.ticketon.domain.eventitem.entity.dto.EventItemCreateRequestDto;
-import com.ticketon.ticketon.domain.eventitem.entity.dto.EventItemResponseDto;
+import com.ticketon.ticketon.domain.eventitem.entity.dto.EventItemCreateRequest;
+import com.ticketon.ticketon.domain.eventitem.entity.dto.EventItemResponse;
 import com.ticketon.ticketon.domain.eventitem.repository.EventItemRepository;
+import com.ticketon.ticketon.exception.custom.NotFoundDataException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,27 +19,19 @@ public class EventItemService {
 
     private final EventItemRepository eventItemRepository;
 
-    public Long addEventItem(EventItemCreateRequestDto dto) {
-        return eventItemRepository.save(EventItem.builder()
-                .title(dto.getTitle())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
-                .build()
-        ).getId();
-    }
-
     //
-    public List<EventItemResponseDto> getEventItemList() {
+    public List<EventItemResponse> getEventItemList() {
         List<EventItem> eventItems = eventItemRepository.findAllByOrderByStartDateAsc();
         return eventItems.stream()
-                .map(EventItemResponseDto::from)
+                .map(EventItemResponse::from)
                 .toList();
     }
 
-    public EventItemResponseDto getEventItemById(Long id) {
-        Optional<EventItem> eventItem = eventItemRepository.findById(id);
 
-        // 예외처리 나중에
-        return EventItemResponseDto.from(eventItem.orElseThrow());
+
+    public EventItemResponse getEventItemById(Long id) {
+        EventItem eventItem = eventItemRepository.findById(id).orElseThrow(() -> new NotFoundDataException("해당 공연(이벤트)를 찾을 수 없습니다 (id=" + id + ""));
+
+        return EventItemResponse.from(eventItem);
     }
 }

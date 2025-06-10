@@ -4,8 +4,8 @@ import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
-import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequestDto;
-import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponseDto;
+import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
+import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.exception.custom.NotFoundDataException;
@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,34 +27,36 @@ public class TicketService {
     private final MemberRepository memberRepository;
 
 
-    public SuccessResponse purchaseTicket(TicketPurchaseRequestDto ticketPurchaseRequestDto, Long memberId) {
+    public void purchaseTicket(TicketPurchaseRequest request, Long memberId) {
 
         // 쿼리 날리지 않고 않고 프록시로 조회
-        TicketType ticketType = ticketTypeRepository.getReferenceById(ticketPurchaseRequestDto.getTicketTypeId());
+        TicketType ticketType = ticketTypeRepository.getReferenceById(request.getTicketTypeId());
         Member member = memberRepository.getReferenceById(memberId);
 
-        // 개수만큼 티켓 생성
-        for(Integer i = 1; i <= ticketPurchaseRequestDto.getQuantity(); i++) {
-            ticketRepository.save(Ticket.createNormalTicket(ticketType, member));
+        List<Ticket> tickets = new ArrayList<>();
+        for(int i = 1; i <= request.getQuantity(); i++) {
+            tickets.add(Ticket.createNormalTicket(ticketType, member));
             ticketType.increaseIssuedQuantity();
         }
 
-        return new SuccessResponse(true, "티켓 구매 성공", null);
+        ticketRepository.saveAll(tickets);
+
+        return;
     }
 
     // 멤버 티켓 목록
-    public List<TicketResponseDto> findMyTickets(Long memeberId) {
+    public List<TicketResponse> findMyTickets(Long memeberId) {
         // 사용자가 소유한 티켓 조회
         List<Ticket> tickets = ticketRepository.findByMemberId(memeberId);
 
         // dto로 변환 후 반환
         return tickets.stream()
-                .map(TicketResponseDto::from)
+                .map(TicketResponse::from)
                 .toList();
     }
 
     // 멤버 티켓 취소
-    public SuccessResponse cancelMyTicket(Long memeberId, Long ticketId) {
+    public void cancelMyTicket(Long memeberId, Long ticketId) {
         // 취소하려는 티켓 조회
         Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NotFoundDataException("취소하려는 티켓을 찾을 수 없습니다."));
 
@@ -65,6 +68,6 @@ public class TicketService {
         ticket.getTicketType().decreaseTicketQuantity();
         // dirty checking
 
-        return new SuccessResponse(true, "티켓 취소 성공", null);
+        return;
     }
 }
