@@ -1,6 +1,8 @@
 package com.ticketon.ticketon.exception;
 
 import com.ticketon.ticketon.exception.custom.NotFoundDataException;
+import com.ticketon.ticketon.exception.payment.PaymentConfirmException;
+import com.ticketon.ticketon.exception.payment.PaymentResponseErrorCode;
 import com.ticketon.ticketon.utils.SuccessResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +29,17 @@ public class ExceptionResolver {
         SuccessResponse response = new SuccessResponse(false, ex.getErrorMessage(), ex.getErrorCode().getCode());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(PaymentConfirmException.class)
+    @ResponseBody
+    public ResponseEntity<SuccessResponse> handlePaymentConfirmException(HttpServletRequest request, PaymentConfirmException exception) {
+        logger.error("PaymentConfirmException occurred: {}", exception.getMessage(), exception);
+
+        SuccessResponse response = new SuccessResponse(false,"결제 확인 중 오류가 발생했습니다", PaymentResponseErrorCode.UNKNOWN_PAYMENT_ERROR);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 

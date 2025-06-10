@@ -1,5 +1,5 @@
 <configuration>
-    <property name="LOG_PATH" value="/Users/sinminseok12/Desktop/Ticket-on/ticketon/logs"/>
+    <property name="LOG_PATH" value="logs/spring-app.log"/>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>${LOG_PATH}/spring-app.log</file>

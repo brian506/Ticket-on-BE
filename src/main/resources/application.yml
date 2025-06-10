@@ -33,7 +33,7 @@ management:
   metrics:
     export:
       otlp:
-        enabled: true
+        enabled: false
         endpoint: http://localhost:4317 # OTEL Collector의 gRPC 포트
     enable:
       all: true
@@ -54,3 +54,12 @@ otel:
     otlp:
       endpoint: http://localhost:4317
       protocol: grpc
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+  base-url: ${TOSS_BASE_URL}
+  confirm-endpoint: /confirm
+
+
+
+
