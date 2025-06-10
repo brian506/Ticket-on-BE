@@ -32,9 +32,16 @@ bootRun {
 			"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
 			"-Dotel.exporter.otlp.protocol=grpc",
 			"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
+			"-Dotel.instrumentation.runtime-metrics.enabled=true",
+			"-Dotel.instrumentation.system-metrics.enabled=true",
+			"-Dotel.instrumentation.micrometer.enabled=true", // 추가
 			"-Dotel.resource.attributes=service.name=ticketon-service",
+			"-Dotel.metrics.export.interval=1000",
 			"-Dotel.javaagent.debug=true",
-			"-Dotel.logs.exporter=none"
+			"-Dotel.logs.exporter=none",
+
+			// 여기서 덮어쓰기 허용 플래그 추가
+			"-Dspring.main.allow-bean-definition-overriding=true"
 	]
 }
 
@@ -42,10 +49,26 @@ bootRun.dependsOn("copyAgent")
 
 dependencies {
 	agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
+
+	implementation 'io.lettuce:lettuce-core'
+	implementation 'io.opentelemetry:opentelemetry-api:1.50.0'
+	implementation 'io.opentelemetry:opentelemetry-sdk:1.50.0'
+	implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.50.0'
+	implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.50.0'
+	implementation 'io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:1.30.0-alpha'
+	implementation 'io.micrometer:micrometer-registry-otlp'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	implementation 'io.lettuce:lettuce-core'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -87,7 +110,13 @@ jib {
 				"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
 				"-Dotel.resource.attributes=service.name=ticketon-service",
 				"-Dotel.javaagent.debug=true",
-				"-Dotel.logs.exporter=none"
+				"-Dotel.instrumentation.runtime-metrics.enabled=true",
+				"-Dotel.instrumentation.system-metrics.enabled=true",
+				"-Dotel.metrics.export.interval=1000",
+				"-Dotel.logs.exporter=none",
+
+				// Jib 컨테이너에도 덮어쓰기 허용 옵션 추가
+				"-Dspring.main.allow-bean-definition-overriding=true"
 		]
 	}
 }

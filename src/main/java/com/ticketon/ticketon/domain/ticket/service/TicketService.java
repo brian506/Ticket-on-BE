@@ -6,6 +6,8 @@ import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
+import com.ticketon.ticketon.domain.ticket.entity.Ticket;
+import com.ticketon.ticketon.domain.ticket.entity.TicketStatus;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.exception.custom.NotFoundDataException;
@@ -14,7 +16,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -63,11 +67,13 @@ public class TicketService {
         // 취소하려는 티켓이 해당 멤버 티켓이 아니라면
         if (!ticket.getId().equals(ticketId)) throw new RuntimeException("잘못된 접근입니다.");
 
+
         // 티켓 취소처리
         ticket.cancel();
         ticket.getTicketType().decreaseTicketQuantity();
         // dirty checking
 
         return;
+
     }
 }
