@@ -1,13 +1,16 @@
 package com.ticketon.ticketon.domain.ticket.entity;
 
+import com.ticketon.ticketon.domain.member.entity.Member;
+import com.ticketon.ticketon.exception.custom.TicketAlreadyCancelledException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
+
+@Table(name = "tickets")
 @Entity
 @Getter
 @Builder
@@ -20,7 +23,18 @@ public class Ticket {
     @Column(name = "ticket_id", nullable = false)
     private Long id;
 
-    // 공연 이름
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ticket_type_id", nullable = false)
+    private TicketType ticketType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    @Enumerated(EnumType.STRING)
+    private TicketStatus ticketStatus;
+
     @Column(name = "event_name", nullable = false)
     private String eventName;
 
@@ -41,10 +55,6 @@ public class Ticket {
     @Column(name = "status", nullable = false)
     private TicketStatus status;
 
-    // 구매자 정보 (User와의 연관관계 가정)
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
-//    private User purchaser;
 
     // 티켓 생성 시간
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -63,6 +73,23 @@ public class Ticket {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+  
+      public void cancel(){
+        validateCancelable();
+        this.ticketStatus = TicketStatus.CANCELLED;
+    }
 
+    private void validateCancelable() {
+        if (this.ticketStatus.equals(TicketStatus.CANCELLED)) {
+            throw new TicketAlreadyCancelledException();
+        }
+    }
 
+    public static Ticket createNormalTicket(TicketType ticketType, Member member) {
+        return Ticket.builder().
+                ticketType(ticketType).
+                member(member).
+                ticketStatus(TicketStatus.SOLD_OUT).
+                build();
+    }
 }
