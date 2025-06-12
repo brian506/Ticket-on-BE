@@ -22,8 +22,8 @@ public class PaymentController {
 
     @PostMapping("/confirm")
     public ResponseEntity<SuccessResponse> createPayment(@RequestBody PaymentRequest paymentRequest) {
-            PaymentResponse paymentResponse = paymentService.requestSuccessPayment(paymentRequest);
-            SuccessResponse response = new SuccessResponse(true,"결제 승인 요청 성공", paymentResponse);
+            Payment payment = paymentService.confirmPayment(paymentRequest);
+            SuccessResponse response = new SuccessResponse(true,"결제 승인 요청 성공", payment);
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
