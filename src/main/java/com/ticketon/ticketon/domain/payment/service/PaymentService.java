@@ -1,8 +1,8 @@
 package com.ticketon.ticketon.domain.payment.service;
 
 import com.ticketon.ticketon.domain.payment.config.PaymentClient;
-import com.ticketon.ticketon.domain.payment.dto.PaymentRequest;
-import com.ticketon.ticketon.domain.payment.dto.PaymentResponse;
+import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmRequest;
+import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmResponse;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.entity.PaymentStatus;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
@@ -20,18 +20,18 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
 
     // 결제 승인 요청
-    public Payment confirmPayment(PaymentRequest paymentRequest) {
-        PaymentResponse paymentResponse = paymentClient.confirmPayment(paymentRequest);
+    public Payment confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
+        PaymentConfirmResponse paymentConfirmResponse = paymentClient.confirmPayment(paymentConfirmRequest);
 
         try {
             Payment payment = Payment.builder()
-                    .ticketId(paymentRequest.getTicketId())
-                    .userId(paymentRequest.getUserId())
+                    .ticketId(paymentConfirmRequest.getTicketId())
+                    .userId(paymentConfirmRequest.getUserId())
                     .paymentStatus(PaymentStatus.SUCCESS)
-                    .amount(paymentResponse.getAmount())
-                    .paymentKey(paymentResponse.getPaymentKey())
-                    .requestedAt(paymentResponse.getRequestedAt())
-                    .approvedAt(paymentResponse.getApprovedAt())
+                    .amount(paymentConfirmResponse.getAmount())
+                    .paymentKey(paymentConfirmResponse.getPaymentKey())
+                    .requestedAt(paymentConfirmResponse.getRequestedAt())
+                    .approvedAt(paymentConfirmResponse.getApprovedAt())
                     .build();
             return paymentRepository.save(payment);
         }

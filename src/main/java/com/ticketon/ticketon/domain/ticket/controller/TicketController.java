@@ -33,8 +33,6 @@ public class TicketController {
 
     private final TicketService ticketService;
 
-
-
     // 티켓 구매
     @PostMapping(Urls.TICKET_PURCHASE)
     public String purchaseTicket(TicketPurchaseRequest ticketPurchaseRequest, @CurrentUser CustomUserDetails customUserDetails) {

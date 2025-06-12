@@ -1,10 +1,9 @@
 package com.ticketon.ticketon.domain.payment.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ticketon.ticketon.domain.payment.dto.PaymentFailResponse;
-import com.ticketon.ticketon.domain.payment.dto.PaymentRequest;
-import com.ticketon.ticketon.domain.payment.dto.PaymentResponse;
+import com.ticketon.ticketon.domain.payment.dto.*;
 import com.ticketon.ticketon.domain.payment.entity.PaymentProperties;
+import com.ticketon.ticketon.exception.payment.PaymentCancelException;
 import com.ticketon.ticketon.exception.payment.PaymentConfirmException;
 import com.ticketon.ticketon.exception.payment.PaymentExceptionInterceptor;
 import com.ticketon.ticketon.exception.payment.PaymentResponseErrorCode;
@@ -56,16 +55,27 @@ public class PaymentClient {
         return "Basic " + new String(encodedBytes);
     }
 
-    public PaymentResponse confirmPayment(PaymentRequest paymentRequest){
+    public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest paymentConfirmRequest){
         return restClient.method(HttpMethod.POST)
                 .uri(paymentProperties.getBaseUrl())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(paymentRequest)
+                .body(paymentConfirmRequest)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError,(request, response) -> {
                     throw new PaymentConfirmException(String.valueOf(getPaymentConfirmErrorCode(response)));
                 })
-                .body(PaymentResponse.class);
+                .body(PaymentConfirmResponse.class);
+    }
+    public PaymentCancelResponse cancelResponse(PaymentCancelRequest paymentCancelRequest){
+        return restClient.method(HttpMethod.POST)
+                .uri(paymentProperties.getCancelUrl(paymentCancelRequest.getPaymentKey()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(paymentCancelRequest)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError,(request, response) -> {
+                    throw new PaymentCancelException(String.valueOf(getPaymentConfirmErrorCode(response)));
+                })
+                .body(PaymentCancelResponse.class);
     }
 
     // 토스에서 응답 받은 에러 코드를 서버에서 볼 수 있도록
@@ -73,6 +83,12 @@ public class PaymentClient {
         PaymentFailResponse confirmFailResponse = objectMapper.readValue(
                 response.getBody(),PaymentFailResponse.class);
         return PaymentResponseErrorCode.findByCode(confirmFailResponse.getCode());
+    }
+
+    private PaymentResponseErrorCode getPaymentCancelErrorCode(final ClientHttpResponse response) throws IOException {
+        PaymentFailResponse paymentFailResponse = objectMapper.readValue(
+                response.getBody(),PaymentFailResponse.class);
+        return PaymentResponseErrorCode.findByCode(paymentFailResponse.getCode());
     }
 
 }

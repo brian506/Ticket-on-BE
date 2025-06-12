@@ -28,7 +28,7 @@ public class Payment {
     private PaymentStatus paymentStatus;
 
     @Column(name = "amount", nullable = false)
-    private double amount;
+    private int amount;
 
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;

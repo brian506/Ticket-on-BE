@@ -1,22 +1,27 @@
 package com.ticketon.ticketon.domain.payment.dto;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@JsonIgnoreProperties(ignoreUnknown = true) // 외부 api 에서
+@JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@Builder
-public class PaymentResponse {
+@Setter
+public class PaymentCancelResponse {
+
+    @JsonProperty("orderId")
     private String ticketId;
-    private double amount;
-    private String paymentKey;
+
     private LocalDateTime requestedAt;
-    private LocalDateTime approvedAt;
+
+    private LocalDateTime cancelledAt;
+
 }

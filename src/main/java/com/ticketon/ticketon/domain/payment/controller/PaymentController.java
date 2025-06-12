@@ -1,7 +1,6 @@
 package com.ticketon.ticketon.domain.payment.controller;
 
-import com.ticketon.ticketon.domain.payment.dto.PaymentRequest;
-import com.ticketon.ticketon.domain.payment.dto.PaymentResponse;
+import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmRequest;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.service.PaymentService;
 import com.ticketon.ticketon.utils.SuccessResponse;
@@ -21,8 +20,8 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/confirm")
-    public ResponseEntity<SuccessResponse> createPayment(@RequestBody PaymentRequest paymentRequest) {
-            Payment payment = paymentService.confirmPayment(paymentRequest);
+    public ResponseEntity<SuccessResponse> createPayment(@RequestBody PaymentConfirmRequest paymentConfirmRequest) {
+            Payment payment = paymentService.confirmPayment(paymentConfirmRequest);
             SuccessResponse response = new SuccessResponse(true,"결제 승인 요청 성공", payment);
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
