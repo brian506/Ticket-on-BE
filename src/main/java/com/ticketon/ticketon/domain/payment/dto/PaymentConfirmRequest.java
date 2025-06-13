@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentConfirmRequest {
-    private Long userId;
+    private Long memberId;
     private String paymentKey;
-    private Long ticketId; // 요청 보낼 때만 String 타입
+    private String ticketId; // 요청 보낼 때만 String 타입
     private int amount;
 }

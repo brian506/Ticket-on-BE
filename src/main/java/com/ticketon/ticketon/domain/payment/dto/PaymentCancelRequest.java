@@ -12,7 +12,7 @@ public class PaymentCancelRequest {
 
     private String paymentKey;
 
-    private String cancelReason = "단순변심";
+    private String cancelReason;
 
     private int cancelAmount;
 

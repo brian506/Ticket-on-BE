@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true) // 외부 api 에서
 @NoArgsConstructor
@@ -17,6 +18,6 @@ public class PaymentConfirmResponse {
     private String ticketId;
     private int amount;
     private String paymentKey;
-    private LocalDateTime requestedAt;
-    private LocalDateTime approvedAt;
+    private OffsetDateTime requestedAt;
+    private OffsetDateTime approvedAt;
 }

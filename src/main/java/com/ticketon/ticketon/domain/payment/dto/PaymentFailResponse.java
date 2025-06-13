@@ -7,11 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PaymentFailResponse {
-
-    @JsonProperty("code")
     private String code;
-
-    @JsonProperty("message")
     private String message;
 
 }

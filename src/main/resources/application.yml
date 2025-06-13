@@ -26,8 +26,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        show_sql: false
-        format_sql: false
+        show_sql: true
+        format_sql: true
 
   redis:
     host: localhost
@@ -39,31 +39,31 @@ spring:
       root: INFO
       io.opentelemetry: DEBUG
 
-management:
-  metrics:
-    export:
-      otlp:
-        enabled: true
-        endpoint: http://localhost:4317 # OTEL Collector의 gRPC 포트
-    enable:
-      all: true
-      jvm: true
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-    prometheus:
-      enabled: true
+#management:
+#  metrics:
+#    export:
+#      otlp:
+#        enabled: false
+#        endpoint: http://localhost:4317 # OTEL Collector의 gRPC 포트
+#    enable:
+#      all: true
+#      jvm: true
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#    prometheus:
+#      enabled: true
 
-
-otel:
-  resource:
-    attributes:
-      service.name: ticketon-service
-  exporter:
-    otlp:
-      endpoint: http://localhost:4317
-      protocol: grpc
+#
+#otel:
+#  resource:
+#    attributes:
+#      service.name: ticketon-service
+#  exporter:
+#    otlp:
+#      endpoint: http://localhost:4317
+#      protocol: grpc
 
 toss:
   secret-key: ${TOSS_SECRET_KEY}

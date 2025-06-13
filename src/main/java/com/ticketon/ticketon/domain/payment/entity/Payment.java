@@ -1,5 +1,6 @@
 package com.ticketon.ticketon.domain.payment.entity;
 
+import com.ticketon.ticketon.domain.payment.dto.PaymentCancelResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,8 +21,8 @@ public class Payment {
     @Column(name = "ticket_id", nullable = false)
     private Long ticketId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
 
     @Setter
     @Enumerated(EnumType.STRING)
@@ -39,8 +40,11 @@ public class Payment {
     @Column(name = "approved_at",nullable = true)
     private LocalDateTime approvedAt;
 
-    @Column(name = "cancelled_at",nullable = true)
-    private LocalDateTime cancelledAt;
+    @Setter
+    @Column(name = "canceled_at",nullable = true)
+    private LocalDateTime canceledAt;
+
+
 
 
 }

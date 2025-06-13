@@ -58,9 +58,9 @@ public class TicketController {
         return "redirect:/my-tickets";
 
 
-    @GetMapping(Urls.TICKETS)
-    public String purchaseTicket() {
-        return "purchaseComplete";
+//    @GetMapping(Urls.TICKETS)
+//    public String purchaseTicket() {
+//        return "purchaseComplete";
+//    }
     }
-
 }
