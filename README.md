@@ -40,11 +40,13 @@ Ticketon은 대규모 트래픽 속에서도 안정적으로 티켓을 예매할
 1. 루트 디렉토리에 .env 파일에 아래 환경변수들 필수 사용  
 
 ```
-DB_URL=jdbc:mysql://mysql:3306/ticket_on?serverTimezone=Asia/Seoul
+DB_NAME=ticket_on
+DB_DOCKER_URL=jdbc:mysql://mysql:3306/ticket_on?serverTimezone=Asia/Seoul
+DB_LOCAL_URL=jdbc:mysql://localhost:3306/ticket_on?serverTimezone=Asia/Seoul
 DB_USER_NAME=root
-DB_PASSWORD=[본인 비밀번호 설정]
-OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+DB_PASSWORD=[DB비번]
 LOKI_URL=http://loki:3100/loki/api/v1/push
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
 ```
 
 3. start.sh 권한 부여  
