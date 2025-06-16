@@ -32,20 +32,15 @@ public class TicketService {
 
 
     public void purchaseTicket(TicketPurchaseRequest request, Long memberId) {
-
         // 쿼리 날리지 않고 않고 프록시로 조회
         TicketType ticketType = ticketTypeRepository.getReferenceById(request.getTicketTypeId());
         Member member = memberRepository.getReferenceById(memberId);
-
         List<Ticket> tickets = new ArrayList<>();
         for(int i = 1; i <= request.getQuantity(); i++) {
             tickets.add(Ticket.createNormalTicket(ticketType, member));
             ticketType.increaseIssuedQuantity();
         }
-
         ticketRepository.saveAll(tickets);
-
-        return;
     }
 
     // 멤버 티켓 목록
@@ -72,8 +67,5 @@ public class TicketService {
         ticket.cancel();
         ticket.getTicketType().decreaseTicketQuantity();
         // dirty checking
-
-        return;
-
     }
 }

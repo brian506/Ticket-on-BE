@@ -1,6 +1,6 @@
 package com.ticketon.ticketon.domain.member.controller;
 
-import com.ticketon.ticketon.domain.member.entity.dto.MemberSingupRequest;
+import com.ticketon.ticketon.domain.member.dto.MemberSingupRequest;
 import com.ticketon.ticketon.domain.member.service.MemberService;
 import com.ticketon.ticketon.global.constants.Urls;
 import lombok.RequiredArgsConstructor;

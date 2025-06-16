@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.domain.eventitem.entity.dto;
+package com.ticketon.ticketon.domain.eventitem.dto;
 
 import lombok.Getter;
 import lombok.Setter;

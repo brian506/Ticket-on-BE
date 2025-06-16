@@ -1,6 +1,6 @@
 package com.ticketon.ticketon.domain.eventitem.controller;
 
-import com.ticketon.ticketon.domain.eventitem.entity.dto.EventItemResponse;
+import com.ticketon.ticketon.domain.eventitem.dto.EventItemResponse;
 import com.ticketon.ticketon.domain.eventitem.service.EventItemService;
 import com.ticketon.ticketon.global.constants.Urls;
 import lombok.RequiredArgsConstructor;
