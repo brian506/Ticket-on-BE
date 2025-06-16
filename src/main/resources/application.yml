@@ -1,23 +1,8 @@
 spring:
+  profiles:
+    active: local
   config:
     import: "optional:file:.env[.properties]"
-  datasource:
-    initialization-mode: create
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL}
-    username: ${DB_USER_NAME}
-    password: ${DB_PASSWORD}
-
-    hikari:
-      maximum-pool-size: 100
-      minimum-idle: 10
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      connection-timeout: 30000
-      validation-timeout: 5000
-      initialization-fail-timeout: 1
-      read-only: false
-      leak-detection-threshold: 0
 
   jpa:
     hibernate:
