@@ -26,15 +26,5 @@ public class PaymentCancelResponse {
         return null;
     }
 
-    @Getter
-    public static class CancelDetail {
-        @JsonProperty("canceledAt")
-        private OffsetDateTime canceledAt;
 
-        @JsonProperty("cancelReason")
-        private String cancelReason;
-
-        @JsonProperty("cancelAmount")
-        private int cancelAmount;
-    }
 }

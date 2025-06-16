@@ -21,25 +21,14 @@ public class ExceptionResolver {
 
     private static final Logger logger = LogManager.getLogger(ExceptionResolver.class);
 
-    @ExceptionHandler({NotFoundDataException.class})
+    @ExceptionHandler({ExceptionBase.class})
     @ResponseBody
     public ResponseEntity<SuccessResponse> handleClientException(HttpServletRequest request, Exception exception) {
         ExceptionBase ex = (ExceptionBase) exception;
         logException(request, ex);
         SuccessResponse response = new SuccessResponse(false, ex.getErrorMessage(), ex.getErrorCode().getCode());
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(response);
-    }
-
-    @ExceptionHandler(PaymentConfirmException.class)
-    @ResponseBody
-    public ResponseEntity<SuccessResponse> handlePaymentConfirmException(HttpServletRequest request, PaymentConfirmException exception) {
-        logger.error("PaymentConfirmException occurred: {}", exception.getMessage(), exception);
-
-        SuccessResponse response = new SuccessResponse(false,"결제 확인 중 오류가 발생했습니다", PaymentResponseErrorCode.UNKNOWN_PAYMENT_ERROR);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(ex.getHttpStatus())
                 .body(response);
     }
 

@@ -27,16 +27,7 @@ public class PaymentService {
     // 결제 승인 요청
     public Payment confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
         PaymentConfirmResponse paymentConfirmResponse = paymentClient.confirmPayment(paymentConfirmRequest);
-
-            Payment payment = Payment.builder()
-                    .ticketId(Long.valueOf(paymentConfirmRequest.getTicketId()))
-                    .memberId(paymentConfirmRequest.getMemberId())
-                    .paymentStatus(PaymentStatus.SUCCESS)
-                    .amount(paymentConfirmRequest.getAmount())
-                    .paymentKey(paymentConfirmResponse.getPaymentKey())
-                    .requestedAt(paymentConfirmResponse.getRequestedAt().toLocalDateTime())
-                    .approvedAt(paymentConfirmResponse.getApprovedAt().toLocalDateTime())
-                    .build();
+            Payment payment = paymentConfirmRequest.toEntity(paymentConfirmRequest,paymentConfirmResponse);
             return paymentRepository.save(payment);
 
     }

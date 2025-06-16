@@ -17,7 +17,7 @@ public class PaymentExceptionInterceptor implements ClientHttpRequestInterceptor
         }catch (IOException e){
             throw new RuntimeException(e);
         }catch(Exception e){
-            throw new PaymentConfirmException(e);
+            throw new IOException(e);
         }
     }
 }
