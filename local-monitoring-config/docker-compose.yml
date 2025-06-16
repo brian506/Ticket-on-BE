@@ -45,7 +45,7 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yml
     volumes:
-      - ./loki/loki-config.yml:/etc/loki/local-config.yml
+      - ./monitoring-config/loki-config.yml:/etc/loki/local-config.yml
     networks:
       - monitoring
 
