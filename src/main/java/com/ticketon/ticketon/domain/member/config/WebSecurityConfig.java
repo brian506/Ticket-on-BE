@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -26,21 +27,25 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(Urls.LOGIN, Urls.SIGN_UP).permitAll()
+                        .requestMatchers(Urls.LOGIN, Urls.SIGN_UP,"/v1/payments/confirm","v1/payments/cancel")
+                                .permitAll()
 //                        .anyRequest().authenticated()
                         .anyRequest().permitAll()
                 )
-                .httpBasic(withDefaults())
-                .formLogin(form -> form
-//                        .loginPage("/login")
-                        .defaultSuccessUrl(Urls.EVENTS)
-                )
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+//                .httpBasic(withDefaults())
+//                .formLogin(form -> form
+////                        .loginPage("/login")
+//                        .defaultSuccessUrl(Urls.EVENTS)
+//                )
                 .logout(logout -> logout
                         .logoutSuccessUrl(Urls.EVENTS)
                         .invalidateHttpSession(true)
                 )
                 .userDetailsService(customUserDetailService)
                 .csrf(csrf -> csrf.disable()) // 개발 테스트를 위해 임시로 비활성화
+                .cors(cors ->{})
                 .build();
     }
 

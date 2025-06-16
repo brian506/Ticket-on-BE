@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>토스 테스트 결제</title>
+    <script src="https://js.tosspayments.com/v1"></script>
+</head>
+<body>
+<h1>토스 테스트 결제</h1>
+<button id="payment-button">결제하기</button>
+
+<script>
+    const clientKey = 'test_ck_pP2YxJ4K871KbDe5qoQWVRGZwXLO';
+    const tossPayments = TossPayments(clientKey);
+
+    const ticketId = "9790342341233558"; // ✅ 프론트에서 예약 ID로 관리하고 있는 값
+    const memberId = 3;
+    const amount = 1000;
+
+    document.getElementById('payment-button').addEventListener('click', function () {
+        tossPayments.requestPayment('카드', {
+            amount: amount,
+            orderId: ticketId, // ✅ ticketId를 orderId로 그대로 사용
+            orderName: '테스트 상품',
+            customerName: '최영민',
+            successUrl: `http://localhost:8080/success.html?orderId=${ticketId}&amount=${amount}&memberId=${memberId}`,
+            failUrl: 'http://localhost:8080/fail.html'
+        }).catch(function (error) {
+            alert(error.message);
+        });
+    });
+</script>
+</body>
+</html>

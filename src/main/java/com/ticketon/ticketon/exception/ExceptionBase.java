@@ -5,9 +5,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public abstract class ExceptionBase extends RuntimeException {
-    //HttpStatus
-    public abstract HttpStatus getHttpStatus();
-    //
+
     protected String errorMessage;
-    protected ErrorResponseCode errorCode;
+    protected ErrorCode errorCode;
+    public abstract HttpStatus getHttpStatus(); // 구현 클래스에 위임
 }
