@@ -10,7 +10,6 @@ Ticketon은 대규모 트래픽 속에서도 안정적으로 티켓을 예매할
 ``` 
 
 
-
 ### 커밋 컨벤션  
 
 - feat : 새로운 기능 구현  
@@ -29,37 +28,28 @@ Ticketon은 대규모 트래픽 속에서도 안정적으로 티켓을 예매할
 **Devops** : `Nginx`, `Docker`,
 
 
+
 ### 시스템 아키텍처 (초기)
 
 ![티켓팅 시스템 아키텍처](./flow.png)
 
 
-### 부하 테스트 모니터링   
 
-- Opentelemetry : 앱 내부 로그, 메트릭,트레이스 수집
-- Loki : 애플리케이션 시스템 로그 수집 및 검색  
-- Prometheus : CPU, 메모리, RPS, 오류율 등 수치 기반 성능 메트릭 수집  
-- Tempo : 트레이스 데이터 시각화  
-- Grafana : 통합 대시보드 시각화  
-- PMM(Percona Monitoring and Management) : MySQL 쿼리 성능, 슬로우 쿼리, 커넥션, 인덱스 분석  
+### 실행 방법
 
-### 부하 테스트 시나리오
+1. 루트 디렉토리에 .env 파일에 아래 환경변수들 필수 사용  
 
-| 테스트 시나리오 | 테스트 대상                    | 결과 확인 항목                                     |
-|---------|---------------------------|----------------------------------------------------|
-| 동시 접속자 부하 | 100,000명 이상 동시 티켓 조회 및 예약 | 서버 처리량, 응답 시간 측정                         |
-| 예약 집중 부하 | 짧은 시간 내 예약 요청 급증          | 서버 안정성, DB 연결 병목 파악                      |
-| 결제 처리 부하 | 결제 API 동시 호출              | 결제 처리 속도, 장애 발생 여부 확인                |
-| 예약 취소 부하 | 예약 취소 요청 집중               | 예약 상태 동기화, DB 트랜잭션 처리 검증             |
+```
+DB_URL=jdbc:mysql://mysql:3306/ticket_on?serverTimezone=Asia/Seoul
+DB_USER_NAME=root
+DB_PASSWORD=[본인 비밀번호 설정]
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+LOKI_URL=http://loki:3100/loki/api/v1/push
+```
 
-### Spring + Redis + Niginx 로 대기열 기능 만들기  
+3. start.sh 권한 부여  
+`chmod +x start.sh`
 
-1. Client 가 Nginx 로 요청을 보냅니다.
-2. Nginx + Lua 모듈이 Redis 에 접속해  "내 순서(대기열 위치)" 가 맞는지를 검사합니다.
-   1. 아직 순서가 아니면 Lua 에서 바로 "대기중 페이지" 반환 
-   2. 순서가 되었으면 Nginx 가 예약 서버로 proxy_pass
-
-
-Redis : 사용자별 queue ID 를 관리 LIST or ZSET 같은 자료구조로 대기열 순서 부여  
-Spring Boot : /enterQueue 같은 엔드포인트로 사용자를 Redus 에 등록, /book 같은 엔드 포인트로 실제 예약 수행  
+4. start.sh 실행 (최신 jar 빌드 -> Docker 이미지 생성 -> 생성된 Docker 이미지 및 모니터링 환경 이미지 일괄 생성)  
+`./start.sh`
 

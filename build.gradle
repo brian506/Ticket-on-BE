@@ -29,18 +29,15 @@ bootRun {
 	jvmArgs = [
 			"-javaagent:${buildDir}/agent/opentelemetry-javaagent.jar",
 			"-Dotel.metrics.exporter=otlp",
-			"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
-			"-Dotel.exporter.otlp.protocol=grpc",
-			"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
+			"-Dotel.exporter.otlp.endpoint=http://otel-collector:4318/v1/metrics",
+			"-Dotel.exporter.otlp.protocol=http/protobuf",
 			"-Dotel.instrumentation.runtime-metrics.enabled=true",
 			"-Dotel.instrumentation.system-metrics.enabled=true",
-			"-Dotel.instrumentation.micrometer.enabled=true", // 추가
-			"-Dotel.resource.attributes=service.name=ticketon-service",
+			"-Dotel.instrumentation.micrometer.enabled=true",
+			"-Dotel.resource.attributes=service.name=ticket-service",
 			"-Dotel.metrics.export.interval=1000",
-			"-Dotel.javaagent.debug=true",
+			"-Dotel.javaagent.debug=false",
 			"-Dotel.logs.exporter=none",
-
-			// 여기서 덮어쓰기 허용 플래그 추가
 			"-Dspring.main.allow-bean-definition-overriding=true"
 	]
 }
@@ -48,19 +45,21 @@ bootRun {
 bootRun.dependsOn("copyAgent")
 
 dependencies {
+	//Observability 관련 설정
 	agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
-
 	implementation 'io.lettuce:lettuce-core'
+	implementation 'io.micrometer:micrometer-core'
 	implementation 'io.opentelemetry:opentelemetry-api:1.50.0'
 	implementation 'io.opentelemetry:opentelemetry-sdk:1.50.0'
 	implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.50.0'
 	implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.50.0'
-	implementation 'io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter:1.30.0-alpha'
 	implementation 'io.micrometer:micrometer-registry-otlp'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
+	implementation 'com.github.vertical-blank:sql-formatter:2.0.3'
+//	implementation 'com.github.loki4j:loki-logback-appender:1.4.0'
 
-	implementation 'io.lettuce:lettuce-core'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
@@ -103,19 +102,17 @@ jib {
 	container {
 		mainClass = "com.huisam.orderapplication.OrderApplicationKt"
 		jvmFlags = [
-				"-javaagent:${buildDir}/agent/opentelemetry-javaagent.jar",
+				"-javaagent:/otelagent/opentelemetry-javaagent.jar",
 				"-Dotel.metrics.exporter=otlp",
-				"-Dotel.exporter.otlp.metrics.endpoint=http://localhost:4317",
-				"-Dotel.exporter.otlp.protocol=grpc",
-				"-Dotel.exporter.otlp.endpoint=http://localhost:4317",
-				"-Dotel.resource.attributes=service.name=ticketon-service",
-				"-Dotel.javaagent.debug=true",
+				"-Dotel.exporter.otlp.endpoint=http://otel-collector:4318/v1/metrics",
+				"-Dotel.exporter.otlp.protocol=http/protobuf",
 				"-Dotel.instrumentation.runtime-metrics.enabled=true",
 				"-Dotel.instrumentation.system-metrics.enabled=true",
+				"-Dotel.instrumentation.micrometer.enabled=true",
+				"-Dotel.resource.attributes=service.name=ticket-service",
 				"-Dotel.metrics.export.interval=1000",
+				"-Dotel.javaagent.debug=false",
 				"-Dotel.logs.exporter=none",
-
-				// Jib 컨테이너에도 덮어쓰기 허용 옵션 추가
 				"-Dspring.main.allow-bean-definition-overriding=true"
 		]
 	}

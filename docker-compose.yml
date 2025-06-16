@@ -1,0 +1,130 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-1
+    environment:
+      MYSQL_ROOT_PASSWORD: sin981023@
+      MYSQL_DATABASE: ticket_on
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: always
+
+  queue-server:
+    build: .
+    container_name: queue-server-1
+    env_file:
+      - .env
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mysql
+    restart: always
+
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($|/)"'
+
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: tempo
+    ports:
+      - "3200:3200"
+    volumes:
+      - ./monitoring-config/tempo-config.yml:/etc/tempo-config.yml
+    command: --config.file=/etc/tempo-config.yml
+    networks:
+      - monitoring
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.93.0
+    container_name: otel-collector
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    volumes:
+      - ./monitoring-config/otel-collector-config.yml:/etc/otel/otel-collector-config.yml
+    command: --config=/etc/otel/otel-collector-config.yml
+    networks:
+      - monitoring
+    depends_on:
+      - tempo
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring-config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=4d'
+      - '--log.level=warn'
+    networks:
+      - monitoring
+
+#  loki:
+#    image: grafana/loki:2.9.4
+#    container_name: loki
+#    ports:
+#      - "3100:3100"
+#    volumes:
+#      - ./monitoring-config/loki-config.yml:/etc/loki/loki-config.yml
+#    command: -config.file=/etc/loki/loki-config.yml
+#    networks:
+#      - monitoring
+
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  grafana-storage:
+  influxdb-storage:
+
