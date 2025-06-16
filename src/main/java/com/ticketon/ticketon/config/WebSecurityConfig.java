@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.domain.member.config;
+package com.ticketon.ticketon.config;
 
 import com.ticketon.ticketon.domain.member.service.CustomUserDetailService;
 import com.ticketon.ticketon.global.constants.Urls;

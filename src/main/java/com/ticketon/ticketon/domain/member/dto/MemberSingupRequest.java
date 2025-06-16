@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.domain.member.entity.dto;
+package com.ticketon.ticketon.domain.member.dto;
 
 import com.ticketon.ticketon.domain.member.entity.Member;
 import lombok.Getter;

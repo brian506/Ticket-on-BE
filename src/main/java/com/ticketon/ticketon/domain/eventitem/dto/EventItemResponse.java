@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.domain.eventitem.entity.dto;
+package com.ticketon.ticketon.domain.eventitem.dto;
 
 import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketTypeResponse;

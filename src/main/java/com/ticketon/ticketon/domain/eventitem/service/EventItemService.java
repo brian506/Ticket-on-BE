@@ -1,8 +1,7 @@
 package com.ticketon.ticketon.domain.eventitem.service;
 
 import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
-import com.ticketon.ticketon.domain.eventitem.entity.dto.EventItemCreateRequest;
-import com.ticketon.ticketon.domain.eventitem.entity.dto.EventItemResponse;
+import com.ticketon.ticketon.domain.eventitem.dto.EventItemResponse;
 import com.ticketon.ticketon.domain.eventitem.repository.EventItemRepository;
 import com.ticketon.ticketon.exception.custom.NotFoundDataException;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
