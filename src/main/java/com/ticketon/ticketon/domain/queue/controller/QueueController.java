@@ -1,7 +1,7 @@
-package com.ticketon.ticketon.domain.wating_queue.controller;
+package com.ticketon.ticketon.domain.queue.controller;
 
-import com.ticketon.ticketon.domain.wating_queue.dto.QueueEnterResponse;
-import com.ticketon.ticketon.domain.wating_queue.dto.QueueStatusResponse;
+import com.ticketon.ticketon.domain.queue.dto.QueueEnterResponse;
+import com.ticketon.ticketon.domain.queue.dto.QueueStatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;

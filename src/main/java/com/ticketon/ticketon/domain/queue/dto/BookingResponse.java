@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.domain.wating_queue.dto;
+package com.ticketon.ticketon.domain.queue.dto;
 
 import lombok.Getter;
 
