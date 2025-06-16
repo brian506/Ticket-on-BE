@@ -1,6 +1,8 @@
 package com.ticketon.ticketon.exception;
 
 import com.ticketon.ticketon.exception.custom.NotFoundDataException;
+import com.ticketon.ticketon.exception.payment.PaymentConfirmException;
+import com.ticketon.ticketon.exception.payment.PaymentResponseErrorCode;
 import com.ticketon.ticketon.utils.SuccessResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
@@ -19,14 +21,14 @@ public class ExceptionResolver {
 
     private static final Logger logger = LogManager.getLogger(ExceptionResolver.class);
 
-    @ExceptionHandler({NotFoundDataException.class})
+    @ExceptionHandler({ExceptionBase.class})
     @ResponseBody
     public ResponseEntity<SuccessResponse> handleClientException(HttpServletRequest request, Exception exception) {
         ExceptionBase ex = (ExceptionBase) exception;
         logException(request, ex);
         SuccessResponse response = new SuccessResponse(false, ex.getErrorMessage(), ex.getErrorCode().getCode());
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(ex.getHttpStatus())
                 .body(response);
     }
 

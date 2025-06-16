@@ -49,7 +49,6 @@ public class TicketController {
         return "/ticket/test/myTickets";
     }
 
-
     // 내 티켓 취소
     // @로그인 된 유저만 접근가능
     @PostMapping(Urls.TICKET_CANCEL)
@@ -57,6 +56,11 @@ public class TicketController {
         ticketService.cancelMyTicket(customUserDetails.getMember().getId(), ticketId);
         model.addAttribute("ticketId", ticketId);
         return "redirect:/my-tickets";
-    }
 
+
+//    @GetMapping(Urls.TICKETS)
+//    public String purchaseTicket() {
+//        return "purchaseComplete";
+//    }
+    }
 }
