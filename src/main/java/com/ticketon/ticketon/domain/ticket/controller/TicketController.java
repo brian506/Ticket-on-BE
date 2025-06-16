@@ -58,11 +58,6 @@ public class TicketController {
         ticketService.cancelMyTicket(customUserDetails.getMember().getId(), ticketId);
         model.addAttribute("ticketId", ticketId);
         return "redirect:/my-tickets";
-
-
-    @GetMapping(Urls.TICKETS)
-    public String purchaseTicket() {
-        return "purchaseComplete";
     }
 
 }
