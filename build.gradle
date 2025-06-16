@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.2.5'
+	id 'org.springframework.boot' version '3.5.0'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.google.cloud.tools.jib' version '3.3.1'
 }
@@ -46,7 +46,7 @@ bootRun {
 bootRun.dependsOn("copyAgent")
 
 dependencies {
-	implementation 'com.github.sinminseok:snail-catch:1.0.0'
+	implementation 'com.github.sinminseok:snail-catch:1.1.0'
 	//Observability 관련 설정
 	agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
 	implementation 'io.lettuce:lettuce-core'
@@ -58,7 +58,7 @@ dependencies {
 	implementation 'io.micrometer:micrometer-registry-otlp'
 	implementation 'io.micrometer:micrometer-registry-prometheus'
 	implementation 'com.github.vertical-blank:sql-formatter:2.0.3'
-	//implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	//	implementation 'com.github.loki4j:loki-logback-appender:1.4.0'
 
 

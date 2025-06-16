@@ -16,22 +16,10 @@ public class RedisConfig {
         return new LettuceConnectionFactory("localhost", 6379);
     }
 
-    @Bean(name = "cacheRedisConnectionFactory")
-    public LettuceConnectionFactory cacheRedisConnectionFactory() {
-        return new LettuceConnectionFactory("localhost", 6380);
-    }
 
     @Bean(name = "queueRedisTemplate")
     public RedisTemplate<String, Object> queueRedisTemplate(
             @Qualifier("queueRedisConnectionFactory") RedisConnectionFactory factory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(factory);
-        return template;
-    }
-
-    @Bean(name = "cacheRedisTemplate")
-    public RedisTemplate<String, Object> cacheRedisTemplate(
-            @Qualifier("cacheRedisConnectionFactory") RedisConnectionFactory factory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
         return template;
