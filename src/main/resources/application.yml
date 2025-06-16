@@ -51,6 +51,11 @@ otel:
       url: http://otel-collector:4317
       protocol: grpc
 
+snail-catch:
+  enabled: true
+  repository-pointcut: execution(* com.ticketon.ticketon.domain..repository..*(..))
+  api-key: 13a4d744b37046e2b62f90077c0936f8
+
 server:
   tomcat:
     threads:

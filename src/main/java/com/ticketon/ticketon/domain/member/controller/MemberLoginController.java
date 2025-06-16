@@ -16,7 +16,6 @@ public class MemberLoginController {
 
     private final MemberService memberService;
 
-
     // JSON 요청 처리
     // !! 테스트 메서드 !!
     @PostMapping(value = Urls.SIGN_UP, consumes = "application/json")

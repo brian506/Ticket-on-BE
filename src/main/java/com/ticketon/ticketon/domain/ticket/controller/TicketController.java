@@ -33,8 +33,6 @@ public class TicketController {
 
     private final TicketService ticketService;
 
-
-
     // 티켓 구매
     @PostMapping(Urls.TICKET_PURCHASE)
     public String purchaseTicket(TicketPurchaseRequest ticketPurchaseRequest, @CurrentUser CustomUserDetails customUserDetails) {
@@ -50,6 +48,7 @@ public class TicketController {
         model.addAttribute("tickets", tickets);
         return "/ticket/test/myTickets";
     }
+
 
     // 내 티켓 취소
     // @로그인 된 유저만 접근가능
