@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 
@@ -22,7 +23,6 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ticket_id", nullable = false)
     private Long id;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_type_id", nullable = false)
@@ -55,7 +55,6 @@ public class Ticket {
     @Column(name = "status", nullable = false)
     private TicketStatus status;
 
-
     // 티켓 생성 시간
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -73,8 +72,8 @@ public class Ticket {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-  
-      public void cancel(){
+
+    public void cancel() {
         validateCancelable();
         this.ticketStatus = TicketStatus.CANCELLED;
     }

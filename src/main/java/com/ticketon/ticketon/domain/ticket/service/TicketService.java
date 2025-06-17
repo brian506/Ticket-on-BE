@@ -11,6 +11,7 @@ import com.ticketon.ticketon.domain.ticket.entity.TicketStatus;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.exception.custom.NotFoundDataException;
+import com.ticketon.ticketon.utils.OptionalUtil;
 import com.ticketon.ticketon.utils.SuccessResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -44,28 +45,20 @@ public class TicketService {
     }
 
     // 멤버 티켓 목록
-    public List<TicketResponse> findMyTickets(Long memeberId) {
-        // 사용자가 소유한 티켓 조회
-        List<Ticket> tickets = ticketRepository.findByMemberId(memeberId);
-
-        // dto로 변환 후 반환
+    public List<TicketResponse> findMyTickets(Long memberId) {
+        List<Ticket> tickets = ticketRepository.findByMemberId(memberId);
         return tickets.stream()
                 .map(TicketResponse::from)
                 .toList();
     }
 
     // 멤버 티켓 취소
-    public void cancelMyTicket(Long memeberId, Long ticketId) {
-        // 취소하려는 티켓 조회
-        Ticket ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new NotFoundDataException("취소하려는 티켓을 찾을 수 없습니다."));
-
-        // 취소하려는 티켓이 해당 멤버 티켓이 아니라면
+    //todo cancel 인데 왜 티켓 수량을 감소시키는가 ?
+    public void cancelMyTicket(Long memberId, Long ticketId) {
+        Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(ticketId), "취소하려는 티켓을 찾을 수 없습니다.");
         if (!ticket.getId().equals(ticketId)) throw new RuntimeException("잘못된 접근입니다.");
-
-
-        // 티켓 취소처리
         ticket.cancel();
         ticket.getTicketType().decreaseTicketQuantity();
-        // dirty checking
     }
 }
+

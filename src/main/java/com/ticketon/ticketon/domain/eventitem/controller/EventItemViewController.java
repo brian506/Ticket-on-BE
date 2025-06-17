@@ -15,7 +15,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class EventItemController {
+public class EventItemViewController {
 
     private final EventItemService eventItemService;
 

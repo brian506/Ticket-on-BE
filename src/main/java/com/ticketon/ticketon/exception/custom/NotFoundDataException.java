@@ -5,8 +5,6 @@ import com.ticketon.ticketon.exception.ExceptionBase;
 import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 
-
-//데이터 조회 실패 Exception
 public class NotFoundDataException extends ExceptionBase {
 
     public NotFoundDataException(@Nullable String message) {

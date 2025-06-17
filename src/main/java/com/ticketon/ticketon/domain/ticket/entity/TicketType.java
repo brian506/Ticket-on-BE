@@ -65,14 +65,12 @@ public class TicketType {
         this.issuedQuantity--;
     }
 
-    // 남은 티켓보다 더 많은 티켓 발급 요청시 예외 처리
     private void validateCanIssueTicket() {
         if (this.issuedQuantity >= this.maxQuantity) {
             throw new ExceededTicketQuantityException(this);
         }
     }
 
-    // 발급된 티켓 개수가 0일때 취소 요청시 예외 처리
     private void validateCanCancelTicket() {
         if (this.issuedQuantity < 1) {
             throw new InvalidTicketCancellationException(this);
