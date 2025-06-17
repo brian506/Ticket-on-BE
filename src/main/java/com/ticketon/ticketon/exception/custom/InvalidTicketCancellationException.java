@@ -7,9 +7,12 @@ import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 
 public class InvalidTicketCancellationException extends ExceptionBase {
+
+    private static final String MESSAGE_TEMPLATE = "[%s(%d)] 발급된 티켓이 없습니다.";
+
     public InvalidTicketCancellationException(@Nullable TicketType ticketType) {
         this.errorCode = ErrorResponseCode.INVALID_TICKET_CANCELLATION;
-        this.errorMessage = "[" + ticketType.getName() + "(" + ticketType.getPrice() + ")" + "] 발급된 티켓이 없습니다.";
+        this.errorMessage = String.format(MESSAGE_TEMPLATE, ticketType.getName(), ticketType.getPrice());
     }
 
     @Override
