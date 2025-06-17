@@ -53,7 +53,6 @@ public class TicketService {
     }
 
     // 멤버 티켓 취소
-    //todo cancel 인데 왜 티켓 수량을 감소시키는가 ?
     public void cancelMyTicket(Long memberId, Long ticketId) {
         Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(ticketId), "취소하려는 티켓을 찾을 수 없습니다.");
         if (!ticket.getId().equals(ticketId)) throw new RuntimeException("잘못된 접근입니다.");

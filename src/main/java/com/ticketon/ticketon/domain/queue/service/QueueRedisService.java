@@ -12,7 +12,7 @@ public class QueueRedisService {
     @Qualifier("queueRedisTemplate")
     private final RedisTemplate<String, Object> queueRedisTemplate;
 
-    public void pushToQueue(final String userId) {
-        queueRedisTemplate.opsForList().rightPush("waiting_queue", userId);
+    public void pushToQueue(final long memberId) {
+        queueRedisTemplate.opsForList().rightPush("waiting_queue", memberId);
     }
 }
