@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 
 public class PaymentConfirmException extends ExceptionBase {
 
-    public PaymentConfirmException(String code) {
-        this.errorCode = PaymentResponseErrorCode.findByCode(code);
+    public PaymentConfirmException(String tossCode) {
+        this.errorCode = PaymentResponseErrorCode.findByCode(tossCode);
     }
     @Override
     public HttpStatus getHttpStatus() {

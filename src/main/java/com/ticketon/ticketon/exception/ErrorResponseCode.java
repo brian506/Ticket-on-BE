@@ -13,8 +13,5 @@ public enum ErrorResponseCode implements ErrorCode{
     DATA_NOT_FOUND(4041),
     TICKET_ALREADY_CANCELLED(4091);
 
-
     private final int code;
-
-
 }

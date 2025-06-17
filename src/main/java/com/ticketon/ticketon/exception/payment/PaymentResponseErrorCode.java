@@ -62,9 +62,9 @@ public enum PaymentResponseErrorCode implements ErrorCode {
     private final int code;
 
 
-    public static PaymentResponseErrorCode findByCode(String code) {
+    public static PaymentResponseErrorCode findByCode(String tossCode) {
         return Arrays.stream(values())
-                .filter(v -> v.name().equals(code))
+                .filter(v -> v.name().equals(tossCode))
                 .findAny()
                 .orElse(UNKNOWN_PAYMENT_ERROR);
     }
