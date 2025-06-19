@@ -1,6 +1,5 @@
 package com.ticketon.ticketon.config;
 
-import com.ticketon.ticketon.domain.payment.entity.PaymentProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;

@@ -25,7 +25,6 @@ public class PaymentService {
         PaymentConfirmResponse paymentConfirmResponse = paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
         Payment payment = paymentConfirmRequest.toEntity(paymentConfirmRequest, paymentConfirmResponse);
         return paymentRepository.save(payment);
-
     }
 
     // 결제 취소 요청

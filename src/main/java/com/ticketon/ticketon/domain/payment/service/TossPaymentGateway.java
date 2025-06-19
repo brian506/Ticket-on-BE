@@ -1,7 +1,7 @@
 package com.ticketon.ticketon.domain.payment.service;
 
 import com.ticketon.ticketon.domain.payment.dto.*;
-import com.ticketon.ticketon.domain.payment.entity.PaymentProperties;
+import com.ticketon.ticketon.config.PaymentProperties;
 import com.ticketon.ticketon.exception.custom.PaymentCancelException;
 import com.ticketon.ticketon.exception.custom.PaymentConfirmException;
 import lombok.RequiredArgsConstructor;

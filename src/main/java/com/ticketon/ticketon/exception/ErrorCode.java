@@ -14,8 +14,5 @@ public enum ErrorCode {
     PAYMENT_CONFIRM(5008),
     PAYMENT_CANCELLED(5009);
 
-
     private final int code;
-
-
 }
