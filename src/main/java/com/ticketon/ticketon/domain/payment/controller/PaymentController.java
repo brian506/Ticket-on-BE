@@ -24,12 +24,14 @@ public class PaymentController {
             SuccessResponse response = new SuccessResponse(true,"결제 승인 요청 성공", payment);
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     @PostMapping("/cancel")
     public ResponseEntity<SuccessResponse> cancelPayment(@RequestBody PaymentCancelRequest paymentCancelRequest) {
         paymentService.cancelPayment(paymentCancelRequest);
         SuccessResponse response = new SuccessResponse(true,"결제 취소 요청 성공", paymentCancelRequest);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
     @GetMapping("/{ticketId}")
     public ResponseEntity<SuccessResponse> getPaymentByTicketId(@PathVariable Long ticketId) {
         PaymentResponse paymentResponse = paymentService.findByTicketId(ticketId);

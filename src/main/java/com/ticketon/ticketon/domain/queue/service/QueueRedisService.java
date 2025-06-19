@@ -18,6 +18,9 @@ public class QueueRedisService {
     @Qualifier("queueRedisTemplate")
     private final RedisTemplate<String, Object> queueRedisTemplate;
 
+    /**
+     * 대기열 접속
+     */
     public void pushToQueue(final long memberId) {
         queueRedisTemplate.opsForList().rightPush(WAITING_QUEUE_PREFIX, memberId);
     }

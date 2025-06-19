@@ -15,18 +15,19 @@ public class PaymentProperties {
     /**
      * application.yml 에 있는 값을 자동으로 불러와서 객체에 바인딩함
      */
-
     private String secretKey;
+
     private String baseUrl;
+
     private String confirmEndPoint;
+
     private String cancelEndPoint;
 
     public String getConfirmUrl(){
         return baseUrl + confirmEndPoint;
     }
+
     public String getCancelUrl(String paymentKey){
         return String.format(baseUrl + cancelEndPoint,paymentKey);
     }
-
-
 }
