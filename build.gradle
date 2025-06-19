@@ -46,6 +46,7 @@ bootRun {
 bootRun.dependsOn("copyAgent")
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'com.github.sinminseok:snail-catch:1.1.0'
 	//Observability 관련 설정
 	agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'

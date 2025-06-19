@@ -14,19 +14,26 @@ import lombok.NoArgsConstructor;
 public class PaymentConfirmRequest {
     private Long memberId;
     private String paymentKey;
-    private String ticketId; // 요청 보낼 때만 String 타입
+    private String ticketId;
     private int amount;
 
-    public Payment toEntity(PaymentConfirmRequest request,PaymentConfirmResponse response){
-           return Payment.builder()
-                    .ticketId(Long.valueOf(request.getTicketId()))
-                    .memberId(request.getMemberId())
-                    .paymentStatus(PaymentStatus.SUCCESS)
-                    .amount(request.getAmount())
-                    .paymentKey(request.paymentKey)
-                    .requestedAt(response.getRequestedAt().toLocalDateTime())
-                    .approvedAt(response.getApprovedAt().toLocalDateTime())
-                    .build();
+    public TossConfirmRequest toTossConfirmRequest() {
+        return new TossConfirmRequest(
+                this.paymentKey,
+                this.getTicketId(),
+                this.amount);
+    }
+
+    public Payment toEntity(PaymentConfirmRequest request, PaymentConfirmResponse response) {
+        return Payment.builder()
+                .ticketId(Long.valueOf(request.getTicketId()))
+                .memberId(request.getMemberId())
+                .paymentStatus(PaymentStatus.SUCCESS)
+                .amount(request.getAmount())
+                .paymentKey(request.paymentKey)
+                .requestedAt(response.getRequestedAt().toLocalDateTime())
+                .approvedAt(response.getApprovedAt().toLocalDateTime())
+                .build();
 
     }
 }

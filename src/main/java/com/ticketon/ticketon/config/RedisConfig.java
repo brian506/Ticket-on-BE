@@ -11,11 +11,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @Configuration
 public class RedisConfig {
 
+    //대기열을 위한 중앙 대기 큐
     @Bean(name = "queueRedisConnectionFactory")
     public LettuceConnectionFactory queueRedisConnectionFactory() {
         return new LettuceConnectionFactory("localhost", 6379);
     }
-
 
     @Bean(name = "queueRedisTemplate")
     public RedisTemplate<String, Object> queueRedisTemplate(

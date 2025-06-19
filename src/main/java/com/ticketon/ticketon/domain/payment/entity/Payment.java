@@ -1,6 +1,5 @@
 package com.ticketon.ticketon.domain.payment.entity;
 
-import com.ticketon.ticketon.domain.payment.dto.PaymentCancelResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -44,7 +43,9 @@ public class Payment {
     @Column(name = "canceled_at",nullable = true)
     private LocalDateTime canceledAt;
 
-
-
+    public void cancelPayment(final LocalDateTime canceledAt){
+        this.paymentStatus = PaymentStatus.CANCELED;
+        this.canceledAt = canceledAt;
+    }
 
 }

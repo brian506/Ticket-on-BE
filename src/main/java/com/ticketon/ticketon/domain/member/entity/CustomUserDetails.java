@@ -16,7 +16,6 @@ public class CustomUserDetails implements UserDetails {
         return member;
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 //        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -58,4 +57,8 @@ public class CustomUserDetails implements UserDetails {
 //        return UserDetails.super.isEnabled();
     }
     // --- 여기까지 ---
+
+    public long getMemberId(){
+        return this.member.getId();
+    }
 }
