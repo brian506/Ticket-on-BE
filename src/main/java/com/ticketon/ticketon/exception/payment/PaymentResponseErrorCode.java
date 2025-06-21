@@ -68,6 +68,4 @@ public enum PaymentResponseErrorCode implements ErrorCode {
                 .findAny()
                 .orElse(UNKNOWN_PAYMENT_ERROR);
     }
-
-
 }

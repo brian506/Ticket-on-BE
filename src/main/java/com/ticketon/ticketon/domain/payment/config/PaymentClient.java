@@ -57,7 +57,7 @@ public class PaymentClient {
     }
 
     public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest paymentConfirmRequest){
-        TossConfirmRequest tossConfirmRequest = new TossConfirmRequest(
+        TossConfirmRequest tossConfirmRequest = new TossConfirmRequest( // 클래스 안에 빌더로 만들기(수정 필요)
                 paymentConfirmRequest.getPaymentKey(),
                 paymentConfirmRequest.getTicketId(),
                 paymentConfirmRequest.getAmount()
