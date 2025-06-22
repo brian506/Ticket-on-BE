@@ -1,0 +1,36 @@
+package com.ticketon.ticketon.domain.waiting_queue.controller;
+
+import com.ticketon.ticketon.domain.waiting_queue.producer.QueueProducer;
+import com.ticketon.ticketon.utils.SuccessResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/queue")
+public class QueueController {
+
+    private final QueueProducer producer;
+
+    public QueueController(QueueProducer producer) {
+        this.producer = producer;
+    }
+
+    //todo @CurrentUser 에서 받아오는 방식으로 변경 
+    @PostMapping("/enter")
+    public ResponseEntity<?> enter(@RequestParam String userId) {
+        producer.enqueue(userId);
+        SuccessResponse response = new SuccessResponse(true, "대기열 등록 완료", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 테스트를 위한 임시 REST API 대기열 순서 확인은 이후 WebSocket 으로 변경
+     */
+    @GetMapping("/position")
+    public ResponseEntity<?> getPosition(@RequestParam String userId) {
+        Long pos = producer.getMyQueuePosition(userId);
+        SuccessResponse response = new SuccessResponse(true, "내 앞에 몇명이 있는지?", pos);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+}
