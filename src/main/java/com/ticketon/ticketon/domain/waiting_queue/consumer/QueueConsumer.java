@@ -1,26 +1,25 @@
 package com.ticketon.ticketon.domain.waiting_queue.consumer;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class QueueConsumer {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final ZSetOperations<String, String> zSetOps;
 
-    public QueueConsumer(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public QueueConsumer(ZSetOperations<String, String> zSetOps) {
+        this.zSetOps = zSetOps;
     }
 
     @KafkaListener(topics = "ticket-queue", groupId = "ticket-group")
     public void process(String userId) {
-        //todo 예약 서버에 몇명의 사용자가 있고, 더 들어갈 수 있는지를 판단하는 로직이 있어야함
+        // TODO: 예약 서버에 여유 있는지 확인 후 처리
 
-        // 처리 완료 시 Redis에서 제거
-        redisTemplate.opsForList().remove("waiting-line", 1, userId);
+        // 처리 완료 시 ZSet에서 제거
+        zSetOps.remove("waiting-line", userId);
 
-        // 처리 상태 저장
-        redisTemplate.opsForValue().set("status:" + userId, "COMPLETED");
     }
 }

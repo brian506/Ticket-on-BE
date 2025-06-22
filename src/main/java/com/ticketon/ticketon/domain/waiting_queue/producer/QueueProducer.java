@@ -1,32 +1,44 @@
 package com.ticketon.ticketon.domain.waiting_queue.producer;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.Instant;
 
+/**
+ * TODO
+ * 여기서 고려해야 하는게, Redis TTL 이나 eviction 정책을
+ * 대기열 순서라는 데이터 속성을 고려해 설정해야 Redis 메모리가 안정적으로 운영될 수 있을듯
+ */
 @Service
 public class QueueProducer {
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final RedisTemplate<String, String> redisTemplate;
 
-    public QueueProducer(KafkaTemplate<String, String> kafkaTemplate, RedisTemplate<String, String> redisTemplate) {
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ZSetOperations<String, String> zSetOps;
+
+    public QueueProducer(KafkaTemplate<String, String> kafkaTemplate, ZSetOperations<String, String> zSetOps) {
         this.kafkaTemplate = kafkaTemplate;
-        this.redisTemplate = redisTemplate;
+        this.zSetOps = zSetOps;
     }
 
     public void enqueue(String userId) {
-        // Redis에 대기열 등록
-        redisTemplate.opsForList().rightPush("waiting-line", userId);
+        // ZSet에 사용자 등록 (점수는 timestamp) 사용 todo 밀리세컨드까지 동일하게 들어온 사용자에 대한 예외도 고려해야 할듯
+        double score = (double) Instant.now().toEpochMilli();
+        zSetOps.add("waiting-line", userId, score);
 
-        // Kafka로 전송
+        // 2) Kafka 전송
         kafkaTemplate.send("ticket-queue", userId);
     }
 
-    public Long getWaitingNumber(String userId) {
-        List<String> queue = redisTemplate.opsForList().range("waiting-line", 0, -1);
-        if (queue == null) return -1L;
-        return queue.indexOf(userId) + 1L;
+
+    public Long getNumberAhead(String userId) {
+        // 내 순위 조회
+        Long myRank = zSetOps.rank("waiting-line", userId);
+        if (myRank == null) {
+            return -1L;
+        }
+        return myRank;
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
@@ -79,5 +80,10 @@ public class MessagingConfig {
         template.setKeySerializer(new org.springframework.data.redis.serializer.StringRedisSerializer());
         template.setValueSerializer(new org.springframework.data.redis.serializer.StringRedisSerializer());
         return template;
+    }
+
+    @Bean
+    public ZSetOperations<String, String> zSetOperations(RedisTemplate<String, String> redisTemplate) {
+        return redisTemplate.opsForZSet();
     }
 }

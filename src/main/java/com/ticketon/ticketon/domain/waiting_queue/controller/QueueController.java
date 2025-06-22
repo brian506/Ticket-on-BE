@@ -28,8 +28,8 @@ public class QueueController {
      */
     @GetMapping("/position")
     public ResponseEntity<?> getPosition(@RequestParam String userId) {
-        Long pos = producer.getWaitingNumber(userId);
-        SuccessResponse response = new SuccessResponse(true, "현재 대기 순번", pos);
+        Long pos = producer.getNumberAhead(userId);
+        SuccessResponse response = new SuccessResponse(true, "내 앞에 몇명이 있는지?", pos);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
