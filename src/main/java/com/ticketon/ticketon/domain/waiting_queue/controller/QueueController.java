@@ -16,6 +16,7 @@ public class QueueController {
         this.producer = producer;
     }
 
+    //todo @CurrentUser 에서 받아오는 방식으로 변경 
     @PostMapping("/enter")
     public ResponseEntity<?> enter(@RequestParam String userId) {
         producer.enqueue(userId);
@@ -28,7 +29,7 @@ public class QueueController {
      */
     @GetMapping("/position")
     public ResponseEntity<?> getPosition(@RequestParam String userId) {
-        Long pos = producer.getNumberAhead(userId);
+        Long pos = producer.getMyQueuePosition(userId);
         SuccessResponse response = new SuccessResponse(true, "내 앞에 몇명이 있는지?", pos);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

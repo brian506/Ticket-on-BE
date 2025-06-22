@@ -20,6 +20,6 @@ public class QueueConsumer {
 
         // 처리 완료 시 ZSet에서 제거
         zSetOps.remove("waiting-line", userId);
-
     }
+
 }

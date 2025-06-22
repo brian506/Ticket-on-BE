@@ -16,8 +16,6 @@ spring:
       read-only: false
       leak-detection-threshold: 0
 
-
-
 kafka:
   bootstrap-servers: localhost:9092  # Kafka 서버 주소
   consumer:

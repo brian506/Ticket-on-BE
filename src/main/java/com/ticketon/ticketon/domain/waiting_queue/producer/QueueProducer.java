@@ -1,6 +1,5 @@
 package com.ticketon.ticketon.domain.waiting_queue.producer;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -23,9 +22,10 @@ public class QueueProducer {
         this.zSetOps = zSetOps;
     }
 
-    public void enqueue(String userId) {
+    public void enqueue(final String userId) {
         // ZSet에 사용자 등록 (점수는 timestamp) 사용 todo 밀리세컨드까지 동일하게 들어온 사용자에 대한 예외도 고려해야 할듯
         double score = (double) Instant.now().toEpochMilli();
+
         zSetOps.add("waiting-line", userId, score);
 
         // 2) Kafka 전송
@@ -33,7 +33,7 @@ public class QueueProducer {
     }
 
 
-    public Long getNumberAhead(String userId) {
+    public Long getMyQueuePosition(final String userId) {
         // 내 순위 조회
         Long myRank = zSetOps.rank("waiting-line", userId);
         if (myRank == null) {
