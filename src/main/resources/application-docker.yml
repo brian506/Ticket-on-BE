@@ -18,16 +18,42 @@ spring:
 
 
 kafka:
-  bootstrap-servers: kafka:9092
-  consumer:
-    group-id: test-group
-    auto-offset-reset: earliest
-    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  producer:
-    key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  admin:
+    properties:
+      bootstrap.servers: kafka:9092
+  topic-config:
+    payment:
+      name: payment-topic # 토픽이름
+    ticket:
+      name: ticket-topic
+    waiting:
+      name : waiting-topic
 
+  producer:
+    bootstrap-servers: kafka:9092
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    retry: 2
+
+  consumer:
+    payment-group:
+      bootstrap-servers: kafka:9092
+      group-id: payment-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+    waiting-group:
+      bootstrap-servers: kafka:9092
+      group-id: waiting-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+
+  listener:
+    missing-topics-fatal: false
+    ack-mode: manual
 
 redis:
   queue:
