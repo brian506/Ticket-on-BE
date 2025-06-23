@@ -23,11 +23,17 @@ kafka:
       bootstrap.servers: kafka:9092
   topic-config:
     payment:
-      name: payment-topic # 토픽이름
+      name: payment-topic
+      partitions: 3
+      replicas: 1
     ticket:
       name: ticket-topic
+      partitions: 3
+      replicas: 1
     waiting:
       name : waiting-topic
+      partitions: 3
+      replicas: 1
 
   producer:
     bootstrap-servers: kafka:9092
