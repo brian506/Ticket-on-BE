@@ -56,7 +56,6 @@ kafka:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 
-
   listener:
     missing-topics-fatal: false
     ack-mode: manual
