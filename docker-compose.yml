@@ -36,7 +36,7 @@ services:
 
 
   queue-server:
-    build: minseok1768/ticket-app:latest
+    image: minseok1768/ticket-app:latest
     container_name: queue-server-1
     environment:
       SPRING_PROFILES_ACTIVE: docker
