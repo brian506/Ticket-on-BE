@@ -54,3 +54,29 @@ redis:
   cache:
     host: localhost
     port: 6380
+
+
+management:
+  metrics:
+    export:
+      otlp:
+        enabled: true
+        endpoint: http://localhost:4318
+    enable:
+      all: true
+      jvm: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    prometheus:
+      enabled: true
+
+otel:
+  resource:
+    attributes:
+      service.name: ticket-service
+  exporter:
+    otlp:
+      url: http://localhost:4317
+      protocol: grpc

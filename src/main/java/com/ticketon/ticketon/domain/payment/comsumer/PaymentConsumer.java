@@ -38,7 +38,7 @@ public class PaymentConsumer {
             paymentService.confirmPayment(paymentRequest);
             // 예약 저장
             //ticketService.purchaseTicket();
-            // 오프셋 ack 여부 판단
+            // 오프셋 a    ck 여부 판단
             ack.acknowledge();
 
         } catch (Exception e) {

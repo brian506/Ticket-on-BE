@@ -145,17 +145,6 @@ services:
     networks:
       - monitoring
 
-#  loki:
-#    image: grafana/loki:2.9.4
-#    container_name: loki
-#    ports:
-#      - "3100:3100"
-#    volumes:
-#      - ./monitoring-config/loki-config.yml:/etc/loki/loki-config.yml
-#    command: -config.file=/etc/loki/loki-config.yml
-#    networks:
-#      - monitoring
-
 
 networks:
   monitoring:
