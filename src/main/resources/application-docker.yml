@@ -4,7 +4,6 @@ spring:
     url: ${DB_DOCKER_URL}
     username: ${DB_USER_NAME}
     password: ${DB_PASSWORD}
-
     hikari:
       maximum-pool-size: 100
       minimum-idle: 10
@@ -15,3 +14,82 @@ spring:
       initialization-fail-timeout: 1
       read-only: false
       leak-detection-threshold: 0
+
+
+kafka:
+  admin:
+    properties:
+      bootstrap.servers: kafka:9092
+  topic-config:
+    payment:
+      name: payment-topic
+      partitions: 3
+      replicas: 1
+    ticket:
+      name: ticket-topic
+      partitions: 3
+      replicas: 1
+    waiting:
+      name : waiting-topic
+      partitions: 3
+      replicas: 1
+
+  producer:
+    bootstrap-servers: kafka:9092
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    retry: 2
+
+  consumer:
+    payment-group:
+      bootstrap-servers: kafka:9092
+      group-id: payment-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+    waiting-group:
+      bootstrap-servers: kafka:9092
+      group-id: waiting-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+  listener:
+    missing-topics-fatal: false
+    ack-mode: manual
+
+redis:
+  queue:
+    host: redis
+    port: 6379
+
+  cache:
+    host: redis
+    port: 6380
+
+
+management:
+  metrics:
+    export:
+      otlp:
+        enabled: true
+        endpoint: http://otel-collector:4318
+    enable:
+      all: true
+      jvm: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    prometheus:
+      enabled: true
+
+otel:
+  resource:
+    attributes:
+      service.name: ticket-service
+  exporter:
+    otlp:
+      url: http://otel-collector:4317
+      protocol: grpc

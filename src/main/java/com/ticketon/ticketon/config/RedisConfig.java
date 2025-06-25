@@ -1,27 +1,39 @@
 package com.ticketon.ticketon.config;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
+
 
 @Configuration
 public class RedisConfig {
 
-    //대기열을 위한 중앙 대기 큐
-    @Bean(name = "queueRedisConnectionFactory")
-    public LettuceConnectionFactory queueRedisConnectionFactory() {
-        return new LettuceConnectionFactory("localhost", 6379);
+    @Value("${redis.queue.host}")
+    private String redisHost;
+
+    @Value("${redis.queue.port}")
+    private int redisPort;
+
+    @Bean
+    public LettuceConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory(redisHost, redisPort);
     }
 
-    @Bean(name = "queueRedisTemplate")
-    public RedisTemplate<String, Object> queueRedisTemplate(
-            @Qualifier("queueRedisConnectionFactory") RedisConnectionFactory factory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(factory);
+    @Bean
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+        template.setKeySerializer(new org.springframework.data.redis.serializer.StringRedisSerializer());
+        template.setValueSerializer(new org.springframework.data.redis.serializer.StringRedisSerializer());
         return template;
+    }
+
+    @Bean
+    public ZSetOperations<String, String> zSetOperations(RedisTemplate<String, String> redisTemplate) {
+        return redisTemplate.opsForZSet();
     }
 }

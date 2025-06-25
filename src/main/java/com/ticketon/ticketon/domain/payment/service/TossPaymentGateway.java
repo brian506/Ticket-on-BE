@@ -18,9 +18,9 @@ import org.springframework.web.client.RestClient;
 public class TossPaymentGateway implements PaymentGateway {
 
     private final PaymentProperties paymentProperties;
+
     private final RestClient restClient;
 
-    //todo 예외 던져줄때 토스에서 전달받은 에러 메시지가 반드시 필요할 경우 예외 메시지만 추출하는 로직 추가
     @Override
     public PaymentConfirmResponse requestPaymentConfirm(PaymentConfirmRequest request) {
         TossConfirmRequest tossRequest = request.toTossConfirmRequest();

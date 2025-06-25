@@ -6,20 +6,16 @@ import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
-import com.ticketon.ticketon.domain.ticket.entity.Ticket;
-import com.ticketon.ticketon.domain.ticket.entity.TicketStatus;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
-import com.ticketon.ticketon.exception.custom.NotFoundDataException;
+import com.ticketon.ticketon.domain.payment.producer.PaymentProducer;
 import com.ticketon.ticketon.utils.OptionalUtil;
-import com.ticketon.ticketon.utils.SuccessResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
 import java.util.ArrayList;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,6 +26,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final MemberRepository memberRepository;
+    private final PaymentProducer producerService;
 
 
     public void purchaseTicket(TicketPurchaseRequest request, Long memberId) {
@@ -40,6 +37,7 @@ public class TicketService {
         for(int i = 1; i <= request.getQuantity(); i++) {
             tickets.add(Ticket.createNormalTicket(ticketType, member));
             ticketType.increaseIssuedQuantity();
+            producerService.sendPaymentRequest(request);
         }
         ticketRepository.saveAll(tickets);
     }

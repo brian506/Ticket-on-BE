@@ -21,24 +21,17 @@ public class WebSecurityConfig {
     private final CustomUserDetailService customUserDetailService;
 
 
-
     // !! 추후 엔드포인트 상수로 정리 !!
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(Urls.LOGIN, Urls.SIGN_UP,"/v1/payments/confirm","v1/payments/cancel")
+                        .requestMatchers(Urls.LOGIN, Urls.SIGN_UP,"/v1/payments/confirm","v1/payments/cancel", "/queue/**")
                                 .permitAll()
-//                        .anyRequest().authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-//                .httpBasic(withDefaults())
-//                .formLogin(form -> form
-////                        .loginPage("/login")
-//                        .defaultSuccessUrl(Urls.EVENTS)
-//                )
                 .logout(logout -> logout
                         .logoutSuccessUrl(Urls.EVENTS)
                         .invalidateHttpSession(true)
