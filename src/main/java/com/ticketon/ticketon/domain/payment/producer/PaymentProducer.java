@@ -1,6 +1,7 @@
 package com.ticketon.ticketon.domain.payment.producer;
 
 import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmResponse;
+import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +20,6 @@ public class PaymentProducer {
 
     public void sendPayment(final PaymentConfirmResponse response){
         PaymentMessage message = response.fromResponse(response);
-        kafkaTemplate.send(paymentTopic, String.valueOf(message.getTicketId()),message);
+        kafkaTemplate.send(topic, String.valueOf(message.getTicketId()),message);
         // ticketId 를 기준으로 같은 파티션으로 전달(중복 방지)
     }
