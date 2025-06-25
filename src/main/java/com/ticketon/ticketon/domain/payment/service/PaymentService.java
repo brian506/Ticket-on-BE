@@ -3,6 +3,7 @@ package com.ticketon.ticketon.domain.payment.service;
 import com.ticketon.ticketon.domain.payment.dto.*;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.entity.PaymentStatus;
+import com.ticketon.ticketon.domain.payment.producer.PaymentProducer;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,12 @@ public class PaymentService {
 
     private final PaymentGateway paymentGateway;
     private final PaymentRepository paymentRepository;
+    private final PaymentProducer paymentProducer;
 
     // 결제 승인 요청
-    public Payment confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
+    public void confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
         PaymentConfirmResponse paymentConfirmResponse = paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
-        Payment payment = paymentConfirmRequest.toEntity(paymentConfirmRequest, paymentConfirmResponse);
-        return paymentRepository.save(payment);
+        paymentProducer.sendPayment(paymentConfirmResponse);
     }
 
     // 결제 취소 요청

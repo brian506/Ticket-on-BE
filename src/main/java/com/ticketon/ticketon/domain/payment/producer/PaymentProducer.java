@@ -18,8 +18,9 @@ public class PaymentProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public void sendPayment(final PaymentConfirmResponse response){
+    public void sendPayment(final PaymentConfirmResponse response) {
         PaymentMessage message = response.fromResponse(response);
-        kafkaTemplate.send(topic, String.valueOf(message.getTicketId()),message);
+        kafkaTemplate.send(topic, String.valueOf(message.getTicketId()), message);
         // ticketId 를 기준으로 같은 파티션으로 전달(중복 방지)
     }
+}
