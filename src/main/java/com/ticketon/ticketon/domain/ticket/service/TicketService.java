@@ -37,7 +37,6 @@ public class TicketService {
         for(int i = 1; i <= request.getQuantity(); i++) {
             tickets.add(Ticket.createNormalTicket(ticketType, member));
             ticketType.increaseIssuedQuantity();
-            producerService.sendPaymentRequest(request);
         }
         ticketRepository.saveAll(tickets);
     }

@@ -1,5 +1,6 @@
 package com.ticketon.ticketon.domain.payment.config;
 
+import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,8 +37,8 @@ public class PaymentConsumerConfig {
     }
 
     @Bean("paymentConsumerFactory")
-    public ConsumerFactory<String, Object> consumerFactory() {
-        JsonDeserializer<Object> deserializer = new JsonDeserializer<>(Object.class);
+    public ConsumerFactory<String, PaymentMessage> consumerFactory() {
+        JsonDeserializer<PaymentMessage> deserializer = new JsonDeserializer<>(PaymentMessage.class);
         deserializer.addTrustedPackages("*");
         deserializer.setUseTypeMapperForKey(false);
         Map<String, Object> props = consumerConfigs();
@@ -45,8 +46,8 @@ public class PaymentConsumerConfig {
     }
 
     @Bean("paymentKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConcurrency(3); // 3개의 컨슈머 스레드로 병렬처리
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);

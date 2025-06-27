@@ -29,19 +29,34 @@ kafka:
       name: ticket-topic
       partitions: 3
       replicas: 1 # 복제본 : 장애 대비용
+    waiting:
+      name: waiting-topic
+      partitions: 3
+      replicas: 1
 
-  producer: # 예약 정보
+
+  producer:
     bootstrap-servers: localhost:9092
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer # 예약 정보를 담은 JSON 형으로 직렬화
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     retry: 2
-  consumer: # 결제 서버
-    bootstrap-servers: localhost:9092
-    group-id: ticket-on-service
-    auto-offset-reset: latest # offset 이 없을때 가장 최근에 메시지 읽기
-    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  listener:
+
+  consumer:
+    payment-group:
+      bootstrap-servers: localhost:9092
+      group-id: payment-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+    waiting-group:
+      bootstrap-servers: localhost:9092
+      group-id: waiting-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+    listener:
     missing-topics-fatal: false # topic 이 없을 때 중단 방지
     ack-mode: manual # 오프셋 커밋 커스텀(결제 성공 시에만 오프셋 커밋)
 
