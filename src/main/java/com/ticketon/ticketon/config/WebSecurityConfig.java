@@ -30,8 +30,13 @@ public class WebSecurityConfig {
                                 .permitAll()
                         .anyRequest().permitAll()
                 )
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
+//                .formLogin(AbstractHttpConfigurer::disable)
+//                .httpBasic(AbstractHttpConfigurer::disable)
+                .httpBasic(withDefaults())
+                .formLogin(form -> form
+//                        .loginPage("/login")
+                                .defaultSuccessUrl(Urls.EVENTS)
+                )
                 .logout(logout -> logout
                         .logoutSuccessUrl(Urls.EVENTS)
                         .invalidateHttpSession(true)
