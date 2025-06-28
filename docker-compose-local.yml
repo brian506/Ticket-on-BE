@@ -34,6 +34,7 @@ services:
     networks:
       - monitoring
 
+
   queue-server:
     build: .
     container_name: queue-server-1
