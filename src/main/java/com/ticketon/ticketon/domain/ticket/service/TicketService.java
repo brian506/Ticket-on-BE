@@ -28,6 +28,9 @@ public class TicketService {
     private final MemberRepository memberRepository;
     private final PaymentProducer producerService;
 
+    public void findTicketsByEventId(final Long eventId){
+
+    }
 
     public void purchaseTicket(TicketPurchaseRequest request, Long memberId) {
         // 쿼리 날리지 않고 않고 프록시로 조회
@@ -37,7 +40,6 @@ public class TicketService {
         for(int i = 1; i <= request.getQuantity(); i++) {
             tickets.add(Ticket.createNormalTicket(ticketType, member));
             ticketType.increaseIssuedQuantity();
-            producerService.sendPaymentRequest(request);
         }
         ticketRepository.saveAll(tickets);
     }
