@@ -50,6 +50,7 @@ public class TicketType {
     private Long price;
 
     // 티켓 상태
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private TicketTypeStatus status;
 

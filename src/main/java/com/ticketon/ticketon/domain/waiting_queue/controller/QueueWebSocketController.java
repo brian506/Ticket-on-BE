@@ -22,12 +22,10 @@ public class QueueWebSocketController {
 
     // 클라이언트가 보낸 userId로 순번 조회
     @MessageMapping("/queue-status")
-    @SendTo("/topic/position")
-    public Long getQueueStatus(String userId) {
-        return queueProducer.getMyQueuePosition(userId);
     @SendTo("/queue/position")
     public void getQueueStatus(String email, SimpMessageHeaderAccessor accessor) {
         Long position = queueProducer.getMyQueuePosition(email);
         messagingTemplate.convertAndSendToUser(email, "/queue/position", position);
     }
+
 }
