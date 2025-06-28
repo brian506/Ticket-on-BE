@@ -23,13 +23,13 @@ public class EventItemViewController {
     public String eventItemList(Model model) {
         List<EventItemResponse> eventItems = eventItemService.getEventItemList();
         model.addAttribute("eventItems", eventItems);
-        return "/eventitem/test/eventItemList";
+        return "eventitem/test/eventItemList";
     }
 
     @GetMapping(Urls.EVENT_DETAIL)
     public String eventItemDetail(@PathVariable Long id, Model model) {
         EventItemResponse eventItem = eventItemService.getEventItemById(id);
         model.addAttribute("eventItem", eventItem);
-        return "/eventitem/test/eventItem";
+        return "eventitem/test/eventItem";
     }
 }

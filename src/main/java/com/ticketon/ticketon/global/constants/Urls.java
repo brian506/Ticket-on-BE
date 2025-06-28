@@ -13,4 +13,7 @@ public class Urls {
     public static final String TICKET_CANCEL = "/tickets/cancel";
     public static final String MY_TICKETS = "/my-tickets";
     public static final String PURCHASE_SUCCESS = "/purchase/success";
+
+    public static final String QUEUE_ENTER = "/enter";
+    public static final String WAITING = "/waiting";
 }

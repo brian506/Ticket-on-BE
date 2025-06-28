@@ -1,6 +1,8 @@
 package com.ticketon.ticketon.domain.waiting_queue.controller;
 
+import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
 import com.ticketon.ticketon.domain.waiting_queue.producer.QueueProducer;
+import com.ticketon.ticketon.global.annotation.CurrentUser;
 import com.ticketon.ticketon.utils.SuccessResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,9 @@ public class QueueController {
 
     //todo @CurrentUser 에서 받아오는 방식으로 변경 
     @PostMapping("/enter")
-    public ResponseEntity<?> enter(@RequestParam String userId) {
-        producer.enqueue(userId);
+    public ResponseEntity<?> enter(@CurrentUser CustomUserDetails userDetails) {
+        String email = userDetails.getUsername();
+        producer.enqueue(email);
         SuccessResponse response = new SuccessResponse(true, "대기열 등록 완료", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -28,8 +31,9 @@ public class QueueController {
      * 테스트를 위한 임시 REST API 대기열 순서 확인은 이후 WebSocket 으로 변경
      */
     @GetMapping("/position")
-    public ResponseEntity<?> getPosition(@RequestParam String userId) {
-        Long pos = producer.getMyQueuePosition(userId);
+    public ResponseEntity<?> getPosition(@CurrentUser CustomUserDetails userDetails) {
+        String email = userDetails.getUsername();
+        Long pos = producer.getMyQueuePosition(email);
         SuccessResponse response = new SuccessResponse(true, "내 앞에 몇명이 있는지?", pos);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

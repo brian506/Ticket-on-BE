@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Waiting</title>
+</head>
+<body>
+<h2>현재 접속량이 많아 대기열에 배치되셨습니다</h2>
+<h2>현재 고객님의 순번은 <h1 id="queue-position">0번</h1>입니다</h2>
+<h3>주의! 새로고침시 입장 순번이 초기화 될 수 있음</h3>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const userId = /*[[${#authentication.name}]]*/ 'anonymous';
+    const ticketTypeId = /*[[${ticketTypeId}]]*/ '-1';
+    const quantity = /*[[${quantity}]]*/ '-1';
+    /*]]>*/
+    let stompClient = null;
+
+    function connectWebSocket() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            // 내 순위 실시간 업데이트
+            stompClient.subscribe('/user/queue/position', function (message) {
+                const position = parseInt(message.body, 10);
+                document.getElementById('queue-position').innerText = `${position}`;
+            });
+
+            // 2 입장 허용 알림
+            stompClient.subscribe('/user/topic/allowed', function (message) {
+                const allowedUserId = message.body;
+                if (allowedUserId === userId) {
+                    window.location.href = '/ticket-reservation?ticketId=' + ticketTypeId + '&quantity=' + quantity;
+               }
+           });
+
+           // 3 입장 API 요청
+           // Todo csrf 처리
+           setTimeout(() => {
+                fetch('/queue/enter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }).then(res => {
+                    if (!res.ok) throw new Error("대기열 등록 실패");
+                    console.log("대기열 등록 완료");
+                }).catch(err => console.error(err));
+            }, 300);
+
+
+           // 4 주기적으로 순위 요청
+           setInterval(() => {
+               stompClient.send("/app/queue-status", {}, userId);
+           }, 1000);
+       });
+   }
+
+   window.onload = connectWebSocket;
+</script>
+</html>
