@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/queue")
+@RequestMapping("/v1/api/queues")
 public class QueueController {
 
     private final QueueProducer producer;
@@ -18,7 +18,6 @@ public class QueueController {
         this.producer = producer;
     }
 
-    //todo @CurrentUser 에서 받아오는 방식으로 변경 
     @PostMapping("/enter")
     public ResponseEntity<?> enter(@CurrentUser CustomUserDetails userDetails) {
         String email = userDetails.getUsername();

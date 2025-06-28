@@ -27,5 +27,4 @@ public class QueueWebSocketController {
         Long position = queueProducer.getMyQueuePosition(email);
         messagingTemplate.convertAndSendToUser(email, "/queue/position", position);
     }
-
 }
