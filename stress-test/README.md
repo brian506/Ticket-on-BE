@@ -21,6 +21,7 @@ Grafana : 통합 대시 보드 구성
 ### 테스트할 시나리오 
 
 1. 대기열 접속시 TPS 를 어느정도까지 처리할 수 있는가?
+   1. 하나의 대기열 서버에서 어느정도의 TPS 를 견딜 수 있는가?
 2. 예약~결제까지의 트랜잭션을 어느정도의 부하까지 견딜 수 있는가?
 3. 하나의 대기열 서버에서 어느정도의 요청까지 견딜 수 있는가?
 4. 하나의 예약 서버에서 몇명 정도의 사용자를 관리할 수 있는가 ?
@@ -38,3 +39,7 @@ Grafana : 통합 대시 보드 구성
 k6 : TPS, RPS, 평균/최대 응답 시간  
 JVM : CPU, HEAP 사용률, Thread 개수, GC  
 DB : 커넥션 수, 슬로우 쿼리 측정 후 튜닝  
+
+1. npm install axios
+2. node init.js
+3. k6 run --out influxdb=http://localhost:8086/k6 queue-enter-test.js

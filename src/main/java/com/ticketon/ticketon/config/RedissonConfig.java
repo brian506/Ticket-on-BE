@@ -21,7 +21,6 @@ public class RedissonConfig {
         Config config = new Config();
         config.useSingleServer()
                 .setAddress("redis://" + redisHost + ":" + redisPort)
-//                .setPassword("")
         ;
 
         return Redisson.create(config);

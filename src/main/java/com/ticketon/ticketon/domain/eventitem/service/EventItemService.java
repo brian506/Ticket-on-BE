@@ -26,10 +26,8 @@ public class EventItemService {
     }
 
 
-
-    public EventItemResponse getEventItemById(Long id) {
+    public EventItemResponse getEventItemById(final Long id) {
         EventItem eventItem = eventItemRepository.findById(id).orElseThrow(() -> new DataNotFoundException("해당 공연(이벤트)를 찾을 수 없습니다 (id=" + id + ""));
-
         return EventItemResponse.from(eventItem);
     }
 }

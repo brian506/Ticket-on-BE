@@ -21,5 +21,4 @@ public class CustomUserDetailService implements UserDetailsService {
         Member member = OptionalUtil.getOrElseThrow(memberRepository.findByEmail(email), "[" + email + "] email에 해당하는 member를 찾을 수 없습니다.");
         return new CustomUserDetails(member);
     }
-
 }

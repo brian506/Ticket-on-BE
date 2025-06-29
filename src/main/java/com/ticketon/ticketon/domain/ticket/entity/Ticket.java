@@ -36,39 +36,6 @@ public class Ticket {
     @Column(name = "status", nullable = false)
     private TicketStatus ticketStatus;
 
-//    @Column(name = "event_name", nullable = false)
-//    private String eventName;
-//
-//    // 공연 날짜 및 시간
-//    @Column(name = "event_date_time", nullable = false)
-//    private LocalDateTime eventDateTime;
-//
-//    // 좌석 정보 (예: A열 12번)
-//    @Column(name = "seat_info", nullable = false)
-//    private String seatInfo;
-//
-//    // 가격
-//    @Column(name = "price", nullable = false)
-//    private Integer price;
-//
-//    // 티켓 생성 시간
-//    @Column(name = "created_at", nullable = false, updatable = false)
-//    private LocalDateTime createdAt;
-//
-//    // 티켓 마지막 수정 시간
-//    @Column(name = "updated_at")
-//    private LocalDateTime updatedAt;
-//
-//    @PrePersist
-//    protected void onCreate() {
-//        this.createdAt = LocalDateTime.now();
-//    }
-//
-//    @PreUpdate
-//    protected void onUpdate() {
-//        this.updatedAt = LocalDateTime.now();
-//    }
-
     public void cancel() {
         validateCancelable();
         this.ticketStatus = TicketStatus.CANCELLED;

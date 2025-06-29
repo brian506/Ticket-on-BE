@@ -7,7 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Getter
 @Setter
-public class MemberSingupRequest {
+public class MemberSingUpRequest {
     private String email;
     private String password;
 

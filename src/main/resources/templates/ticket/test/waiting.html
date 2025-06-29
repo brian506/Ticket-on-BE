@@ -3,38 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Waiting</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: #fefefe;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
-        h2, h3 {
-            margin: 10px 0;
-        }
-        #queue-position {
-            font-size: 48px;
-            color: #ff5722;
-            margin: 20px 0;
-        }
-        .warning {
-            font-size: 14px;
-            color: #c0392b;
-            margin-top: 20px;
-        }
-    </style>
 </head>
 <body>
 <h2>현재 접속량이 많아 대기열에 배치되셨습니다</h2>
-<h2>현재 고객님의 순번은 <span id="queue-position">0번</span>입니다</h2>
-<h3 class="warning">주의! 새로고침 시 입장 순번이 초기화 될 수 있습니다</h3>
-
+<h2>현재 고객님의 순번은 <h1 id="queue-position">0번</h1>입니다</h2>
+<h3>주의! 새로고침시 입장 순번이 초기화 될 수 있음</h3>
+</body>
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script th:inline="javascript">
@@ -42,7 +16,6 @@
     const userId = /*[[${#authentication.name}]]*/ 'anonymous';
     const eventId = /*[[${eventId}]]*/ '-1';
     /*]]>*/
-
     let stompClient = null;
 
     function connectWebSocket() {
@@ -52,19 +25,23 @@
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
 
+            // 내 순위 실시간 업데이트
             stompClient.subscribe('/user/queue/position', function (message) {
                 const position = parseInt(message.body, 10);
-                document.getElementById('queue-position').innerText = `${position}번`;
+                document.getElementById('queue-position').innerText = `${position}`;
             });
 
+            // 2 입장 허용 알림
             stompClient.subscribe('/user/topic/allowed', function (message) {
                 const allowedUserId = message.body;
                 if (allowedUserId === userId) {
-                    window.location.href = '/ticket-reservation?ticketId=' + ticketTypeId + '&quantity=' + quantity;
-                }
-            });
+                    window.location.href = '/ticket-reservation?eventId=' + eventId;
+               }
+           });
 
-            setTimeout(() => {
+           // 3 입장 API 요청
+           // Todo csrf 처리
+           setTimeout(() => {
                 fetch('/v1/api/queues/enter', {
                     method: 'POST',
                     headers: {
@@ -76,13 +53,14 @@
                 }).catch(err => console.error(err));
             }, 300);
 
-            setInterval(() => {
-                stompClient.send("/app/queue-status", {}, userId);
-            }, 1000);
-        });
-    }
 
-    window.onload = connectWebSocket;
+           // 4 주기적으로 순위 요청
+           setInterval(() => {
+               stompClient.send("/app/queue-status", {}, userId);
+           }, 1000);
+       });
+   }
+
+   window.onload = connectWebSocket;
 </script>
-</body>
 </html>
