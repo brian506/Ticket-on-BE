@@ -6,15 +6,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
 public class QueueViewController {
 
     @PostMapping(Urls.WAITING)
-    public String waitingPage(Model model, TicketPurchaseRequest request) {
-        model.addAttribute("ticketTypeId", request.getTicketTypeId());
-        model.addAttribute("quantity", request.getQuantity());
+    public String waitingPage(Model model, @RequestParam Long eventId) {
+        model.addAttribute("eventId", eventId);
         return "ticket/test/waiting";
     }
 }

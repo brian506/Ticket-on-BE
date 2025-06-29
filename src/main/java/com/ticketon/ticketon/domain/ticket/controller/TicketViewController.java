@@ -1,11 +1,14 @@
 package com.ticketon.ticketon.domain.ticket.controller;
 
 
+import com.ticketon.ticketon.domain.eventitem.dto.EventItemResponse;
+import com.ticketon.ticketon.domain.eventitem.service.EventItemService;
 import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
+import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategyType;
 import com.ticketon.ticketon.global.annotation.CurrentUser;
 import com.ticketon.ticketon.global.constants.Urls;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +29,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class TicketViewController {
 
     private final TicketService ticketService;
+    private final EventItemService eventItemService;
 
     // 티켓 구매
     @PostMapping(Urls.TICKET_PURCHASE)
     public String purchaseTicket(TicketPurchaseRequest ticketPurchaseRequest, @CurrentUser CustomUserDetails customUserDetails) {
-        ticketService.purchaseTicket(ticketPurchaseRequest, customUserDetails.getMember().getId());
+        ticketService.purchaseTicket(TicketIssueStrategyType.OPTIMISTIC.getCode(), ticketPurchaseRequest, customUserDetails.getMember().getId());
         return "redirect:/success";
+    }
+
+    // 티켓 페이지
+    @GetMapping(Urls.TICKET_RESERVATION)
+    public String purchaseTicketPage(Model model, @RequestParam Long eventId) {
+        EventItemResponse eventItem = eventItemService.getEventItemById(eventId);
+        model.addAttribute("eventItem", eventItem);
+        return "ticket/test/ticketPurchase";
     }
 
     // 내 티켓 조회 페이지

@@ -9,6 +9,7 @@ public class Urls {
     public static final String EVENT_DETAIL = "/events/{id}";
 
     public static final String TICKETS = "/tickets";
+    public static final String TICKET_RESERVATION = "/ticket-reservation";
     public static final String TICKET_PURCHASE = "/tickets/purchase";
     public static final String TICKET_CANCEL = "/tickets/cancel";
     public static final String MY_TICKETS = "/my-tickets";

@@ -5,9 +5,9 @@ import com.ticketon.ticketon.exception.ExceptionBase;
 import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 
-public class NotFoundDataException extends ExceptionBase {
+public class DataNotFoundException extends ExceptionBase {
 
-    public NotFoundDataException(@Nullable String message) {
+    public DataNotFoundException(@Nullable String message) {
         this.errorCode = ErrorCode.DATA_NOT_FOUND;
         this.errorMessage = message;
     }

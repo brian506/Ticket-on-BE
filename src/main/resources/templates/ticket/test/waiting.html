@@ -40,8 +40,7 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     const userId = /*[[${#authentication.name}]]*/ 'anonymous';
-    const ticketTypeId = /*[[${ticketTypeId}]]*/ '-1';
-    const quantity = /*[[${quantity}]]*/ '-1';
+    const eventId = /*[[${eventId}]]*/ '-1';
     /*]]>*/
 
     let stompClient = null;
