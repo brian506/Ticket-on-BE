@@ -20,4 +20,15 @@ public class PaymentConfirmResponse {
     private String paymentKey;
     private OffsetDateTime requestedAt;
     private OffsetDateTime approvedAt;
+
+    public PaymentMessage fromResponse(PaymentConfirmResponse response) {
+        return PaymentMessage.builder()
+                .paymentKey(response.getPaymentKey())
+                .ticketId(Long.valueOf(response.getTicketId()))
+                //.memberId(// 현재 로그인된 사용자))
+                .amount(response.getAmount())
+                .requestedAt(LocalDateTime.from(response.getRequestedAt()))
+                .approvedAt(response.getApprovedAt().toLocalDateTime())
+                .build();
+    }
 }

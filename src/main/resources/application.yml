@@ -20,31 +20,6 @@ logging:
     io.opentelemetry: DEBUG
 
 
-management:
-  metrics:
-    export:
-      otlp:
-        enabled: true
-        endpoint: http://otel-collector:4318
-    enable:
-      all: true
-      jvm: true
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-    prometheus:
-      enabled: true
-
-otel:
-  resource:
-    attributes:
-      service.name: ticket-service
-  exporter:
-    otlp:
-      url: http://otel-collector:4317
-      protocol: grpc
-
 snail-catch:
   enabled: true
   repository-pointcut: execution(* com.ticketon.ticketon.domain..repository..*(..))
@@ -62,7 +37,6 @@ server:
     keep-alive-timeout: 30000
     max-http-header-size: 8192
     max-keep-alive-requests: 100
-
 
 
 toss:

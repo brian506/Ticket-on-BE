@@ -24,16 +24,5 @@ public class PaymentConfirmRequest {
                 this.amount);
     }
 
-    public Payment toEntity(PaymentConfirmRequest request, PaymentConfirmResponse response) {
-        return Payment.builder()
-                .ticketId(Long.valueOf(request.getTicketId()))
-                .memberId(request.getMemberId())
-                .paymentStatus(PaymentStatus.SUCCESS)
-                .amount(request.getAmount())
-                .paymentKey(request.paymentKey)
-                .requestedAt(response.getRequestedAt().toLocalDateTime())
-                .approvedAt(response.getApprovedAt().toLocalDateTime())
-                .build();
 
-    }
 }

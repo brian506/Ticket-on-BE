@@ -25,6 +25,7 @@ public class TicketService {
 
 
 
+
     public void purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {
 
         TicketIssueStrategy strategy = strategyMap.get(strategyType);

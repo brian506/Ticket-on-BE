@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/payments")
+@RequestMapping("/v1/api/payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
 
     @PostMapping("/confirm")
     public ResponseEntity<SuccessResponse> createPayment(@RequestBody PaymentConfirmRequest paymentConfirmRequest) {
-            Payment payment = paymentService.confirmPayment(paymentConfirmRequest);
-            SuccessResponse response = new SuccessResponse(true,"결제 승인 요청 성공", payment);
+            paymentService.confirmPayment(paymentConfirmRequest);
+            SuccessResponse response = new SuccessResponse(true,"결제 승인 요청 성공", paymentConfirmRequest);
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

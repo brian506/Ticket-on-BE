@@ -28,7 +28,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
@@ -43,20 +43,20 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - queue-server-1
-      - queue-server-2
-      - queue-server-3
+#      - queue-server-2
+#      - queue-server-3
     networks:
       - monitoring
 
   queue-server-1:
-    image: minseok1768/ticket-app:latest
+    build: .
     container_name: queue-server-1
     environment:
       SPRING_PROFILES_ACTIVE: docker
     env_file:
       - .env
     ports:
-      - "8081:8080"  # 내부 포트는 같고 외부만 다름
+      - "8081:8080"
     depends_on:
       - mysql
     restart: always
@@ -66,7 +66,7 @@ services:
       - ./wait-for-it.sh:/wait-for-it.sh
 
   queue-server-2:
-    image: minseok1768/ticket-app:latest
+    build: .
     container_name: queue-server-2
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -83,7 +83,7 @@ services:
       - ./wait-for-it.sh:/wait-for-it.sh
 
   queue-server-3:
-    image: minseok1768/ticket-app:latest
+    build: .
     container_name: queue-server-3
     environment:
       SPRING_PROFILES_ACTIVE: docker
@@ -99,22 +99,6 @@ services:
     volumes:
       - ./wait-for-it.sh:/wait-for-it.sh
 
-  reservation-server:
-    image: minseok1768/ticket-app:latest
-    container_name: reservation-server-1
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    env_file:
-      - .env
-    ports:
-      - "8090:8090"
-    depends_on:
-      - mysql
-    restart: always
-    networks:
-      - monitoring
-    volumes:
-      - ./wait-for-it.sh:/wait-for-it.sh
 
   mysql:
     image: mysql:8.0
@@ -123,7 +107,6 @@ services:
     ports:
       - "3308:3306"
     environment:
-      MYSQL_ROOT_HOST: '%'
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
     networks:
