@@ -14,8 +14,7 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     const userId = /*[[${#authentication.name}]]*/ 'anonymous';
-    const ticketTypeId = /*[[${ticketTypeId}]]*/ '-1';
-    const quantity = /*[[${quantity}]]*/ '-1';
+    const eventId = /*[[${eventId}]]*/ '-1';
     /*]]>*/
     let stompClient = null;
 
@@ -36,7 +35,7 @@
             stompClient.subscribe('/user/topic/allowed', function (message) {
                 const allowedUserId = message.body;
                 if (allowedUserId === userId) {
-                    window.location.href = '/ticket-reservation?ticketId=' + ticketTypeId + '&quantity=' + quantity;
+                    window.location.href = '/ticket-reservation?eventId=' + eventId;
                }
            });
 
