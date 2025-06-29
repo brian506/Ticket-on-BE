@@ -8,6 +8,7 @@ import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 
@@ -20,11 +21,14 @@ import java.util.Map;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private final Map<String, TicketIssueStrategy> strategyMap;
 
 
+    public void findTicketsByEventId(final Long eventId){
 
+    }
 
     public void purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {
 
@@ -33,6 +37,8 @@ public class TicketService {
             throw new IllegalArgumentException("존재하지 않는 전략 타입: " + strategyType);
         }
         strategy.purchaseTicket(request, memberId);
+
+        redisTemplate.delete("allowed:" + memberId);
     }
 
     // 멤버 티켓 목록
