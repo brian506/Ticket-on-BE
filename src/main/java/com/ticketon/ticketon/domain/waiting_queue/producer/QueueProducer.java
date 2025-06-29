@@ -22,12 +22,10 @@ public class QueueProducer {
     private String topic;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final ZSetOperations<String, String> zSetOps;
-    private final RedisTemplate<String, String> redisTemplate;
 
-    public QueueProducer(KafkaTemplate<String, Object> kafkaTemplate, ZSetOperations<String, String> zSetOps, RedisTemplate<String, String> redisTemplate) {
+    public QueueProducer(KafkaTemplate<String, Object> kafkaTemplate, ZSetOperations<String, String> zSetOps) {
         this.kafkaTemplate = kafkaTemplate;
         this.zSetOps = zSetOps;
-        this.redisTemplate = redisTemplate;
     }
 
     public void enqueue(final String email) {

@@ -41,7 +41,6 @@ public class TicketType {
     private Long maxQuantity;
 
     // 현재까지 발급된 티켓 개수
-    // !! 동시성 문제가 발생할 수 있는 칼럼. 락처리를 잘 해야 할 듯 함 !!
     @Column(name = "issued_quantity", nullable = false)
     private Long issuedQuantity;
 
@@ -53,6 +52,9 @@ public class TicketType {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private TicketTypeStatus status;
+
+    @Version
+    private Long version;
 
 
     public void increaseIssuedQuantity() {

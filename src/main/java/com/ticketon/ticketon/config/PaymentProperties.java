@@ -19,11 +19,11 @@ public class PaymentProperties {
 
     private String cancelEndPoint;
 
-    public String getConfirmUrl(){
+    public String getConfirmUrl() {
         return baseUrl + confirmEndPoint;
     }
 
-    public String getCancelUrl(String paymentKey){
-        return String.format(baseUrl + cancelEndPoint,paymentKey);
+    public String getCancelUrl(String paymentKey) {
+        return String.format(baseUrl + cancelEndPoint, paymentKey);
     }
 }

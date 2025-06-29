@@ -3,7 +3,6 @@ package com.ticketon.ticketon.domain.member.service;
 import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
 import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
-import com.ticketon.ticketon.exception.custom.NotFoundDataException;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,5 +21,4 @@ public class CustomUserDetailService implements UserDetailsService {
         Member member = OptionalUtil.getOrElseThrow(memberRepository.findByEmail(email), "[" + email + "] email에 해당하는 member를 찾을 수 없습니다.");
         return new CustomUserDetails(member);
     }
-
 }

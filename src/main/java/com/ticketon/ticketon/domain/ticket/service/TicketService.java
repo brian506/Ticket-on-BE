@@ -5,20 +5,19 @@ import com.ticketon.ticketon.domain.member.repository.MemberRepository;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
-import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
-import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
-import com.ticketon.ticketon.domain.payment.producer.PaymentProducer;
+import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -28,12 +27,16 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final MemberRepository memberRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private final Map<String, TicketIssueStrategy> strategyMap;
 
     public void findTicketsByEventId(final Long eventId){
 
     }
 
-    public TicketRequest purchaseTicket(TicketPurchaseRequest request, Long memberId) {
+
+    public TicketRequest requestTicket(TicketPurchaseRequest request, Long memberId) {
         TicketType ticketType = ticketTypeRepository.getReferenceById(request.getTicketTypeId());
         return TicketRequest.toDto(memberId,ticketType);
     }
@@ -44,6 +47,17 @@ public class TicketService {
         Ticket ticket = Ticket.createNormalTicket(ticketType, member);
         ticketType.increaseIssuedQuantity();
         ticketRepository.save(ticket);
+    }
+
+    public void purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {
+
+        TicketIssueStrategy strategy = strategyMap.get(strategyType);
+        if (strategy == null) {
+            throw new IllegalArgumentException("존재하지 않는 전략 타입: " + strategyType);
+        }
+        strategy.purchaseTicket(request, memberId);
+
+        redisTemplate.delete("allowed:" + memberId);
     }
 
 
