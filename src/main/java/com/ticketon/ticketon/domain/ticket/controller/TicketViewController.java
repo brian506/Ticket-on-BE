@@ -6,6 +6,7 @@ import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
+import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategyType;
 import com.ticketon.ticketon.global.annotation.CurrentUser;
 import com.ticketon.ticketon.global.constants.Urls;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +31,14 @@ public class TicketViewController {
     // 티켓 구매
     @PostMapping(Urls.TICKET_PURCHASE)
     public String purchaseTicket(TicketPurchaseRequest ticketPurchaseRequest, @CurrentUser CustomUserDetails customUserDetails) {
-        ticketService.purchaseTicket(ticketPurchaseRequest, customUserDetails.getMember().getId());
+        ticketService.purchaseTicket(TicketIssueStrategyType.OPTIMISTIC.getCode(), ticketPurchaseRequest, customUserDetails.getMember().getId());
         return "redirect:/success";
+    }
+
+    // 티켓 페이지
+    @GetMapping(Urls.TICKET_RESERVATION)
+    public String purchaseTicketPage() {
+        return "ticket/test/ticketPurchase";
     }
 
     // 내 티켓 조회 페이지
