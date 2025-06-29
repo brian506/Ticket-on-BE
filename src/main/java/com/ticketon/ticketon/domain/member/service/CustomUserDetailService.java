@@ -3,7 +3,6 @@ package com.ticketon.ticketon.domain.member.service;
 import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
 import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
-import com.ticketon.ticketon.exception.custom.NotFoundDataException;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
