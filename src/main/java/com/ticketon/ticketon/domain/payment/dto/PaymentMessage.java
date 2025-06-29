@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class PaymentMessage {
     private String paymentKey;
-    private Long ticketId;
+    private Long ticketTypeId;
     private Long memberId;
     private int amount;
     private LocalDateTime requestedAt;
@@ -20,7 +20,7 @@ public class PaymentMessage {
 
     public Payment toEntity(PaymentMessage message){
         return Payment.builder()
-                .ticketId(message.getTicketId())
+                .ticketTypeId(message.getTicketTypeId())
                 .memberId(message.getMemberId())
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .amount(message.getAmount())

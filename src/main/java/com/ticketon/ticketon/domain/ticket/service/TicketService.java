@@ -2,6 +2,8 @@ package com.ticketon.ticketon.domain.ticket.service;
 
 import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
+import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
+import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
@@ -26,23 +28,26 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final MemberRepository memberRepository;
-    private final PaymentProducer producerService;
 
     public void findTicketsByEventId(final Long eventId){
 
     }
 
-    public void purchaseTicket(TicketPurchaseRequest request, Long memberId) {
-        // 쿼리 날리지 않고 않고 프록시로 조회
+    public TicketRequest purchaseTicket(TicketPurchaseRequest request, Long memberId) {
         TicketType ticketType = ticketTypeRepository.getReferenceById(request.getTicketTypeId());
-        Member member = memberRepository.getReferenceById(memberId);
-        List<Ticket> tickets = new ArrayList<>();
-        for(int i = 1; i <= request.getQuantity(); i++) {
-            tickets.add(Ticket.createNormalTicket(ticketType, member));
-            ticketType.increaseIssuedQuantity();
-        }
-        ticketRepository.saveAll(tickets);
+        return TicketRequest.toDto(memberId,ticketType);
     }
+
+    public void saveTicketInfo(PaymentMessage message, Long memberId) {
+        TicketType ticketType = ticketTypeRepository.getReferenceById(message.getTicketTypeId());
+        Member member = memberRepository.getReferenceById(memberId);
+        Ticket ticket = Ticket.createNormalTicket(ticketType, member);
+        ticketType.increaseIssuedQuantity();
+        ticketRepository.save(ticket);
+    }
+
+
+
 
     // 멤버 티켓 목록
     public List<TicketResponse> findMyTickets(Long memberId) {

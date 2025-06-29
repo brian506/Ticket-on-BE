@@ -1,0 +1,54 @@
+<!-- templates/cancel.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결제 취소</title>
+</head>
+<body>
+<h1>🧾 결제 취소 요청</h1>
+
+<label for="paymentKey">📌 Payment Key:</label>
+<input type="text" id="paymentKey"
+       th:value="${paymentKey}"
+       readonly><br><br>
+
+<label for="cancelAmount">💸 취소 금액:</label>
+<input type="number" id="cancelAmount"
+       th:value="${cancelAmount}"
+       readonly><br><br>
+
+<label for="cancelReason">💬 취소 사유:</label>
+<input type="text" id="cancelReason"
+       placeholder="단순변심"><br><br>
+
+<button onclick="cancelPayment()">취소 요청</button>
+<p id="status"></p>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    function cancelPayment() {
+        const paymentKey   = document.getElementById('paymentKey').value;
+        const cancelAmount = parseInt(document.getElementById('cancelAmount').value);
+        const cancelReason = document.getElementById('cancelReason').value;
+
+        if (!paymentKey || isNaN(cancelAmount)) {
+            document.getElementById('status').innerText = '⚠️ 모든 값을 입력해주세요.';
+            return;
+        }
+
+        fetch('[[@{/v1/payments/cancel}]]', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                paymentKey, cancelAmount, cancelReason
+            })
+        })
+            .then(res => { if (!res.ok) throw new Error('결제 취소 실패'); return res.json(); })
+            .then(_ => { document.getElementById('status').innerText = '✅ 결제 취소 성공!'; })
+            .catch(err => { document.getElementById('status').innerText = '❌ 오류: ' + err.message; });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

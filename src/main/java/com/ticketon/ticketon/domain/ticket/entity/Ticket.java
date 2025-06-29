@@ -91,4 +91,11 @@ public class Ticket {
                 ticketStatus(TicketStatus.SOLD_OUT).
                 build();
     }
+    public static Ticket toDto(Long id,Member member,Integer price){
+        return Ticket.builder()
+                .id(id)
+                .member(member)
+                .price(price)
+                .build();
+    }
 }

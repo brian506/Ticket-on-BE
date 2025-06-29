@@ -43,6 +43,7 @@ server:
 
 toss:
   secret-key: ${TOSS_SECRET_KEY}
+  client-key: ${TOSS_CLIENT_KEY}
   base-url: https://api.tosspayments.com/v1/payments
   confirm-end-point: /confirm
   cancel-end-point: /cancel

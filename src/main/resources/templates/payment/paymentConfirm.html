@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>토스 테스트 결제</title>
+    <script src="https://js.tosspayments.com/v1" th:src="@{https://js.tosspayments.com/v1}"></script>
+</head>
+<body>
+<h1>토스 테스트 결제</h1>
+<button id="payment-button">결제하기</button>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const clientKey    = /*[[${clientKey}]]*/ '';
+    const tossPayments = TossPayments(clientKey);
+    const ticketTypeId = /*[[${ticketTypeId}]]*/ 0;
+    const memberId     = /*[[${memberId}]]*/ 0;
+    const amount       = /*[[${amount}]]*/ 0;
+    const orderName    = /*[[${orderName}]]*/ '공연명 없음';
+
+    const baseUrl = window.location.origin;
+
+    document.getElementById('payment-button').addEventListener('click', function() {
+        tossPayments.requestPayment('카드', {
+            amount:       amount,
+            orderId:      ticketTypeId,
+            orderName:    orderName,
+            customerName: memberId,
+            // ✨ 절대 URL 로 변경
+            successUrl:  baseUrl
+                + '[[@{/payment/success}]]'
+                + '?paymentKey={{paymentKey}}'
+                + '&orderId='  + ticketTypeId
+                + '&amount='   + amount
+                + '&memberId=' + memberId,
+            failUrl: baseUrl + '[[@{/payment/fail}]]'
+        })
+            .catch(error => alert(error.message));
+    });
+    /*]]>*/
+</script>

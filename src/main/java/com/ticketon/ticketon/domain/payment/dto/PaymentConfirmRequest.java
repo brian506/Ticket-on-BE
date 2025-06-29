@@ -14,15 +14,16 @@ import lombok.NoArgsConstructor;
 public class PaymentConfirmRequest {
     private Long memberId;
     private String paymentKey;
-    private String ticketId;
+    private String ticketTypeId;
     private int amount;
 
     public TossConfirmRequest toTossConfirmRequest() {
         return new TossConfirmRequest(
                 this.paymentKey,
-                this.getTicketId(),
+                this.getTicketTypeId(),
                 this.amount);
     }
+
 
 
 }

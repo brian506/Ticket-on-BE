@@ -32,9 +32,9 @@ public class PaymentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/{ticketId}")
-    public ResponseEntity<SuccessResponse> getPaymentByTicketId(@PathVariable Long ticketId) {
-        PaymentResponse paymentResponse = paymentService.findByTicketId(ticketId);
+    @GetMapping("/{ticketTypeId}")
+    public ResponseEntity<SuccessResponse> getPaymentByTicketId(@PathVariable Long ticketTypeId) {
+        PaymentResponse paymentResponse = paymentService.findByTicketTypeId(ticketTypeId);
         SuccessResponse response = new SuccessResponse(true,"결제 조회 성공",paymentResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
