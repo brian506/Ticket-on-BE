@@ -5,8 +5,9 @@ spring:
     import: "optional:file:.env[.properties]"
 
   jpa:
+    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       database-platform: org.hibernate.dialect.MySQLDialect
       defer-datasource-initialization: true
     properties:
@@ -14,6 +15,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
+
 logging:
   level:
     root: INFO
