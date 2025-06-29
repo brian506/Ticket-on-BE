@@ -1,5 +1,9 @@
 package com.ticketon.ticketon.domain.ticket.service;
 
+import com.ticketon.ticketon.domain.member.entity.Member;
+import com.ticketon.ticketon.domain.member.repository.MemberRepository;
+import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
+import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
@@ -21,13 +25,28 @@ import java.util.Map;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final TicketTypeRepository ticketTypeRepository;
+    private final MemberRepository memberRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     private final Map<String, TicketIssueStrategy> strategyMap;
 
-
     public void findTicketsByEventId(final Long eventId){
 
+    }
+
+
+    public TicketRequest requestTicket(TicketPurchaseRequest request, Long memberId) {
+        TicketType ticketType = ticketTypeRepository.getReferenceById(request.getTicketTypeId());
+        return TicketRequest.toDto(memberId,ticketType);
+    }
+
+    public void saveTicketInfo(PaymentMessage message, Long memberId) {
+        TicketType ticketType = ticketTypeRepository.getReferenceById(message.getTicketTypeId());
+        Member member = memberRepository.getReferenceById(memberId);
+        Ticket ticket = Ticket.createNormalTicket(ticketType, member);
+        ticketType.increaseIssuedQuantity();
+        ticketRepository.save(ticket);
     }
 
     public void purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {
@@ -40,6 +59,9 @@ public class TicketService {
 
         redisTemplate.delete("allowed:" + memberId);
     }
+
+
+
 
     // 멤버 티켓 목록
     public List<TicketResponse> findMyTickets(Long memberId) {

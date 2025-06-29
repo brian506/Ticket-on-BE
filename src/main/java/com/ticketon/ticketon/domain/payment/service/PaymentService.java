@@ -27,6 +27,11 @@ public class PaymentService {
         PaymentConfirmResponse paymentConfirmResponse = paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
         paymentProducer.sendPayment(paymentConfirmResponse);
     }
+    // 결제 저장
+    public void savePayment(PaymentMessage message){
+        Payment payment = message.toEntity(message);
+        paymentRepository.save(payment);
+    }
 
     // 결제 취소 요청
     public void cancelPayment(PaymentCancelRequest paymentCancelRequest) {
@@ -36,8 +41,8 @@ public class PaymentService {
         paymentRepository.save(payment);
     }
 
-    public PaymentResponse findByTicketId(Long ticketId) {
-        Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findByTicketId(ticketId), "존재하지 않는 결제 정보입니다.");
+    public PaymentResponse findByTicketTypeId(Long ticketTypeId) {
+        Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findByTicketTypeId(ticketTypeId), "존재하지 않는 결제 정보입니다.");
         return PaymentResponse.toDto(payment);
     }
 }

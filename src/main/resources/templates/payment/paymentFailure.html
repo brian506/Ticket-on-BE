@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결제 실패</title>
+</head>
+<body>
+<h1>❌ 결제가 실패했습니다.</h1>
+<p id="error-info">
+    실패 코드: <span th:text="${code}">CODE</span><br>
+    사유: <span th:text="${message}">MESSAGE</span>
+</p>
+</body>
+</html>

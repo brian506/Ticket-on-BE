@@ -15,7 +15,7 @@ import java.time.OffsetDateTime;
 @Getter
 @Builder
 public class PaymentConfirmResponse {
-    private String ticketId;
+    private String ticketTypeId;
     private int amount;
     private String paymentKey;
     private OffsetDateTime requestedAt;
@@ -24,7 +24,7 @@ public class PaymentConfirmResponse {
     public PaymentMessage fromResponse(PaymentConfirmResponse response) {
         return PaymentMessage.builder()
                 .paymentKey(response.getPaymentKey())
-                .ticketId(Long.valueOf(response.getTicketId()))
+                .ticketTypeId(Long.valueOf(response.getTicketTypeId()))
                 //.memberId(// 현재 로그인된 사용자))
                 .amount(response.getAmount())
                 .requestedAt(LocalDateTime.from(response.getRequestedAt()))

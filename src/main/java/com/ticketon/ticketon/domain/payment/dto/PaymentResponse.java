@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class PaymentResponse {
 
     private Long id;
-    private Long ticketId;
+    private Long ticketTypeId;
     private Long memberId;
     private PaymentStatus status;
     private int amount;
@@ -25,7 +25,7 @@ public class PaymentResponse {
     public static PaymentResponse toDto(Payment payment){
         return PaymentResponse.builder()
                 .id(payment.getId())
-                .ticketId(payment.getTicketId())
+                .ticketTypeId(payment.getTicketTypeId())
                 .memberId(payment.getMemberId())
                 .status(payment.getPaymentStatus())
                 .amount(payment.getAmount())

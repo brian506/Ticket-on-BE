@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 public class PaymentConsumer {
 
     private final PaymentRepository paymentRepository;
+    private final TicketService ticketService;
+    private final PaymentService paymentService;
 
     // 예약,결제 정보 저장
     @KafkaHandler
@@ -36,8 +38,8 @@ public class PaymentConsumer {
                 throw new IllegalArgumentException("payment message is null");
             }
             // 예약 정보 저장
-            Payment payment = message.toEntity(message);
-            paymentRepository.save(payment);
+            paymentService.savePayment(message);
+            ticketService.saveTicketInfo(message, message.getMemberId());
             // 오프셋 ack 여부 판단
             ack.acknowledge();
 

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>결제 성공</title>
+</head>
+<body>
+<h1>✅ 결제가 완료되었습니다!</h1>
+<p id="status">결제 승인 처리 중...</p>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const paymentKey = /*[[${paymentKey}]]*/ '';
+    const orderId = /*[[${orderId}]]*/ '';
+    const amount = /*[[${amount}]]*/ 0;
+    const memberId = /*[[${memberId}]]*/ 0;
+
+    fetch('[[@{/v1/payments/confirm}]]', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            memberId: memberId,
+            paymentKey: paymentKey,
+            ticketTypeId: orderId,
+            amount: amount
+        })
+    })
+        .then(res => { if (!res.ok) throw new Error('결제 승인 실패'); return res.json(); })
+        .then(data => { document.getElementById('status').innerText = '🎉 결제 승인 완료!'; })
+        .catch(err => { document.getElementById('status').innerText = '❌ 오류: ' + err.message; });
+    /*]]>*/
+</script>
+</body>
+</html>

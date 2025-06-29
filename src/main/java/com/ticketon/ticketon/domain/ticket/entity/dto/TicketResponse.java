@@ -1,5 +1,6 @@
 package com.ticketon.ticketon.domain.ticket.entity.dto;
 
+import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketStatus;
 import jakarta.persistence.*;
@@ -20,6 +21,7 @@ public class TicketResponse {
     private String memberEmail;
     @Enumerated(EnumType.STRING)
     private TicketStatus ticketStatus;
+    private int price;
 
     public static TicketResponse from(Ticket ticket) {
         return TicketResponse.builder()
@@ -32,4 +34,5 @@ public class TicketResponse {
                 .ticketStatus(ticket.getTicketStatus())
                 .build();
     }
+
 }
