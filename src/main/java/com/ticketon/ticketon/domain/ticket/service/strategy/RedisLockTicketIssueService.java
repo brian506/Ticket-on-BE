@@ -2,6 +2,7 @@ package com.ticketon.ticketon.domain.ticket.service.strategy;
 
 import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
+import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
@@ -31,7 +32,7 @@ public class RedisLockTicketIssueService implements TicketIssueStrategy{
     //todo 레디스 유틸 클래스로 대체
     @Transactional
     @Override
-    public void purchaseTicket(TicketPurchaseRequest request, Long memberId) {
+    public TicketRequest purchaseTicket(TicketPurchaseRequest request, Long memberId) {
         String lockName = "ticketTypeLock" + request.getTicketTypeId();
         RLock lock = redissonClient.getLock(lockName);
 
@@ -48,6 +49,8 @@ public class RedisLockTicketIssueService implements TicketIssueStrategy{
 
                 Ticket ticket = Ticket.createNormalTicket(ticketType, member);
                 ticketRepository.save(ticket);
+
+                return TicketRequest.from(memberId, ticketType);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException();
@@ -56,5 +59,9 @@ public class RedisLockTicketIssueService implements TicketIssueStrategy{
                 lock.unlock();
             }
         }
+
+        // 임시코드
+        TicketType ticketType = OptionalUtil.getOrElseThrow(ticketTypeRepository.findByIdForUpdate(1L), "티켓 타입 조회 실패 ticket_id=");
+        return TicketRequest.from(memberId, ticketType);
     }
 }

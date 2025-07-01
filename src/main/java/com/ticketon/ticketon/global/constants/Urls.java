@@ -17,4 +17,6 @@ public class Urls {
 
     public static final String QUEUE_ENTER = "/enter";
     public static final String WAITING = "/waiting";
+
+    public static final String PAYMENT = "/payment";
 }

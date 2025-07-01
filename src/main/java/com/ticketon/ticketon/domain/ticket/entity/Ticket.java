@@ -36,6 +36,14 @@ public class Ticket {
     @Column(name = "status", nullable = false)
     private TicketStatus ticketStatus;
 
+    public Long getTicketTypeId() {
+        return ticketType.getId();
+    }
+
+    public Long getMemberId() {
+        return member.getId();
+    }
+
     public void cancel() {
         validateCancelable();
         this.ticketStatus = TicketStatus.CANCELLED;
@@ -58,7 +66,7 @@ public class Ticket {
         return Ticket.builder()
                 .id(id)
                 .member(member)
-                .price(price)
+//                .price(price)
                 .build();
     }
 }
