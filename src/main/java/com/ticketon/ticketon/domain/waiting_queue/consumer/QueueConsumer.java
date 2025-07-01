@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
+@Slf4j
 @Component
 @KafkaListener(
         topics = "${kafka.topic-config.waiting.name}",
@@ -35,6 +36,7 @@ public class QueueConsumer {
         String userId = waitingUserDto.getUserId();
         // TODO: 예약 서버 여유 확인 및 처리 로직 작성
         zSetOps.remove("waiting-line", userId);
+        log.info("receive----" + userId);
         redisTemplate.opsForValue().set("allowed:" + userId, "true", Duration.ofMinutes(2));
         messagingTemplate.convertAndSendToUser(userId, "/topic/allowed", userId);
         ack.acknowledge();

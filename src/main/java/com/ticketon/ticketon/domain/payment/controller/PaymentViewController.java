@@ -9,7 +9,10 @@ import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
+import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
+import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategyType;
 import com.ticketon.ticketon.global.annotation.CurrentUser;
+import com.ticketon.ticketon.global.constants.Urls;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +24,7 @@ import java.util.List;
 
 
 @Controller
-@RequestMapping("/payment")
+@RequestMapping(Urls.PAYMENT)
 @RequiredArgsConstructor
 public class PaymentViewController {
 
@@ -36,14 +39,14 @@ public class PaymentViewController {
     // 결제 요청 시 필요한 예약 정보
     @GetMapping
     public String paymentRequest(TicketPurchaseRequest request,@CurrentUser CustomUserDetails userDetails, Model model){
-        TicketRequest ticketRequest = ticketService.purchaseTicket(request, userDetails.getMemberId());
+        TicketRequest ticketRequest = ticketService.purchaseTicket(TicketIssueStrategyType.PESSIMISTIC.getCode(), request, userDetails.getMemberId());
         String eventTitle = eventItemService.getTitleByTicketTypeId(request.getTicketTypeId());
         model.addAttribute("clientKey",clientKey);
         model.addAttribute("ticketTypeId",ticketRequest.getTicketTypeId());
         model.addAttribute("memberId",ticketRequest.getMemberId());
         model.addAttribute("amount",ticketRequest.getAmount());
         model.addAttribute("orderName",eventTitle);
-        return "paymentConfirm";
+        return "payment/paymentConfirm";
     }
     // 결제 성공
     @GetMapping("/success")
@@ -58,7 +61,7 @@ public class PaymentViewController {
         model.addAttribute("ticketTypeId",orderId);
         model.addAttribute("memberId",memberId);
         model.addAttribute("amount",amount);
-        return "paymentSuccess";
+        return "payment/paymentSuccess";
     }
 
     // 결제 실패
@@ -68,7 +71,7 @@ public class PaymentViewController {
                               Model model){
         model.addAttribute("code",code);
         model.addAttribute("message",message);
-        return "paymentFailure";
+        return "payment/paymentFailure";
     }
 
     // 결제 취소
@@ -80,7 +83,7 @@ public class PaymentViewController {
     ) {
         model.addAttribute("paymentKey",   paymentKey);
         model.addAttribute("cancelAmount", amount);
-        return "paymentCancel";    // templates/cancel.html
+        return "payment/paymentCancel";    // templates/cancel.html
     }
 
 }

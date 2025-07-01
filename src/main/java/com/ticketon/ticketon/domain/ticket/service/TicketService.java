@@ -5,9 +5,11 @@ import com.ticketon.ticketon.domain.member.repository.MemberRepository;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
+import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
+import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import jakarta.transaction.Transactional;
@@ -31,14 +33,9 @@ public class TicketService {
 
     private final Map<String, TicketIssueStrategy> strategyMap;
 
-    public void findTicketsByEventId(final Long eventId){
-
-    }
-
-
     public TicketRequest requestTicket(TicketPurchaseRequest request, Long memberId) {
         TicketType ticketType = ticketTypeRepository.getReferenceById(request.getTicketTypeId());
-        return TicketRequest.toDto(memberId,ticketType);
+        return TicketRequest.from(memberId, ticketType);
     }
 
     public void saveTicketInfo(PaymentMessage message, Long memberId) {
@@ -49,15 +46,17 @@ public class TicketService {
         ticketRepository.save(ticket);
     }
 
-    public void purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {
+    public TicketRequest purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {
 
         TicketIssueStrategy strategy = strategyMap.get(strategyType);
         if (strategy == null) {
             throw new IllegalArgumentException("존재하지 않는 전략 타입: " + strategyType);
         }
-        strategy.purchaseTicket(request, memberId);
 
+        TicketRequest ticketRequest = strategy.purchaseTicket(request, memberId);
         redisTemplate.delete("allowed:" + memberId);
+
+        return ticketRequest;
     }
 
 
@@ -65,7 +64,7 @@ public class TicketService {
 
     // 멤버 티켓 목록
     public List<TicketResponse> findMyTickets(Long memberId) {
-        List<Ticket> tickets = ticketRepository.findByMemberId(memberId);
+        List<Ticket> tickets = ticketRepository.findByMember_Id(memberId);
         return tickets.stream()
                 .map(TicketResponse::from)
                 .toList();

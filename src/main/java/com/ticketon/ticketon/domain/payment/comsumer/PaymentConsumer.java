@@ -1,9 +1,6 @@
 package com.ticketon.ticketon.domain.payment.comsumer;
 
-import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmRequest;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
-import com.ticketon.ticketon.domain.payment.entity.Payment;
-import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
 import com.ticketon.ticketon.domain.payment.service.PaymentService;
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,6 @@ import org.springframework.stereotype.Service;
         containerFactory = "paymentKafkaListenerContainerFactory")
 public class PaymentConsumer {
 
-    private final PaymentRepository paymentRepository;
     private final TicketService ticketService;
     private final PaymentService paymentService;
 
