@@ -1,0 +1,83 @@
+package com.ticketon.ticketon.domain.ticket.entity;
+
+import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
+import com.ticketon.ticketon.domain.ticket.entity.dto.TicketTypeStatus;
+import com.ticketon.ticketon.exception.custom.ExceededTicketQuantityException;
+import com.ticketon.ticketon.exception.custom.InvalidTicketCancellationException;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Table(name = "ticket_types")
+@Entity
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class TicketType {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ticket_type_id", nullable = false)
+    private Long id;
+
+    // 공연 아이디
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", nullable = false)
+    private EventItem eventItem;
+
+    // 티켓 종류 이름   ex) 그린석, 스탠딩석
+    @Column(name = "ticket_type_name", nullable = false)
+    private String name;
+
+    // 해당 티켓에 대한 설명
+    @Column(name = "description")
+    private String description;
+
+    // 발급할 티켓 개수
+    @Column(name = "max_quantity", nullable = false)
+    private Long maxQuantity;
+
+    // 현재까지 발급된 티켓 개수
+    @Column(name = "issued_quantity", nullable = false)
+    private Long issuedQuantity;
+
+    // 해당 티켓 가격
+    @Column(name = "price", nullable = false)
+    private Long price;
+
+    // 티켓 상태
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private TicketTypeStatus status;
+
+    @Version
+    private Long version;
+
+
+    public void increaseIssuedQuantity() {
+        validateCanIssueTicket();
+        this.issuedQuantity++;
+    }
+
+
+    public void decreaseTicketQuantity() {
+        validateCanCancelTicket();
+        this.issuedQuantity--;
+    }
+
+    private void validateCanIssueTicket() {
+        if (this.issuedQuantity >= this.maxQuantity) {
+            throw new ExceededTicketQuantityException(this);
+        }
+    }
+
+    private void validateCanCancelTicket() {
+        if (this.issuedQuantity < 1) {
+            throw new InvalidTicketCancellationException(this);
+        }
+    }
+
+}
