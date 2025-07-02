@@ -1,0 +1,49 @@
+spring:
+  profiles:
+    active: local
+  config:
+    import: "optional:file:.env[.properties]"
+
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: none
+      database-platform: org.hibernate.dialect.MySQLDialect
+      defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: false
+        format_sql: false
+
+logging:
+  level:
+    root: INFO
+    io.opentelemetry: DEBUG
+
+
+snail-catch:
+  enabled: false
+  repository-pointcut: execution(* com.ticketon.ticketon.domain..repository..*(..))
+  api-key: 13a4d744b37046e2b62f90077c0936f8
+
+server:
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 20
+      max-queue-capacity: 1000
+    max-connections: 10000
+    accept-count: 500
+    connection-timeout: 60000
+    keep-alive-timeout: 30000
+    max-http-header-size: 8192
+    max-keep-alive-requests: 100
+
+
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+  client-key: ${TOSS_CLIENT_KEY}
+  base-url: https://api.tosspayments.com/v1/payments
+  confirm-end-point: /confirm
+  cancel-end-point: /cancel

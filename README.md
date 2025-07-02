@@ -80,6 +80,10 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
 
 
 
-### 부하 테스트 
+### Redis TTL, Eviction, 캐싱 전략 정리
 
-1.대기열 서버에 어느정도의 TPS(초당 처리량) 이 확보 가능한지 ex) 500,000 만명
+**사용자 대기 순서를 관리하는 Redis**
+
+TTL : 30분으로 설정  
+Eviction : 
+캐성 전략 :  

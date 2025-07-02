@@ -8,7 +8,6 @@
 부하 발생 환경 : ` CPU Apple M3 Pro`, `12코어` ,`메모리 18GB`
 
 
-
 ### 모니터링
 
 Prometheus : 서버 애플리케이션 메트릭 시각화   
@@ -40,6 +39,7 @@ k6 : TPS, RPS, 평균/최대 응답 시간
 JVM : CPU, HEAP 사용률, Thread 개수, GC  
 DB : 커넥션 수, 슬로우 쿼리 측정 후 튜닝  
 
+
 1. npm install axios
 2. node init.js
-3. k6 run --out influxdb=http://localhost:8086/k6 queue-enter-test.js
+3. k6 run --out influxdb=http://localhost:8086/{db이름} queue-enter-test.js
