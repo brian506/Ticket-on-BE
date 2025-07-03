@@ -22,7 +22,7 @@ jobs:
       - name: Upload k6 test script
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.EC2_K6_HOST }}
+          host: ${{ secrets.EC2_K6_PUBLIC_IP }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_K6_SSH_KEY }}
           source: ./stress-test/k6-scripts/queue-enter-test.js
