@@ -31,7 +31,7 @@ jobs:
       # ✅ Build ticket-api-server
       - name: Build ticket-api-server jar
         working-directory: ./ticket-api-server
-        run: ./gradlew bootJar
+        run: ../../gradlew bootJar
 
       - name: Build ticket-api-server Docker image
         run: |
@@ -40,7 +40,7 @@ jobs:
       # ✅ Build ticket-queue-server
       - name: Build ticket-queue-server jar
         working-directory: ./ticket-queue-server
-        run: ./gradlew bootJar
+        run: ../../gradlew bootJar
 
       - name: Build ticket-queue-server Docker image
         run: |
