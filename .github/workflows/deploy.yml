@@ -19,7 +19,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-
       - name: Upload k6 test script
         uses: appleboy/scp-action@v0.1.4
         with:
