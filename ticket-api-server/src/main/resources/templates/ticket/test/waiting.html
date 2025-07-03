@@ -78,17 +78,22 @@
     let hasReceivedPosition = false;
 
     function connectWebSocket() {
-        const socket = new SockJS('http://localhost:8082/ws');
+        const socket = new SockJS('http://3.38.57.152:8082/ws');
         stompClient = Stomp.over(socket);
 
         stompClient.connect(
             { 'X-Auth-Email': email },
             function (frame) {
-                console.log('WebSocket 연결 완료:', frame);
-
                 // 순번 수신
                 stompClient.subscribe('/user/queue/position', function (message) {
                     const position = parseInt(message.body, 10);
+                    console.log('내 순서:', position);
+
+                    // 아직 Redis 에 등록되지 않음
+                    if (position === -1) {
+                        return;
+                    }
+
                     document.getElementById('queue-position').innerText = `${position}번`;
 
                     if (!hasReceivedPosition) {
@@ -101,8 +106,7 @@
                 // 입장 허용
                 stompClient.subscribe('/user/topic/allowed', function (message) {
                     const allowedUserId = message.body;
-                    if (allowedUserId === userId) {
-                        console.log('입장 허용됨 → 페이지 이동');
+                    if (allowedUserId === email) {
                         window.location.href = '/ticket-reservation?eventId=' + eventId;
                     }
                 });
@@ -111,8 +115,8 @@
                 setTimeout(() => {
                     const params = new URLSearchParams();
                     params.append('email', email);
-
-                    fetch('http://localhost:8082/v1/api/queues/enter', {
+<!--                    todo 환경변수로 수정-->
+                    fetch('http://3.38.57.152:8080/v1/api/queues/enter', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'

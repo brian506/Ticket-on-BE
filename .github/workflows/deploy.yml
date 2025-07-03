@@ -19,24 +19,48 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+      - name: Upload k6 test script
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_K6_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_K6_SSH_KEY }}
+          source: ./stress-test/k6-scripts/queue-enter-test.js
+          target: /home/ubuntu/k6-tests/
 
-      - name: Build jar
+      # ✅ Build ticket-api-server
+      - name: Build ticket-api-server jar
+        working-directory: ./ticket-api-server
         run: ./gradlew bootJar
 
+      - name: Build ticket-api-server Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ticket-api-server:latest ./ticket-api-server
+
+      # ✅ Build ticket-queue-server
+      - name: Build ticket-queue-server jar
+        working-directory: ./ticket-queue-server
+        run: ./gradlew bootJar
+
+      - name: Build ticket-queue-server Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ticket-queue-server:latest ./ticket-queue-server
+
+      # ✅ Docker Login
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ticket-app:latest .
+      # ✅ Push both images
+      - name: Push ticket-api-server image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ticket-api-server:latest
 
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ticket-app:latest
+      - name: Push ticket-queue-server image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ticket-queue-server:latest
 
+      # ✅ Upload .env
       - name: Create .env file from secrets
         run: |
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
@@ -47,6 +71,7 @@ jobs:
           echo "LOKI_URL=${{ secrets.LOKI_URL }}" >> .env
           echo "OTEL_EXPORTER_OTLP_ENDPOINT=${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}" >> .env
           echo "TOSS_SECRET_KEY=${{ secrets.TOSS_SECRET_KEY }}" >> .env
+          echo "TOSS_CLIENT_KEY=${{ secrets.TOSS_CLIENT_KEY }}" >> .env
 
       - name: Upload .env to EC2
         uses: appleboy/scp-action@v0.1.4
@@ -57,6 +82,7 @@ jobs:
           source: ./.env
           target: /home/ubuntu/ticket-app/
 
+      # ✅ Upload monitoring-config
       - name: Clean old monitoring-config on EC2
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -75,6 +101,7 @@ jobs:
           source: ./monitoring-config
           target: /home/ubuntu/ticket-app/
 
+      # ✅ Upload docker-compose.yml
       - name: Upload docker-compose.yml to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -96,7 +123,6 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            mkdir -p /home/ubuntu/ticket-app
             cd /home/ubuntu/ticket-app
             docker-compose down
             docker-compose pull

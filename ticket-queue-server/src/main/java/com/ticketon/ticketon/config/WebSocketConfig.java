@@ -43,12 +43,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                     String email = accessor.getFirstNativeHeader("X-Auth-Email");
                     if (email != null) {
-                        accessor.setUser(new Principal() {
+                        Principal principal = new Principal() {
                             @Override
                             public String getName() {
                                 return email;
                             }
-                        });
+                        };
+                        accessor.setUser(principal);
                     }
                 }
                 return message;

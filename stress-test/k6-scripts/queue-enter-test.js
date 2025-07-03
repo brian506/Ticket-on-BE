@@ -6,15 +6,14 @@ export const options = {
   scenarios: {
     spike_load: {
       executor: 'constant-arrival-rate',
-      rate: 5000,        // 초당 1000건
+      rate: 500,
       timeUnit: '1s',
-      duration: '5s',
-      preAllocatedVUs: 500,
-      maxVUs: 500,
+      duration: '10s', //
+      preAllocatedVUs: 300,
+      maxVUs: 300,    // ← 더 많은 사용자 할당
     },
   },
 };
-
 export default function () {
   const uniqueId = uuidv4();
   const email = `user-${uniqueId}@example.com`;
@@ -27,7 +26,7 @@ export default function () {
 
   const body = `email=${encodeURIComponent(email)}`;
 
-  const res = http.post('http://localhost:8082/v1/api/queues/enter', body, params);
+  const res = http.post('http://localhost:8080/v1/api/queues/enter', body, params);
 
   check(res, {
     'status is 200': (r) => r.status === 200,

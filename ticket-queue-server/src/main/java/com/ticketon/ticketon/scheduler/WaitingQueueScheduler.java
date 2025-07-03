@@ -1,40 +1,49 @@
 package com.ticketon.ticketon.scheduler;
 
 import com.ticketon.ticketon.dto.WaitingMemberRequest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Range;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.Set;
+
 
 @Component
 public class WaitingQueueScheduler {
 
-    private final ZSetOperations<String, String> zSetOps;
+    private final ReactiveRedisTemplate<String, String> redisTemplate;
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final String topic;
 
-    public WaitingQueueScheduler(ZSetOperations<String, String> zSetOps,
-                                 KafkaTemplate<String, Object> kafkaTemplate,
-                                 @org.springframework.beans.factory.annotation.Value("${kafka.topic-config.waiting.name}") String topic) {
-        this.zSetOps = zSetOps;
+    @Value("${kafka.topic-config.waiting.name}")
+    private String topic;
+
+    public WaitingQueueScheduler(ReactiveRedisTemplate<String, String> redisTemplate,
+                                 KafkaTemplate<String, Object> kafkaTemplate) {
+        this.redisTemplate = redisTemplate;
         this.kafkaTemplate = kafkaTemplate;
-        this.topic = topic;
     }
 
     @Scheduled(fixedDelay = 1000)
     public void checkAndNotify() {
-        Set<String> topUserSet = zSetOps.range("waiting-line", 0, 0);
-        if (topUserSet == null || topUserSet.isEmpty()) {
-            return;
-        }
-        String email = topUserSet.iterator().next();
-        Long removed = zSetOps.remove("waiting-line", email);
-        if (removed != null && removed > 0) {
-            kafkaTemplate.send(topic, new WaitingMemberRequest(email, Instant.now().toEpochMilli()));
-        }
+        //todo
+        redisTemplate.opsForZSet()
+                .range("waiting-line", Range.closed(0L, 0L))
+                .collectList()
+                .flatMap(emails -> {
+                    if (emails.isEmpty()) return Mono.empty();
+                    String email = emails.get(0);
+                    return redisTemplate.opsForZSet().remove("waiting-line", email)
+                            .filter(r -> r > 0)
+                            .doOnNext(r -> {
+                                kafkaTemplate.send(topic, new WaitingMemberRequest(email, Instant.now().toEpochMilli()));
+                            })
+                            .then();
+                })
+                .subscribe();
     }
-
 }
