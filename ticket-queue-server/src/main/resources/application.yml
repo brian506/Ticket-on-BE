@@ -16,6 +16,9 @@ kafka:
     properties:
       bootstrap.servers: kafka:9092
   topic-config:
+    queue-enqueue:
+      name: queue.enqueue
+      partitions: 20
     waiting:
       name : waiting-topic
       partitions: 3
@@ -26,8 +29,22 @@ kafka:
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     retry: 2
+    acks: 1                     # 빠른 응답을 위해 all → 1 로 변경
+    retries: 0                 # 실패 시 재전송 안함 (속도 우선 시)
+    batch-size: 65536          # 배치 크기 늘림 (기본: 16384, 16KB → 64KB)
+    linger-ms: 0               # 최대한 빨리 보내기 (배치 대기 없음)
+    buffer-memory: 67108864    # 버퍼 크기 증가 (64MB)
+    compression-type: lz4      # 네트워크 효율 높이기 (lz4가 빠르고 효율적)
+    max-in-flight-requests-per-connection: 10  # 병렬 전송 수 증가 (기본은 5)
+    enable-idempotence: false  # 중복 방지 비활성화 (속도 우선 시)
 
   consumer:
+    queue-enqueue:
+      bootstrap-servers: kafka:9092
+      group-id: queue-enqueue-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.StringDeserializer
     waiting-group:
       bootstrap-servers: kafka:9092
       group-id: waiting-group
