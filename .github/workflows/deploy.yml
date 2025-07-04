@@ -28,6 +28,7 @@ jobs:
           source: ./nginx/nginx.conf
           target: /home/ubuntu/ticket-app/nginx/
 
+
       - name: Upload k6 test script
         uses: appleboy/scp-action@v0.1.4
         with:
