@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Configuration
 @EnableKafka
-public class WaitingEnqueueConsumerConfig {
+public class WaitingLineConsumerConfig {
 
     @Value("${kafka.consumer.queue-enqueue.bootstrap-servers}")
     private String bootstrapServers;
@@ -30,7 +30,7 @@ public class WaitingEnqueueConsumerConfig {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, waitingGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);  // 중요
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         return props;
     }
@@ -46,7 +46,7 @@ public class WaitingEnqueueConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(4);
+        factory.setConcurrency(4); //todo 추후 CPU 사양에 맞춰 변경
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }

@@ -78,7 +78,7 @@
     let hasReceivedPosition = false;
 
     function connectWebSocket() {
-        const socket = new SockJS('http://43.201.231.114:8082/ws');
+        const socket = new SockJS('http://localhost:8082/ws');
         stompClient = Stomp.over(socket);
 
         stompClient.connect(
@@ -115,8 +115,8 @@
                 setTimeout(() => {
                     const params = new URLSearchParams();
                     params.append('email', email);
-<!--                    todo 환경변수로 수정-->
-                    fetch('http://43.201.231.114:8080/v1/api/queues/enter', {
+
+                    fetch('http://localhost:8080/v1/api/queues/enter', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'

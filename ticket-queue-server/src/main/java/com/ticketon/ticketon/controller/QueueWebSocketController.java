@@ -1,11 +1,14 @@
 package com.ticketon.ticketon.controller;
 
-import com.ticketon.ticketon.producer.KafkaQueueProducer;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+
+import static com.ticketon.ticketon.utils.RedisKeyConstants.DEFAULT_POSITION;
+import static com.ticketon.ticketon.utils.RedisKeyConstants.WAITING_LINE;
+import static com.ticketon.ticketon.utils.StompConstants.QUEUE_POSITION_DESTINATION;
 
 @Controller
 public class QueueWebSocketController {
@@ -18,14 +21,17 @@ public class QueueWebSocketController {
         this.messagingTemplate = messagingTemplate;
     }
 
+    /**
+     * 현재 자신의 상태 조회
+     */
     @MessageMapping("/queue-status")
     public void getQueueStatus(String email, SimpMessageHeaderAccessor accessor) {
         String sessionEmail = accessor.getUser().getName();
         if (!sessionEmail.equals(email)) return;
-        redisTemplate.opsForZSet().rank("waiting-line", email)
-                .defaultIfEmpty(-1L)
+        redisTemplate.opsForZSet().rank(WAITING_LINE, email)
+                .defaultIfEmpty(DEFAULT_POSITION)
                 .subscribe(position -> {
-                    messagingTemplate.convertAndSendToUser(email, "/queue/position", position);
+                    messagingTemplate.convertAndSendToUser(email, QUEUE_POSITION_DESTINATION, position);
                 });
     }
 }

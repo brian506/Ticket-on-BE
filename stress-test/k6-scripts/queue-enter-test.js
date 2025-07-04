@@ -6,11 +6,11 @@ export const options = {
   scenarios: {
     spike_load: {
       executor: 'constant-arrival-rate',
-      rate: 500,
+      rate: 50,
       timeUnit: '1s',
       duration: '10s', //
-      preAllocatedVUs: 300,
-      maxVUs: 300,    // ← 더 많은 사용자 할당
+      preAllocatedVUs: 100,
+      maxVUs: 100,    // ← 더 많은 사용자 할당
     },
   },
 };

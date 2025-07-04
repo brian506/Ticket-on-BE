@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RedissonConfig {
 
-    @Value("${redis.queue.host}")
+    @Value("${redis.reservation.host}")
     private String redisHost;
 
-    @Value("${redis.queue.port}")
+    @Value("${redis.reservation.port}")
     private int redisPort;
 
     @Bean

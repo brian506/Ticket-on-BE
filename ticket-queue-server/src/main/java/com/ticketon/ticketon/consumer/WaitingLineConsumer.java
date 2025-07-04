@@ -1,21 +1,18 @@
 package com.ticketon.ticketon.consumer;
 
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
+import static com.ticketon.ticketon.utils.RedisKeyConstants.WAITING_LINE;
+import static com.ticketon.ticketon.utils.RedisUtils.stripQuotesAndTrim;
 
-/**
- * Redis 저장을 순차적으로 실행하는 컨슈머
- */
 @Component
-public class QueueEnqueueConsumer {
+public class WaitingLineConsumer {
 
     private final ReactiveRedisTemplate<String, String> redisTemplate;
 
-    public QueueEnqueueConsumer(ReactiveRedisTemplate<String, String> redisTemplate) {
+    public WaitingLineConsumer(ReactiveRedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -24,10 +21,10 @@ public class QueueEnqueueConsumer {
             groupId = "${kafka.consumer.queue-enqueue.group-id}",
             containerFactory = "waitingEnqueueKafkaListenerContainerFactory"
     )
-    public void listen(String message) {
-        String email = message.replace("\"", "").trim();
+    public void listen(final String message) {
+        String email = stripQuotesAndTrim(message);
         redisTemplate.opsForZSet()
-                .add("waiting-line", email, System.currentTimeMillis())
+                .add(WAITING_LINE, email, System.currentTimeMillis())
                 .subscribe();
     }
 }
