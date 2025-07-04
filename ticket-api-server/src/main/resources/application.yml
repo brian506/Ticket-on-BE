@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local
+    active: docker
   config:
     import: "optional:file:.env[.properties]"
 
