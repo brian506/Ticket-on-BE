@@ -105,6 +105,7 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+
     command:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
