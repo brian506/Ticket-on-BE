@@ -19,15 +19,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Upload nginx.conf to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: ./nginx/nginx.conf
-          target: /home/ubuntu/ticket-app/nginx/
-
 
       - name: Upload k6 test script
         uses: appleboy/scp-action@v0.1.4
