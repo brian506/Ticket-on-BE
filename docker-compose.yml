@@ -1,19 +1,22 @@
 version: '3.7'
 
 services:
-  redis:
+  wating-line-redis:
     image: redis:7.0.11
-    container_name: redis
+    container_name: wating-line-redis
     ports:
       - "6379:6379"
+    restart: always
     networks:
       - monitoring
 
-  redis2:
+  reservation-redis:
     image: redis:7.0.11
-    container_name: redis2
+    container_name: reservation-redis
+    command: ["redis-server", "--port", "6380"]
     ports:
       - "6380:6380"
+    restart: always
     networks:
       - monitoring
 
@@ -34,6 +37,7 @@ services:
     container_name: kafka
     ports:
       - "9092:9092"
+    restart: always
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -67,6 +71,8 @@ services:
       - "8082:8080"
     depends_on:
       - mysql
+      - reservation-redis
+      - wating-line-redis
     restart: always
     networks:
       - monitoring
@@ -85,6 +91,7 @@ services:
       - "8081:8090"
     depends_on:
       - mysql
+      - reservation-redis
     restart: always
     networks:
       - monitoring
