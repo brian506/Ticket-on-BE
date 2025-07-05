@@ -58,7 +58,6 @@ services:
     container_name: queue-server-1
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      JAVA_OPTS: "-Xms512m -Xmx1536m"
     env_file:
       - .env
     ports:
@@ -71,8 +70,6 @@ services:
       - monitoring
     volumes:
       - ./wait-for-it.sh:/wait-for-it.sh
-    mem_limit: 4g      #  RAM 제한
-    cpus: 2.0          #  CPU 제한
 
 
   api-server-1:
