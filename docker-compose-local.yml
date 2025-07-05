@@ -1,9 +1,18 @@
 services:
-  redis:
+  wating-line-redis:
     image: redis:7.0.11
-    container_name: redis
+    container_name: wating-line-redis
     ports:
       - "6379:6379"
+    networks:
+      - monitoring
+
+  reservation-redis:
+    image: redis:7.0.11
+    container_name: reservation-redis
+    command: ["redis-server", "--port", "6380"]
+    ports:
+      - "6380:6380"
     networks:
       - monitoring
 
@@ -56,7 +65,8 @@ services:
       - "8082:8080"
     restart: always
     depends_on:
-      - redis
+      - reservation-redis
+      - wating-line-redis
     networks:
       - monitoring
     volumes:
@@ -74,7 +84,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - redis
+      - reservation-redis
     ports:
       - "8081:8080"
     restart: always

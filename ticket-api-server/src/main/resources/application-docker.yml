@@ -66,12 +66,8 @@ kafka:
     ack-mode: manual
 
 redis:
-  queue:
-    host: redis
-    port: 6379
-
-  cache:
-    host: redis
+  reservation:
+    host: reservation-redis
     port: 6380
 
 
@@ -90,6 +86,10 @@ management:
         include: "*"
     prometheus:
       enabled: true
+
+waiting:
+  api:
+    enter-url: ${WAITING_LINE_BASE_URL}
 
 otel:
   resource:

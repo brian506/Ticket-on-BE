@@ -6,18 +6,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
 
 @Configuration
 public class RedisConfig {
 
-    @Value("${redis.queue.host}")
+    @Value("${redis.reservation.host}")
     private String redisHost;
 
-    @Value("${redis.queue.port}")
+    @Value("${redis.reservation.port}")
     private int redisPort;
 
     @Bean
@@ -43,8 +41,4 @@ public class RedisConfig {
         return template;
     }
 
-    @Bean
-    public ZSetOperations<String, String> zSetOperations(RedisTemplate<String, String> redisTemplate) {
-        return redisTemplate.opsForZSet();
-    }
 }

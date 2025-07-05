@@ -20,14 +20,14 @@ jobs:
           distribution: 'temurin'
 
 
-      - name: Upload k6 test script
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_K6_PUBLIC_IP }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_K6_SSH_KEY }}
-          source: ./stress-test/k6-scripts/queue-enter-test.js
-          target: /home/ubuntu/k6-tests/
+#      - name: Upload k6 test script
+#        uses: appleboy/scp-action@v0.1.4
+#        with:
+#          host: ${{ secrets.EC2_K6_PUBLIC_IP }}
+#          username: ${{ secrets.EC2_USER }}
+#          key: ${{ secrets.EC2_K6_SSH_KEY }}
+#          source: ./stress-test/k6-scripts/queue-enter-test.js
+#          target: /home/ubuntu/k6-tests/
 
       # ✅ Build ticket-api-server
       - name: Build ticket-api-server jar
@@ -71,6 +71,8 @@ jobs:
           echo "OTEL_EXPORTER_OTLP_ENDPOINT=${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}" >> .env
           echo "TOSS_SECRET_KEY=${{ secrets.TOSS_SECRET_KEY }}" >> .env
           echo "TOSS_CLIENT_KEY=${{ secrets.TOSS_CLIENT_KEY }}" >> .env
+          echo "WAITING_LINE_BASE_URL=${{ secrets.WAITING_LINE_BASE_URL }}" >> .env
+        
 
       - name: Upload .env to EC2
         uses: appleboy/scp-action@v0.1.4
@@ -81,24 +83,24 @@ jobs:
           source: ./.env
           target: /home/ubuntu/ticket-app/
 
-      # ✅ Upload monitoring-config
-      - name: Clean old monitoring-config on EC2
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            sudo rm -rf /home/ubuntu/ticket-app/monitoring-config
+#      # ✅ Upload monitoring-config
+#      - name: Clean old monitoring-config on EC2
+#        uses: appleboy/ssh-action@v0.1.7
+#        with:
+#          host: ${{ secrets.EC2_HOST }}
+#          username: ${{ secrets.EC2_USER }}
+#          key: ${{ secrets.EC2_SSH_KEY }}
+#          script: |
+#            sudo rm -rf /home/ubuntu/ticket-app/monitoring-config
 
-      - name: Upload monitoring config to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: ./monitoring-config
-          target: /home/ubuntu/ticket-app/
+#      - name: Upload monitoring config to EC2
+#        uses: appleboy/scp-action@v0.1.4
+#        with:
+#          host: ${{ secrets.EC2_HOST }}
+#          username: ${{ secrets.EC2_USER }}
+#          key: ${{ secrets.EC2_SSH_KEY }}
+#          source: ./monitoring-config
+#          target: /home/ubuntu/ticket-app/
 
       # ✅ Upload docker-compose.yml
       - name: Upload docker-compose.yml to EC2
