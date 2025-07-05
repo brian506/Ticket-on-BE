@@ -72,13 +72,14 @@
     const userId = /*[[${#authentication.name}]]*/ 'anonymous';
     const email = /*[[${email}]]*/ 'anonymous@email.com';
     const eventId = /*[[${eventId}]]*/ '-1';
+    const enterUrl = /*[[${enterUrl}]]*/ '';
     /*]]>*/
 
     let stompClient = null;
     let hasReceivedPosition = false;
 
     function connectWebSocket() {
-        const socket = new SockJS('http://localhost:8082/ws');
+        const socket = new SockJS(enterUrl + '/ws');
         stompClient = Stomp.over(socket);
 
         stompClient.connect(
@@ -116,7 +117,7 @@
                     const params = new URLSearchParams();
                     params.append('email', email);
 
-                    fetch('http://localhost:8080/v1/api/queues/enter', {
+                    fetch(enterUrl + '/v1/api/queues/enter', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded'

@@ -26,6 +26,7 @@ public class EventItemViewController {
         return "eventitem/test/eventItemList";
     }
 
+
     @GetMapping(Urls.EVENT_DETAIL)
     public String eventItemDetail(@PathVariable Long id, Model model) {
         EventItemResponse eventItem = eventItemService.getEventItemById(id);
