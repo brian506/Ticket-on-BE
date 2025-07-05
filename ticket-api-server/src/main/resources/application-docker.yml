@@ -20,7 +20,6 @@ spring:
       mode: always
       data-locations: classpath:data.sql
 
-
 kafka:
   admin:
     properties:
