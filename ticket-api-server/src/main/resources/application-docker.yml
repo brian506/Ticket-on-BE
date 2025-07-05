@@ -16,9 +16,10 @@ spring:
       initialization-fail-timeout: 1
       read-only: false
       leak-detection-threshold: 0
+
   sql:
     init:
-      mode: always  # 데이터 초기화를 항상 실행
+      mode: always
       data-locations: classpath:data.sql
 
 
