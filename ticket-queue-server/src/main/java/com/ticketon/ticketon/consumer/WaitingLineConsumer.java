@@ -1,19 +1,17 @@
 package com.ticketon.ticketon.consumer;
 
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import static com.ticketon.ticketon.utils.RedisKeyConstants.WAITING_LINE;
 import static com.ticketon.ticketon.utils.RedisUtils.stripQuotesAndTrim;
 
 @Component
 public class WaitingLineConsumer {
 
-    private final ReactiveRedisTemplate<String, String> redisTemplate;
+    private final WaitingLineBatchWriter batchWriter;
 
-    public WaitingLineConsumer(ReactiveRedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public WaitingLineConsumer(WaitingLineBatchWriter batchWriter) {
+        this.batchWriter = batchWriter;
     }
 
     @KafkaListener(
@@ -23,8 +21,6 @@ public class WaitingLineConsumer {
     )
     public void listen(final String message) {
         String email = stripQuotesAndTrim(message);
-        redisTemplate.opsForZSet()
-                .add(WAITING_LINE, email, System.currentTimeMillis())
-                .subscribe();
+        batchWriter.enqueue(email); // Redis 대신 버퍼에 위임
     }
 }
