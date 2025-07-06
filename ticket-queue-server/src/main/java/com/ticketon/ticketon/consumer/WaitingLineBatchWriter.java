@@ -33,9 +33,9 @@ public class WaitingLineBatchWriter {
         }
     }
 
-    @Scheduled(fixedDelay = 200)
+    @Scheduled(fixedDelay = 100)
     public void flushToRedis() {
-        int batchSize = 1000;
+        int batchSize = 3000;
         Set<ZSetOperations.TypedTuple<String>> batch = new HashSet<>();
 
         for (int i = 0; i < batchSize; i++) {
