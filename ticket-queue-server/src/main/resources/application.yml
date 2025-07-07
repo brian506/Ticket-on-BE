@@ -65,6 +65,7 @@ management:
         enabled: true
         endpoint: http://otel-collector:4318
     enable:
+      kafka: true
       all: true
       jvm: true
   endpoints:

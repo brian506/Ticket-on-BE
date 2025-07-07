@@ -39,7 +39,9 @@ bootRun {
             "-Dotel.metrics.export.interval=1000",
             "-Dotel.javaagent.debug=false",
             "-Dotel.logs.exporter=none",
-            "-Dspring.main.allow-bean-definition-overriding=true"
+            "-Dspring.main.allow-bean-definition-overriding=true",
+            "-Dotel.javaagent.jmx.enabled=true",
+            "-Dotel.instrumentation.kafka.enabled=true",
     ]
 }
 
@@ -102,7 +104,9 @@ jib {
                 "-Dotel.metrics.export.interval=1000",
                 "-Dotel.javaagent.debug=false",
                 "-Dotel.logs.exporter=none",
-                "-Dspring.main.allow-bean-definition-overriding=true"
+                "-Dspring.main.allow-bean-definition-overriding=true",
+                "-Dotel.javaagent.jmx.enabled=true",
+                "-Dotel.instrumentation.kafka.enabled=true",
         ]
     }
 }

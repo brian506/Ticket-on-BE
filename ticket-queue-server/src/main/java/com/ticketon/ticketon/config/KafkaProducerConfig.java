@@ -1,5 +1,7 @@
 package com.ticketon.ticketon.config;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -19,6 +21,13 @@ public class KafkaProducerConfig {
 
     @Value("${kafka.admin.properties.bootstrap.servers}")
     private String bootstrapServers;
+
+    @Bean
+    public KafkaClientMetrics kafkaClientMetrics(ProducerFactory<?, ?> producerFactory, MeterRegistry registry) {
+        KafkaClientMetrics metrics = new KafkaClientMetrics(producerFactory.createProducer());
+        metrics.bindTo(registry);
+        return metrics;
+    }
 
     @Bean
     public Map<String, Object> producerConfigs() {
