@@ -2,6 +2,7 @@ package com.ticketon.ticketon.config;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -21,6 +22,11 @@ public class KafkaProducerConfig {
 
     @Value("${kafka.admin.properties.bootstrap.servers}")
     private String bootstrapServers;
+
+    @Bean
+    public NewTopic queueEnqueueTopic() {
+        return new NewTopic("queue-enqueue", 6, (short) 1);
+    }
 
     @Bean
     public KafkaClientMetrics kafkaClientMetrics(ProducerFactory<?, ?> producerFactory, MeterRegistry registry) {

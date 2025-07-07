@@ -19,8 +19,7 @@ kafka:
       bootstrap.servers: kafka:9092
   topic-config:
     queue-enqueue:
-      name: queue.enqueue
-      partitions: 20
+      name: queue-enqueue
 
   producer:
     bootstrap-servers: kafka:9092
