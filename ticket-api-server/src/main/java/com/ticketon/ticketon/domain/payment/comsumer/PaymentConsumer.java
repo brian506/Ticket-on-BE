@@ -1,7 +1,10 @@
 package com.ticketon.ticketon.domain.payment.comsumer;
 
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
+import com.ticketon.ticketon.domain.payment.entity.Payment;
+import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
 import com.ticketon.ticketon.domain.payment.service.PaymentService;
+import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,26 +24,30 @@ import org.springframework.stereotype.Service;
 public class PaymentConsumer {
 
     private final TicketService ticketService;
-    private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
 
     // 예약,결제 정보 저장
     @KafkaHandler
     public void consumePayment(PaymentMessage message, Acknowledgment ack) {
         try {
-            // 메시지 수신
-            log.info("received payment message: {}", message);
-            // 메시지 유효성 검사
-            if(message == null) {
-                throw new IllegalArgumentException("payment message is null");
+            log.info("message 정보 : {}",message.toString());
+            if (message.getMemberId() == null || message.getTicketTypeId() == null) {
+                log.warn("메시지 필드가 널임: {}", message);
+                return; // Kafka ack 안 해주면 retry 발생
             }
+
             // 예약 정보 저장
-            paymentService.savePayment(message);
-            ticketService.saveTicketInfo(message, message.getMemberId());
+            Ticket ticket = ticketService.saveTicketInfo(message, message.getMemberId());
+            // 티켓 정보 먼저 저장해야 ticketId 저장 가능
+            Payment payment = message.toEntity(message);
+            payment.setTicketId(ticket.getId());
+            paymentRepository.save(payment);
+
             // 오프셋 ack 여부 판단
             ack.acknowledge();
 
         }catch (Exception e){
-            log.error("payment message invalid : {}", e.getMessage());
+            log.error("payment message invalid : {}", e);
         }
 
     }

@@ -62,6 +62,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.kafka:spring-kafka'
     //	implementation 'com.github.loki4j:loki-logback-appender:1.4.0'
+    implementation 'de.huxhorn.sulky:de.huxhorn.sulky.ulid:8.3.0'
 
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

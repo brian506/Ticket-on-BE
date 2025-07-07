@@ -11,7 +11,7 @@
     <div th:each="ticketType : ${eventItem.TicketTypes}">
         <span th:text="${ticketType.name}"></span> <span th:text="${ticketType.description}"></span>
     </div>
-    <form th:action="@{${urls.WAITING}}" method="post">
+    <form th:action="@{${urls.TICKET_RESERVATION}}" method="get">
         <input type="hidden" name="eventId" th:value="${eventItem.id}">
         <input type="submit" value="티켓 구매(대기열 진입)">
     </form>

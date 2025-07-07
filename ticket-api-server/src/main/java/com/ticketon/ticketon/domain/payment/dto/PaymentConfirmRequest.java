@@ -2,25 +2,24 @@ package com.ticketon.ticketon.domain.payment.dto;
 
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.entity.PaymentStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Setter
 @Builder
 public class PaymentConfirmRequest {
-    private Long memberId;
+    private Long ticketTypeId;
     private String paymentKey;
-    private String ticketTypeId;
+    private Long memberId;
+    private String orderId;
     private int amount;
 
     public TossConfirmRequest toTossConfirmRequest() {
         return new TossConfirmRequest(
                 this.paymentKey,
-                this.getTicketTypeId(),
+                this.orderId,
                 this.amount);
     }
 

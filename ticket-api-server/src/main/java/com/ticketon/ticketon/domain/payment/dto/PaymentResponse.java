@@ -18,6 +18,7 @@ public class PaymentResponse {
     private Long id;
     private Long ticketTypeId;
     private Long memberId;
+    private String orderId;
     private PaymentStatus status;
     private int amount;
     private LocalDateTime approvedAt;
@@ -25,8 +26,8 @@ public class PaymentResponse {
     public static PaymentResponse toDto(Payment payment){
         return PaymentResponse.builder()
                 .id(payment.getId())
-                .ticketTypeId(payment.getTicketTypeId())
                 .memberId(payment.getMemberId())
+                .orderId(payment.getOrderId())
                 .status(payment.getPaymentStatus())
                 .amount(payment.getAmount())
                 .approvedAt(payment.getApprovedAt())

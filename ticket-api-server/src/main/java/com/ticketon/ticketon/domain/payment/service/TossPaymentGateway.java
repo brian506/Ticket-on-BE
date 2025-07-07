@@ -12,6 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,9 +34,14 @@ public class TossPaymentGateway implements PaymentGateway {
                 .body(tossRequest)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    throw new PaymentConfirmException("결제 승인 요청 실패: Toss 응답 오류");
+                    String errorBody = new BufferedReader(new InputStreamReader(res.getBody()))
+                            .lines().collect(Collectors.joining("\n"));
+                    System.out.println("Toss error response: " + errorBody);
+                    throw new PaymentConfirmException(res.getStatusCode(), errorBody);
                 })
                 .body(PaymentConfirmResponse.class);
+
+
     }
 
     @Override

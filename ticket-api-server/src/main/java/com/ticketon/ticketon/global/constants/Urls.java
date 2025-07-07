@@ -19,4 +19,5 @@ public class Urls {
     public static final String WAITING = "/waiting";
 
     public static final String PAYMENT = "/payment";
+    public static final String PAYMENT_PREPARE = "/prepare";
 }

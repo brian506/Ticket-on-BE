@@ -32,14 +32,16 @@ public class TicketViewController {
     private final TicketService ticketService;
     private final EventItemService eventItemService;
 
-    // 티켓 구매
-    @PostMapping(Urls.TICKET_PURCHASE)
-    public String purchaseTicket(TicketPurchaseRequest ticketPurchaseRequest, @CurrentUser CustomUserDetails userDetails) throws AccessDeniedException {
-        validateTicketAccessFor(userDetails);
+//    // 티켓 구매
+//    @PostMapping(Urls.TICKET_PURCHASE)
+//    public String purchaseTicket(TicketPurchaseRequest ticketPurchaseRequest, @CurrentUser CustomUserDetails userDetails) throws AccessDeniedException {
+//        validateTicketAccessFor(userDetails);
+//
+//        ticketService.purchaseTicket(TicketIssueStrategyType.OPTIMISTIC.getCode(), ticketPurchaseRequest, userDetails.getMember().getId());
+//        return "payment/paymentConfirm";
+//    }
 
-        ticketService.purchaseTicket(TicketIssueStrategyType.OPTIMISTIC.getCode(), ticketPurchaseRequest, userDetails.getMember().getId());
-        return "redirect:/success";
-    }
+
 
     // 티켓 페이지
     @GetMapping(Urls.TICKET_RESERVATION)
