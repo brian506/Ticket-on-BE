@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import static com.ticketon.ticketon.utils.RedisUtils.stripQuotesAndTrim;
 
+
 @Component
 public class WaitingLineConsumer {
 
