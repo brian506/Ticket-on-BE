@@ -22,6 +22,6 @@ public class WaitingLineConsumer {
     )
     public void listen(final String message) {
         String email = stripQuotesAndTrim(message);
-//        batchWriter.enqueue(email); // Redis 대신 버퍼에 위임
+        batchWriter.enqueue(email);
     }
 }
