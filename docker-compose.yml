@@ -1,6 +1,29 @@
 version: '3.7'
 
 services:
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka-exporter
+    ports:
+      - "9308:9308"
+    environment:
+      KAFKA_URI: kafka:9092
+    networks:
+      - monitoring
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.60.0
+    container_name: redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://wating-line-redis:6379
+    networks:
+      - monitoring
+    depends_on:
+      - wating-line-redis
+
+
   wating-line-redis:
     image: redis:7.0.11
     container_name: wating-line-redis
