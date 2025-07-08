@@ -35,9 +35,9 @@ public class WaitingLineBatchWriter {
     }
 
     @Async("taskExecutor")
-    @Scheduled(fixedDelay = 50)
+    @Scheduled(fixedDelay = 20)
     public void flushToRedis() {
-        int batchSize = 2000;
+        int batchSize = 5000;
         Set<ZSetOperations.TypedTuple<String>> batch = new HashSet<>();
         for (int i = 0; i < batchSize; i++) {
             String email = buffer.poll();
