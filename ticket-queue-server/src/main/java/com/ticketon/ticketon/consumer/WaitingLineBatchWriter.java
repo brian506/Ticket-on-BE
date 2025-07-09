@@ -1,52 +1,60 @@
 package com.ticketon.ticketon.consumer;
 
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.api.async.RedisAsyncCommands;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.DefaultTypedTuple;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
-import java.util.Queue;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import static com.ticketon.ticketon.utils.RedisKeyConstants.WAITING_LINE;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
 public class WaitingLineBatchWriter {
 
-    private final RedisTemplate<String, String> redisTemplate;
-    private final BlockingQueue<String> buffer = new LinkedBlockingQueue<>(100000); // 최대 크기 제한
+    private final StatefulRedisConnection<String, String> connection;
+    private final RedisAsyncCommands<String, String> asyncCommands;
+    private final Sinks.Many<String> sink;
 
-    public WaitingLineBatchWriter(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    private static final String WAITING_LINE = "waiting-line";
+
+    public WaitingLineBatchWriter(StatefulRedisConnection<String, String> connection) {
+        this.connection = connection;
+        this.asyncCommands = connection.async();
+        this.asyncCommands.setAutoFlushCommands(false); // batching용 설정
+        this.sink = Sinks.many().unicast().onBackpressureBuffer();
+        startFlushLoop();
     }
 
     public void enqueue(String email) {
-        boolean success = buffer.offer(email);
-        if (!success) {
-            log.warn("Buffer is full. Dropping message: {}", email);
-        }
+        sink.tryEmitNext(email);
     }
 
-    @Async("taskExecutor")
-    @Scheduled(fixedDelay = 20)
-    public void flushToRedis() {
-        int batchSize = 5000;
-        Set<ZSetOperations.TypedTuple<String>> batch = new HashSet<>();
-        for (int i = 0; i < batchSize; i++) {
-            String email = buffer.poll();
-            if (email == null) break;
-            batch.add(new DefaultTypedTuple<>(email, (double) System.currentTimeMillis()));
-        }
-        if (!batch.isEmpty()) {
-            redisTemplate.opsForZSet().add(WAITING_LINE, batch);
-            log.debug("Flushed {} items to Redis", batch.size());
-        }
+    private void startFlushLoop() {
+        sink.asFlux()
+                .bufferTimeout(5000, Duration.ofMillis(20)) // 5000개 또는 20ms마다 flush
+                .flatMap(this::writeBatchToRedis)
+                .onErrorContinue((e, o) -> log.error("Flush 에러", e))
+                .subscribe();
+    }
+
+    private Mono<Void> writeBatchToRedis(List<String> emails) {
+        return Mono.fromCallable(() -> {
+            List<io.lettuce.core.RedisFuture<Long>> futures = new ArrayList<>();
+            double now = System.currentTimeMillis();
+            for (String email : emails) {
+                futures.add(asyncCommands.zadd(WAITING_LINE, now, email));
+            }
+            asyncCommands.flushCommands(); // flush 한 번으로 전송
+            return futures;
+        }).flatMap(futures ->
+                Flux.fromIterable(futures)
+                        .flatMap(future -> Mono.fromFuture(future.toCompletableFuture()))
+                        .then()
+        );
     }
 }

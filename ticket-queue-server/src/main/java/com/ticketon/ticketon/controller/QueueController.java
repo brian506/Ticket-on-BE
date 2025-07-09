@@ -21,8 +21,7 @@ public class QueueController {
 
     @PostMapping("/enter")
     public Mono<ResponseEntity<SuccessResponse>> enter(@RequestParam String email) {
-        return Mono.fromRunnable(() -> kafkaQueueProducer.sendQueueEnterMessage(email))
-                .subscribeOn(Schedulers.parallel())
+        return kafkaQueueProducer.send(email)
                 .thenReturn(ResponseEntity.ok(new SuccessResponse(true, "대기열 등록 완료", null)));
     }
 }
