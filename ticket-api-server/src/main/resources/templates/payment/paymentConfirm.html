@@ -1,41 +1,38 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>토스 테스트 결제</title>
-    <script src="https://js.tosspayments.com/v1" th:src="@{https://js.tosspayments.com/v1}"></script>
+    <title>결제 준비</title>
+    <script src="https://js.tosspayments.com/v1"></script>
 </head>
 <body>
-<h1>토스 테스트 결제</h1>
+<h1>결제 정보 확인</h1>
+<p>상품명: <strong th:text="${orderName}"></strong></p>
+<p>금액: <strong th:text="${amount}"></strong>원</p>
+
 <button id="payment-button">결제하기</button>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const clientKey    = /*[[${clientKey}]]*/ '';
-    const tossPayments = TossPayments(clientKey);
-    const ticketTypeId = /*[[${ticketTypeId}]]*/ 0;
-    const memberId     = /*[[${memberId}]]*/ 0;
-    const amount       = /*[[${amount}]]*/ 0;
-    const orderName    = /*[[${orderName}]]*/ '공연명 없음';
+      const toss       = TossPayments(/*[[${clientKey}]]*/ "");
+      const ticketTypeId = /*[[${ticketTypeId}]]*/ 0;
+      const memberId    = /*[[${memberId}]]*/ 0;
+      const orderId     = /*[[${orderId}]]*/ "";
+      const amount     = /*[[${amount}]]*/ 0;
+      const orderName  = /*[[${orderName}]]*/ "";
+      const baseUrl    = window.location.origin;  // 현재 스키마+호스트+포트 자동 감지
 
-    const baseUrl = window.location.origin;
-
-    document.getElementById('payment-button').addEventListener('click', function() {
-        tossPayments.requestPayment('카드', {
-            amount:       amount,
-            orderId:      ticketTypeId,
-            orderName:    orderName,
-            customerName: memberId,
-            // ✨ 절대 URL 로 변경
-            successUrl:  baseUrl
-                + '[[@{/payment/success}]]'
-                + '?paymentKey={{paymentKey}}'
-                + '&orderId='  + ticketTypeId
-                + '&amount='   + amount
-                + '&memberId=' + memberId,
-            failUrl: baseUrl + '[[@{/payment/fail}]]'
+      document.getElementById('payment-button').addEventListener('click', () => {
+        toss.requestPayment('카드', {
+          amount:    amount,
+          orderId:   orderId,
+          orderName: orderName,
+          successUrl: `${baseUrl}/payment/success?ticketTypeId=${ticketTypeId}&memberId=${memberId}`,
+          failUrl:    `${baseUrl}/payment/fail`
         })
-            .catch(error => alert(error.message));
-    });
+        .catch(error => alert(error.message));
+      });
     /*]]>*/
 </script>
+</body>
+</html>

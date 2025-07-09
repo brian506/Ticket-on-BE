@@ -5,22 +5,24 @@ spring:
     import: "optional:file:.env[.properties]"
 
   jpa:
-    defer-datasource-initialization: true
     hibernate:
       ddl-auto: update
       database-platform: org.hibernate.dialect.MySQLDialect
-      defer-datasource-initialization: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
 
+
 logging:
   level:
     root: INFO
     io.opentelemetry: DEBUG
-
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.springframework.orm.jpa: DEBUG
 
 snail-catch:
   enabled: false

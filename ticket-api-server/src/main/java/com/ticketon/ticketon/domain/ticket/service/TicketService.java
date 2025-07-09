@@ -3,6 +3,8 @@ package com.ticketon.ticketon.domain.ticket.service;
 import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
+import com.ticketon.ticketon.domain.payment.entity.Payment;
+import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
@@ -29,6 +31,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final MemberRepository memberRepository;
+    private final PaymentRepository paymentRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     private final Map<String, TicketIssueStrategy> strategyMap;
@@ -38,12 +41,13 @@ public class TicketService {
         return TicketRequest.from(memberId, ticketType);
     }
 
-    public void saveTicketInfo(PaymentMessage message, Long memberId) {
+    public Ticket saveTicketInfo(PaymentMessage message, Long memberId) {
         TicketType ticketType = ticketTypeRepository.getReferenceById(message.getTicketTypeId());
         Member member = memberRepository.getReferenceById(memberId);
+
         Ticket ticket = Ticket.createNormalTicket(ticketType, member);
         ticketType.increaseIssuedQuantity();
-        ticketRepository.save(ticket);
+        return ticketRepository.save(ticket);
     }
 
     public TicketRequest purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {

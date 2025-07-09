@@ -52,9 +52,9 @@ public class TicketType {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private TicketTypeStatus status;
-
-    @Version
-    private Long version;
+//
+//    @Version
+//    private Long version = 0L;
 
 
     public void increaseIssuedQuantity() {

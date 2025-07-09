@@ -1,5 +1,6 @@
 package com.ticketon.ticketon.domain.payment.controller;
 
+import com.ticketon.ticketon.config.OrderIdGenerator;
 import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
 import com.ticketon.ticketon.domain.eventitem.service.EventItemService;
 import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
@@ -13,6 +14,7 @@ import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
 import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategyType;
 import com.ticketon.ticketon.global.annotation.CurrentUser;
 import com.ticketon.ticketon.global.constants.Urls;
+import de.huxhorn.sulky.ulid.ULID;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -37,12 +39,18 @@ public class PaymentViewController {
     private String clientKey;
 
     // 결제 요청 시 필요한 예약 정보
-    @GetMapping
-    public String paymentRequest(TicketPurchaseRequest request,@CurrentUser CustomUserDetails userDetails, Model model){
-        TicketRequest ticketRequest = ticketService.purchaseTicket(TicketIssueStrategyType.PESSIMISTIC.getCode(), request, userDetails.getMemberId());
-        String eventTitle = eventItemService.getTitleByTicketTypeId(request.getTicketTypeId());
+    @GetMapping(Urls.PAYMENT_PREPARE)
+    public String paymentRequest(@RequestParam Long ticketTypeId,
+                                 @RequestParam int quantity,
+                                 @CurrentUser CustomUserDetails userDetails, Model model){
+        // 대기열 통과한 유저인지 검증 //
+        String orderId = new ULID().nextULID();
+        TicketPurchaseRequest ticketPurchaseRequest = new TicketPurchaseRequest(ticketTypeId,quantity);
+        TicketRequest ticketRequest = ticketService.requestTicket(ticketPurchaseRequest, userDetails.getMemberId());
+        String eventTitle = eventItemService.getTitleByTicketTypeId(ticketPurchaseRequest.getTicketTypeId());
         model.addAttribute("clientKey",clientKey);
-        model.addAttribute("ticketTypeId",ticketRequest.getTicketTypeId());
+        model.addAttribute("orderId",orderId);
+        model.addAttribute("ticketTypeId",ticketTypeId);
         model.addAttribute("memberId",ticketRequest.getMemberId());
         model.addAttribute("amount",ticketRequest.getAmount());
         model.addAttribute("orderName",eventTitle);
@@ -51,16 +59,16 @@ public class PaymentViewController {
     // 결제 성공
     @GetMapping("/success")
     public String confirmPayment(@RequestParam String paymentKey,
-                                 @RequestParam Long orderId,
-                                 @RequestParam Long memberId,
+                                 @RequestParam String orderId,
                                  @RequestParam int amount,
-                                 PaymentConfirmRequest request,
+                                 @RequestParam Long ticketTypeId,
+                                 @RequestParam Long memberId,
                                  Model model){
-        paymentService.confirmPayment(request);
         model.addAttribute("paymentKey",paymentKey);
-        model.addAttribute("ticketTypeId",orderId);
-        model.addAttribute("memberId",memberId);
+        model.addAttribute("orderId",orderId);
         model.addAttribute("amount",amount);
+        model.addAttribute("ticketTypeId",ticketTypeId);
+        model.addAttribute("memberId",memberId);
         return "payment/paymentSuccess";
     }
 
@@ -83,7 +91,7 @@ public class PaymentViewController {
     ) {
         model.addAttribute("paymentKey",   paymentKey);
         model.addAttribute("cancelAmount", amount);
-        return "payment/paymentCancel";    // templates/cancel.html
+        return "payment/paymentCancel";
     }
 
 }

@@ -5,29 +5,28 @@
     <title>결제 성공</title>
 </head>
 <body>
-<h1>✅ 결제가 완료되었습니다!</h1>
+<h1>섹싀 하게 결제 완료했다잉</h1>
 <p id="status">결제 승인 처리 중...</p>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const paymentKey = /*[[${paymentKey}]]*/ '';
-    const orderId = /*[[${orderId}]]*/ '';
-    const amount = /*[[${amount}]]*/ 0;
-    const memberId = /*[[${memberId}]]*/ 0;
+    const paymentKey = /*[[${paymentKey}]]*/ "";
+    const orderId    = /*[[${orderId}]]*/ "";
+    const amount     = /*[[${amount}]]*/ 0;
+    const ticketTypeId = /*[[${ticketTypeId}]]*/ 0;
+    const memberId    = /*[[${memberId}]]*/ 0;
 
-    fetch('[[@{/v1/payments/confirm}]]', {
+
+    fetch('/v1/api/payments/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            memberId: memberId,
-            paymentKey: paymentKey,
-            ticketTypeId: orderId,
-            amount: amount
+          paymentKey, orderId, amount, ticketTypeId, memberId
         })
     })
         .then(res => { if (!res.ok) throw new Error('결제 승인 실패'); return res.json(); })
-        .then(data => { document.getElementById('status').innerText = '🎉 결제 승인 완료!'; })
-        .catch(err => { document.getElementById('status').innerText = '❌ 오류: ' + err.message; });
+        .then(data => { document.getElementById('status').innerText = '🎉 결제 땡큐요~'; })
+        .catch(err => { document.getElementById('status').innerText = '❌ 시벌 오류여: ' + err.message; });
     /*]]>*/
 </script>
 </body>

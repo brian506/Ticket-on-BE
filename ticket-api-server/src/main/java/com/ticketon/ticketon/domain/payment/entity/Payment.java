@@ -17,14 +17,15 @@ public class Payment {
     @Column(name = "payment_id", nullable = false)
     private Long id;
 
-    @Column(name = "ticket_type_id",nullable = false)
-    private Long ticketTypeId;
-
-    @Column(name = "ticket_id", nullable = false)
+    @Setter
+    @Column(name = "ticket_id",nullable = true)
     private Long ticketId;
 
     @Column(name = "member_id", nullable = false)
     private Long memberId;
+
+    @Column(name = "orderId",nullable = false)
+    private String orderId;
 
     @Setter
     @Enumerated(EnumType.STRING)

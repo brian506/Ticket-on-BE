@@ -2,17 +2,23 @@ package com.ticketon.ticketon.domain.payment.dto;
 
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.entity.PaymentStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class PaymentMessage {
-    private String paymentKey;
+
     private Long ticketTypeId;
+    private String paymentKey;
     private Long memberId;
+    private String orderId;
     private int amount;
     private LocalDateTime requestedAt;
     private LocalDateTime approvedAt;
@@ -20,7 +26,7 @@ public class PaymentMessage {
 
     public Payment toEntity(PaymentMessage message){
         return Payment.builder()
-                .ticketTypeId(message.getTicketTypeId())
+                .orderId(message.getOrderId())
                 .memberId(message.getMemberId())
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .amount(message.getAmount())

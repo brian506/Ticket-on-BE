@@ -10,6 +10,7 @@ SET @event_item_id = LAST_INSERT_ID();
 
 -- 2. TicketType 삽입
 INSERT INTO ticket_types (event_id, ticket_type_name, description, max_quantity, issued_quantity, price, status)
+
 VALUES
 (@event_item_id, '스탠딩석', '무대 앞에서 즐길 수 있는 자리', 200, 0, 110000, 'ON_SALE'),
 (@event_item_id, '그린석', '잔디밭에서 여유롭게 관람', 200, 0, 90000, 'ON_SALE'),
