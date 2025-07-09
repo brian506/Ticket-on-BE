@@ -2,7 +2,6 @@ package com.ticketon.ticketon.domain.payment.service;
 
 import com.ticketon.ticketon.domain.payment.dto.*;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
-import com.ticketon.ticketon.domain.payment.entity.PaymentStatus;
 import com.ticketon.ticketon.domain.payment.producer.PaymentProducer;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
 import com.ticketon.ticketon.utils.OptionalUtil;

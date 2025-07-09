@@ -39,7 +39,9 @@ bootRun {
             "-Dotel.metrics.export.interval=1000",
             "-Dotel.javaagent.debug=false",
             "-Dotel.logs.exporter=none",
-            "-Dspring.main.allow-bean-definition-overriding=true"
+            "-Dspring.main.allow-bean-definition-overriding=true",
+            "-Dotel.javaagent.jmx.enabled=true",
+            "-Dotel.instrumentation.kafka.enabled=true",
     ]
 }
 
@@ -47,6 +49,7 @@ bootRun.dependsOn("copyAgent")
 
 dependencies {
     agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
+    implementation 'io.projectreactor.kafka:reactor-kafka:1.3.20'
     implementation 'io.lettuce:lettuce-core'
     implementation 'io.micrometer:micrometer-core'
     implementation 'io.opentelemetry:opentelemetry-api:1.50.0'
@@ -102,7 +105,9 @@ jib {
                 "-Dotel.metrics.export.interval=1000",
                 "-Dotel.javaagent.debug=false",
                 "-Dotel.logs.exporter=none",
-                "-Dspring.main.allow-bean-definition-overriding=true"
+                "-Dspring.main.allow-bean-definition-overriding=true",
+                "-Dotel.javaagent.jmx.enabled=true",
+                "-Dotel.instrumentation.kafka.enabled=true",
         ]
     }
 }

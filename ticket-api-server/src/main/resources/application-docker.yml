@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: "optional:file:.env[.properties]"
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_DOCKER_URL}
@@ -16,11 +14,11 @@ spring:
       initialization-fail-timeout: 1
       read-only: false
       leak-detection-threshold: 0
+
   sql:
     init:
-      mode: always  # 데이터 초기화를 항상 실행
+      mode: always
       data-locations: classpath:data.sql
-
 
 kafka:
   admin:
@@ -66,12 +64,8 @@ kafka:
     ack-mode: manual
 
 redis:
-  queue:
-    host: redis
-    port: 6379
-
-  cache:
-    host: redis
+  reservation:
+    host: reservation-redis
     port: 6380
 
 
@@ -90,6 +84,10 @@ management:
         include: "*"
     prometheus:
       enabled: true
+
+waiting:
+  api:
+    enter-url: ${WAITING_LINE_BASE_URL}
 
 otel:
   resource:
