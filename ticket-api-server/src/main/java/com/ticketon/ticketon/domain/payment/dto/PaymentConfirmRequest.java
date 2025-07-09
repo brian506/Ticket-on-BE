@@ -7,7 +7,6 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
 @Builder
 public class PaymentConfirmRequest {
     private Long ticketTypeId;
