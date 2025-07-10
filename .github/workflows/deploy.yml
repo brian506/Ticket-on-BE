@@ -56,7 +56,8 @@ jobs:
           echo "OTEL_EXPORTER_OTLP_ENDPOINT=${{ secrets.OTEL_EXPORTER_OTLP_ENDPOINT }}" >> .env
           echo "TOSS_SECRET_KEY=${{ secrets.TOSS_SECRET_KEY }}" >> .env
           echo "TOSS_CLIENT_KEY=${{ secrets.TOSS_CLIENT_KEY }}" >> .env
-          echo "WAITING_LINE_BASE_URL=${{ secrets.WAITING_LINE_BASE_URL }}" >> .env
+          echo "QUEUE_BASE_URL=${{ secrets.QUEUE_BASE_URL }}" >> .env
+          echo "WEBSOCKET_BASE_URL=${{ secrets.WEBSOCKET_BASE_URL }}" >> .env
         
 
       - name: Upload .env to EC2

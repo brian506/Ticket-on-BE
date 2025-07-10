@@ -14,14 +14,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class QueueViewController {
 
-    @Value("${waiting.api.enter-url}")
-    private String queueEnterUrl;
+    @Value("${stomp.url}")
+    private String stompUrl;
+
+    @Value("${queue-server.url}")
+    private String queueServerUrl;
 
     @PostMapping(Urls.WAITING)
     public String waitingPage(Model model, @RequestParam Long eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        model.addAttribute("enterUrl", queueEnterUrl);
+        model.addAttribute("stompUrl", stompUrl);
+        model.addAttribute("queueServerUrl", queueServerUrl);
         model.addAttribute("eventId", eventId);
         model.addAttribute("email", email);
         return "ticket/test/waiting";

@@ -1,6 +1,5 @@
 package com.ticketon.ticketon.config;
 
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;

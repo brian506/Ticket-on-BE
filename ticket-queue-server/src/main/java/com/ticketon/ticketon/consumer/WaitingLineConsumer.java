@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
@@ -12,7 +11,6 @@ import reactor.kafka.receiver.ReceiverOptions;
 import java.util.List;
 import java.util.Map;
 
-import static com.ticketon.ticketon.utils.RedisUtils.stripQuotesAndTrim;
 
 
 @Slf4j
