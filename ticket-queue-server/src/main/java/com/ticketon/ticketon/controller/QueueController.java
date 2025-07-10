@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import reactor.core.publisher.Mono;
 
 import org.springframework.web.bind.annotation.*;
-import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/v1/api/queues")
@@ -21,7 +20,7 @@ public class QueueController {
 
     @PostMapping("/enter")
     public Mono<ResponseEntity<SuccessResponse>> enter(@RequestParam String email) {
-        return kafkaQueueProducer.send(email)
-                .thenReturn(ResponseEntity.ok(new SuccessResponse(true, "대기열 등록 완료", null)));
+        kafkaQueueProducer.enqueue(email); // 비동기 처리만 요청
+        return Mono.just(ResponseEntity.ok(new SuccessResponse(true, "요청 수신 완료", null)));
     }
 }

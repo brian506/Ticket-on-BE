@@ -41,6 +41,6 @@ public class WaitingLineConsumer {
                     batchWriter.enqueue(record.value());
                 })
                 .doOnError(e -> log.error("Kafka 수신 중 에러", e))
-                .subscribe(); // backpressure-aware
+                .subscribe();
     }
 }
