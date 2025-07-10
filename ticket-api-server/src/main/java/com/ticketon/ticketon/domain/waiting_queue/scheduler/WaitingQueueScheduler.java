@@ -42,7 +42,6 @@ public class WaitingQueueScheduler {
         if (!removed) {
             return;
         }
-
         allowAccess(email);
         notifyUser(email);
     }
