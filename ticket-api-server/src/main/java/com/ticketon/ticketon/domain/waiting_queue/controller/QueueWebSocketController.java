@@ -28,7 +28,6 @@ public class QueueWebSocketController {
         if (!isAuthorizedUser(email, accessor)) {
             return;
         }
-
         Long position = getQueuePosition(email);
         sendQueuePositionToUser(email, position);
     }
