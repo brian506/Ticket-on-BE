@@ -67,6 +67,7 @@ management:
       kafka: true
       all: true
       jvm: true
+      reactor.netty: true
   endpoints:
     web:
       exposure:

@@ -44,12 +44,13 @@ public class WaitingLineBatchWriter {
 
     private Mono<Void> writeBatchToRedis(List<String> emails) {
         return Mono.fromCallable(() -> {
-            List<io.lettuce.core.RedisFuture<Long>> futures = new ArrayList<>();
+            List<io.lettuce.core.RedisFuture<?>> futures = new ArrayList<>();
             double now = System.currentTimeMillis();
             for (String email : emails) {
                 futures.add(asyncCommands.zadd(WAITING_LINE, now, email));
+                futures.add(asyncCommands.setex("ttl:waiting:" + email, 60 * 20, "1"));
             }
-            asyncCommands.flushCommands(); // flush 한 번으로 전송
+            asyncCommands.flushCommands(); // 한번에 전송
             return futures;
         }).flatMap(futures ->
                 Flux.fromIterable(futures)
