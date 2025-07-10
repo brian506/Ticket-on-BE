@@ -72,14 +72,15 @@
     const userId = /*[[${#authentication.name}]]*/ 'anonymous';
     const email = /*[[${email}]]*/ 'anonymous@email.com';
     const eventId = /*[[${eventId}]]*/ '-1';
-    const enterUrl = /*[[${enterUrl}]]*/ '';
+    const stompUrl = /*[[${stompUrl}]]*/ '';
+    const queueServerUrl = /*[[${queueServerUrl}]]*/ '';
     /*]]>*/
 
     let stompClient = null;
     let hasReceivedPosition = false;
 
     function connectWebSocket() {
-        const socket = new SockJS(enterUrl + '/ws');
+        const socket = new SockJS(stompUrl + '/ws');
         stompClient = Stomp.over(socket);
 
         stompClient.connect(
@@ -117,13 +118,13 @@
                     const params = new URLSearchParams();
                     params.append('email', email);
 
-                    fetch(enterUrl + '/v1/api/queues/enter', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: params.toString()
-                    }).then(res => {
+                    fetch(queueServerUrl + '/v1/api/queues/enter', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ email })
+                        }).then(res => {
                         if (!res.ok) throw new Error("대기열 등록 실패");
                         console.log("대기열 등록 완료");
                     }).catch(err => console.error(err));
@@ -131,7 +132,7 @@
 
                 // 주기적 순위 요청
                 setInterval(() => {
-                    stompClient.send("/app/queue-status", {}, email);
+                    stompClient.send("/app/queues/status", {}, email);
                 }, 1000);
             },
             function (error) {

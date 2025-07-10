@@ -25,7 +25,7 @@ public class WaitingLineBatchWriter {
     public WaitingLineBatchWriter(StatefulRedisConnection<String, String> connection) {
         this.connection = connection;
         this.asyncCommands = connection.async();
-        this.asyncCommands.setAutoFlushCommands(false); // batching용 설정
+        this.asyncCommands.setAutoFlushCommands(false);
         this.sink = Sinks.many().unicast().onBackpressureBuffer();
         startFlushLoop();
     }
@@ -36,7 +36,7 @@ public class WaitingLineBatchWriter {
 
     private void startFlushLoop() {
         sink.asFlux()
-                .bufferTimeout(5000, Duration.ofMillis(20)) // 5000개 또는 20ms마다 flush
+                .bufferTimeout(5000, Duration.ofMillis(20))
                 .flatMap(this::writeBatchToRedis)
                 .onErrorContinue((e, o) -> log.error("Flush 에러", e))
                 .subscribe();

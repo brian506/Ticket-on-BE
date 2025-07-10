@@ -18,9 +18,12 @@ public class QueueController {
         this.kafkaQueueProducer = kafkaQueueProducer;
     }
 
+    public record EmailRequest(String email) {}
+
     @PostMapping("/enter")
-    public Mono<ResponseEntity<SuccessResponse>> enter(@RequestParam String email) {
-        kafkaQueueProducer.enqueue(email); // 비동기 처리만 요청
+    public Mono<ResponseEntity<SuccessResponse>> enter(@RequestBody EmailRequest request) {
+        String email = request.email();
+        kafkaQueueProducer.enqueue(email);
         return Mono.just(ResponseEntity.ok(new SuccessResponse(true, "요청 수신 완료", null)));
     }
 }
