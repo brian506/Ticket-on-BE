@@ -11,6 +11,7 @@ logging:
   level:
     root: INFO
     io.opentelemetry: DEBUG
+    reactor.netty: DEBUG
 
 
 kafka:
