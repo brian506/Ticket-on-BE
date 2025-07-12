@@ -1,5 +1,6 @@
 package com.ticketon.ticketon.consumer;
 
+import com.ticket.exception.custom.KafkaConsumerException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -11,16 +12,14 @@ import reactor.kafka.receiver.ReceiverOptions;
 import java.util.List;
 import java.util.Map;
 
-
-
 @Slf4j
 @Component
 public class WaitingLineConsumer {
 
     public WaitingLineConsumer(WaitingLineBatchWriter batchWriter,
-                                      @Value("${kafka.consumer.queue-enqueue.bootstrap-servers}") String bootstrapServers,
-                                      @Value("${kafka.topic-config.queue-enqueue.name}") String topic,
-                                      @Value("${kafka.consumer.queue-enqueue.group-id}") String groupId) {
+                               @Value("${kafka.consumer.queue-enqueue.bootstrap-servers}") String bootstrapServers,
+                               @Value("${kafka.topic-config.queue-enqueue.name}") String topic,
+                               @Value("${kafka.consumer.queue-enqueue.group-id}") String groupId) {
 
         Map<String, Object> props = Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
@@ -38,7 +37,9 @@ public class WaitingLineConsumer {
                 .doOnNext(record -> {
                     batchWriter.enqueue(record.value());
                 })
-                .doOnError(e -> log.error("Kafka 수신 중 에러", e))
+                .doOnError(e -> {
+                    throw new KafkaConsumerException(e.getMessage());
+                })
                 .subscribe();
     }
 }

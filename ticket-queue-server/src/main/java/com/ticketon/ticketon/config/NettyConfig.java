@@ -11,9 +11,9 @@ public class NettyConfig {
     @Bean
     public ReactorResourceFactory reactorServerResourceFactory() {
         ReactorResourceFactory factory = new ReactorResourceFactory();
-        factory.setUseGlobalResources(false); // 커스텀 리소스 사용
+        factory.setUseGlobalResources(false);
         factory.setLoopResources(
-                LoopResources.create("http-server", 16, true) // Netty event loop thread 설정
+                LoopResources.create("http-server", 16, true) // Netty 이벤트 루프 thread 설정
         );
         return factory;
     }

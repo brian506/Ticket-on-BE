@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Set;
 
-import static com.ticketon.ticketon.utils.RedisKeyConstants.ALLOWED_PREFIX;
-import static com.ticketon.ticketon.utils.RedisKeyConstants.WAITING_LINE;
-import static com.ticketon.ticketon.utils.StompConstants.TOPIC_ALLOWED;
+import static com.ticket.utils.RedisKeyConstants.ALLOWED_PREFIX;
+import static com.ticket.utils.RedisKeyConstants.WAITING_LINE;
+import static com.ticket.utils.StompConstants.TOPIC_ALLOWED;
 
 
 @Component

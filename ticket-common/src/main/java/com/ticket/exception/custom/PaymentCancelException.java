@@ -1,7 +1,7 @@
-package com.ticketon.ticketon.exception.custom;
+package com.ticket.exception.custom;
 
-import com.ticketon.ticketon.exception.ErrorCode;
-import com.ticketon.ticketon.exception.ExceptionBase;
+import com.ticket.exception.ErrorCode;
+import com.ticket.exception.ExceptionBase;
 import jakarta.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 

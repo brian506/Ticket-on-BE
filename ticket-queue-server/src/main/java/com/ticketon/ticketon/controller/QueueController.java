@@ -1,6 +1,7 @@
 package com.ticketon.ticketon.controller;
 
-import com.ticketon.ticketon.dto.SuccessResponse;
+import com.ticket.dto.SuccessResponse;
+import com.ticketon.ticketon.dto.EmailRequest;
 import com.ticketon.ticketon.producer.WaitingLineProducer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +18,6 @@ public class QueueController {
     public QueueController(WaitingLineProducer kafkaQueueProducer) {
         this.kafkaQueueProducer = kafkaQueueProducer;
     }
-
-    public record EmailRequest(String email) {}
 
     @PostMapping("/enter")
     public Mono<ResponseEntity<SuccessResponse>> enter(@RequestBody EmailRequest request) {

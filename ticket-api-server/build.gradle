@@ -46,9 +46,9 @@ bootRun {
 bootRun.dependsOn("copyAgent")
 
 dependencies {
+    implementation project(':ticket-common')
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'com.github.sinminseok:snail-catch:1.1.0'
-    //Observability 관련 설정
     agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
     implementation 'io.lettuce:lettuce-core'
     implementation 'io.micrometer:micrometer-core'
@@ -61,19 +61,13 @@ dependencies {
     implementation 'com.github.vertical-blank:sql-formatter:2.0.3'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.kafka:spring-kafka'
-    //	implementation 'com.github.loki4j:loki-logback-appender:1.4.0'
     implementation 'de.huxhorn.sulky:de.huxhorn.sulky.ulid:8.3.0'
-
-
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.29.0'
-
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'

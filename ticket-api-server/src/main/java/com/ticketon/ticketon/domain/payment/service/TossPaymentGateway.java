@@ -2,8 +2,8 @@ package com.ticketon.ticketon.domain.payment.service;
 
 import com.ticketon.ticketon.domain.payment.dto.*;
 import com.ticketon.ticketon.config.PaymentProperties;
-import com.ticketon.ticketon.exception.custom.PaymentCancelException;
-import com.ticketon.ticketon.exception.custom.PaymentConfirmException;
+import com.ticket.exception.custom.PaymentCancelException;
+import com.ticket.exception.custom.PaymentConfirmException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -34,10 +34,7 @@ public class TossPaymentGateway implements PaymentGateway {
                 .body(tossRequest)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    String errorBody = new BufferedReader(new InputStreamReader(res.getBody()))
-                            .lines().collect(Collectors.joining("\n"));
-                    System.out.println("Toss error response: " + errorBody);
-                    throw new PaymentConfirmException(res.getStatusCode(), errorBody);
+                    throw new PaymentConfirmException();
                 })
                 .body(PaymentConfirmResponse.class);
 

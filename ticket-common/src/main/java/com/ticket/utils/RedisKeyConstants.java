@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.utils;
+package com.ticket.utils;
 
 public class RedisKeyConstants {
     private RedisKeyConstants() {}

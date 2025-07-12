@@ -1,20 +1,14 @@
 package com.ticketon.ticketon.producer;
 
-import com.ticketon.ticketon.consumer.WaitingLineBatchWriter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
-import reactor.kafka.receiver.KafkaReceiver;
-import reactor.kafka.receiver.ReceiverOptions;
 import reactor.kafka.sender.KafkaSender;
 import reactor.kafka.sender.SenderOptions;
 import reactor.kafka.sender.SenderRecord;
@@ -34,27 +28,26 @@ public class WaitingLineProducer {
 
     public WaitingLineProducer(@Value("${kafka.producer.bootstrap-servers}") String bootstrapServers,
                                @Value("${kafka.topic-config.queue-enqueue.name}") String topic) {
-
-        this.topic = topic;
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-
         SenderOptions<String, String> senderOptions = SenderOptions.create(props);
-        this.sender = KafkaSender.create(senderOptions);
 
+        this.topic = topic;
+        this.sender = KafkaSender.create(senderOptions);
         this.sink = Sinks.many().unicast().onBackpressureBuffer();
+
         startKafkaSenderLoop();
     }
 
     public void enqueue(String email) {
-        sink.tryEmitNext(email); // 요청만 넣고 끝
+        sink.tryEmitNext(email);
     }
 
     private void startKafkaSenderLoop() {
         sink.asFlux()
-                .bufferTimeout(1000, Duration.ofMillis(10)) // 최대 1000건 또는 10ms 마다 전송
+                .bufferTimeout(1000, Duration.ofMillis(10))
                 .flatMap(this::sendBatch)
                 .onErrorContinue((e, o) -> log.error("Kafka 전송 중 에러", e))
                 .subscribe();

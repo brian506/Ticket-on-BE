@@ -7,9 +7,9 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import static com.ticketon.ticketon.utils.RedisKeyConstants.DEFAULT_POSITION;
-import static com.ticketon.ticketon.utils.RedisKeyConstants.WAITING_LINE;
-import static com.ticketon.ticketon.utils.StompConstants.QUEUE_POSITION_DESTINATION;
+import static com.ticket.utils.RedisKeyConstants.DEFAULT_POSITION;
+import static com.ticket.utils.RedisKeyConstants.WAITING_LINE;
+import static com.ticket.utils.StompConstants.QUEUE_POSITION_DESTINATION;
 
 
 @Controller

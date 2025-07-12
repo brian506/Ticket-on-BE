@@ -1,14 +1,12 @@
 package com.ticketon.ticketon.domain.ticket.entity;
 
 import com.ticketon.ticketon.domain.member.entity.Member;
-import com.ticketon.ticketon.exception.custom.TicketAlreadyCancelledException;
+import com.ticket.exception.custom.TicketAlreadyCancelledException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 
 @Table(name = "tickets")
