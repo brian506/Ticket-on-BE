@@ -1,6 +1,6 @@
 package com.ticketon.ticketon.utils;
 
-import com.ticketon.ticketon.exception.custom.DataNotFoundException;
+import com.ticket.exception.custom.DataNotFoundException;
 
 import java.util.Optional;
 

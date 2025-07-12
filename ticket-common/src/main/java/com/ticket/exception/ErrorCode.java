@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.exception;
+package com.ticket.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

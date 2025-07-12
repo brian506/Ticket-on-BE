@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.dto;
+package com.ticket.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

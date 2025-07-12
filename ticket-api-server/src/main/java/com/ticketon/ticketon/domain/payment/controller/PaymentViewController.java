@@ -1,17 +1,11 @@
 package com.ticketon.ticketon.domain.payment.controller;
 
-import com.ticketon.ticketon.config.OrderIdGenerator;
-import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
 import com.ticketon.ticketon.domain.eventitem.service.EventItemService;
 import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
-import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmRequest;
 import com.ticketon.ticketon.domain.payment.service.PaymentService;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
-import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
-import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
-import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategyType;
 import com.ticketon.ticketon.global.annotation.CurrentUser;
 import com.ticketon.ticketon.global.constants.Urls;
 import de.huxhorn.sulky.ulid.ULID;
@@ -22,7 +16,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 
 @Controller

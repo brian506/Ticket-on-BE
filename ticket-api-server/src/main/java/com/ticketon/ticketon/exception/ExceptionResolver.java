@@ -1,6 +1,7 @@
 package com.ticketon.ticketon.exception;
 
-import com.ticketon.ticketon.utils.SuccessResponse;
+import com.ticket.dto.SuccessResponse;
+import com.ticket.exception.ExceptionBase;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

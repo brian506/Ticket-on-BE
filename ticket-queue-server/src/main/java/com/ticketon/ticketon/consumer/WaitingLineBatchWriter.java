@@ -1,5 +1,6 @@
 package com.ticketon.ticketon.consumer;
 
+import com.ticket.exception.custom.WaitingLineRedisFlushException;
 import com.ticketon.ticketon.dto.EnqueuedUser;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
@@ -14,15 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.ticket.utils.RedisKeyConstants.WAITING_LINE;
+
 @Slf4j
 @Component
 public class WaitingLineBatchWriter {
-
     private final RedisAsyncCommands<String, String> asyncCommands;
     private final Sinks.Many<EnqueuedUser> sink;
-
-    private static final String WAITING_LINE = "waiting-line";
     private final AtomicLong sequence = new AtomicLong();
+
+    private static final String TTL_KEY_PREFIX = "ttl:waiting:";
+    private static final long TTL_SECONDS = 60 * 20;
 
     public WaitingLineBatchWriter(StatefulRedisConnection<String, String> connection) {
         this.asyncCommands = connection.async();
@@ -42,7 +45,7 @@ public class WaitingLineBatchWriter {
         sink.asFlux()
                 .bufferTimeout(5000, Duration.ofMillis(20))
                 .flatMap(this::writeBatchToRedis)
-                .onErrorContinue((e, o) -> log.error("Flush 에러", e))
+                .onErrorContinue((e, o) -> {throw new WaitingLineRedisFlushException(e.getMessage());})
                 .subscribe();
     }
 
@@ -51,7 +54,7 @@ public class WaitingLineBatchWriter {
             List<io.lettuce.core.RedisFuture<?>> futures = new ArrayList<>();
             for (EnqueuedUser user : users) {
                 futures.add(asyncCommands.zadd(WAITING_LINE, user.getScore(), user.getEmail()));
-                futures.add(asyncCommands.setex("ttl:waiting:" + user.getEmail(), 60 * 20, "1"));
+                futures.add(asyncCommands.setex(TTL_KEY_PREFIX + user.getEmail(), TTL_SECONDS, "1"));
             }
             asyncCommands.flushCommands();
             return futures;

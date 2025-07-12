@@ -2,8 +2,8 @@ package com.ticketon.ticketon.domain.ticket.entity;
 
 import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketTypeStatus;
-import com.ticketon.ticketon.exception.custom.ExceededTicketQuantityException;
-import com.ticketon.ticketon.exception.custom.InvalidTicketCancellationException;
+import com.ticket.exception.custom.ExceededTicketQuantityException;
+import com.ticket.exception.custom.InvalidTicketCancellationException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,10 +52,6 @@ public class TicketType {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private TicketTypeStatus status;
-//
-//    @Version
-//    private Long version = 0L;
-
 
     public void increaseIssuedQuantity() {
         validateCanIssueTicket();
@@ -70,13 +66,13 @@ public class TicketType {
 
     private void validateCanIssueTicket() {
         if (this.issuedQuantity >= this.maxQuantity) {
-            throw new ExceededTicketQuantityException(this);
+            throw new ExceededTicketQuantityException(this.getName(), this.getPrice());
         }
     }
 
     private void validateCanCancelTicket() {
         if (this.issuedQuantity < 1) {
-            throw new InvalidTicketCancellationException(this);
+            throw new InvalidTicketCancellationException(this.getName(), this.getPrice());
         }
     }
 
