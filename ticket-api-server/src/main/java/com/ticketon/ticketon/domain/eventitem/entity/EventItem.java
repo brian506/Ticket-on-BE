@@ -37,4 +37,9 @@ public class EventItem {
 
     @OneToMany(mappedBy = "eventItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TicketType> ticketTypes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "event_status", nullable = false)
+    private EventItemStatus eventItemStatus;
+
 }
