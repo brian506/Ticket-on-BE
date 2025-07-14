@@ -4,7 +4,6 @@ import com.ticket.exception.custom.WaitingLineRedisFlushException;
 import com.ticketon.ticketon.dto.EnqueuedUser;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,9 +16,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.ticket.utils.RedisKeyConstants.WAITING_LINE;
 
-@Slf4j
 @Component
 public class WaitingLineBatchWriter {
+
     private final RedisAsyncCommands<String, String> asyncCommands;
     private final Sinks.Many<EnqueuedUser> sink;
     private final AtomicLong sequence = new AtomicLong();
@@ -36,8 +35,8 @@ public class WaitingLineBatchWriter {
 
     public void enqueue(String email) {
         long timestamp = System.currentTimeMillis();
-        long offset = sequence.getAndIncrement(); // 동일 시간 내에 순서 보장
-        double score = timestamp + (offset * 0.0001); // 밀리초보다 미세하게 차이 줌
+        long offset = sequence.getAndIncrement();
+        double score = timestamp + (offset * 0.0001);
         sink.tryEmitNext(new EnqueuedUser(email, score));
     }
 

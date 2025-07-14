@@ -1,7 +1,6 @@
 package com.ticketon.ticketon.consumer;
 
 import com.ticket.exception.custom.KafkaConsumerException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +11,6 @@ import reactor.kafka.receiver.ReceiverOptions;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Component
 public class WaitingLineConsumer {
 
@@ -20,7 +18,6 @@ public class WaitingLineConsumer {
                                @Value("${kafka.consumer.queue-enqueue.bootstrap-servers}") String bootstrapServers,
                                @Value("${kafka.topic-config.queue-enqueue.name}") String topic,
                                @Value("${kafka.consumer.queue-enqueue.group-id}") String groupId) {
-
         Map<String, Object> props = Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                 ConsumerConfig.GROUP_ID_CONFIG, groupId,

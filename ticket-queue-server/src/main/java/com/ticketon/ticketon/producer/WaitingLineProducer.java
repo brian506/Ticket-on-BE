@@ -37,7 +37,6 @@ public class WaitingLineProducer {
         this.topic = topic;
         this.sender = KafkaSender.create(senderOptions);
         this.sink = Sinks.many().unicast().onBackpressureBuffer();
-
         startKafkaSenderLoop();
     }
 
