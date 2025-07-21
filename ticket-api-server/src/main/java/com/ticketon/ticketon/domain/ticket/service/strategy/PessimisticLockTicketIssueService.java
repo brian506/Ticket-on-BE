@@ -24,19 +24,20 @@ public class PessimisticLockTicketIssueService implements TicketIssueStrategy {
     private final MemberRepository memberRepository;
 
     @Transactional
-    @Override
+    @Override // (1)
     public TicketRequest purchaseTicket(TicketPurchaseRequest request, Long memberId) {
         Long ticketTypeId = request.getTicketTypeId();
         TicketType ticketType = OptionalUtil.getOrElseThrow(ticketTypeRepository.findByIdForUpdate(ticketTypeId), "티켓 타입 조회 실패 ticket_id=" + ticketTypeId);
-;
-        // 쿼리 날리지 않고 프록시로 조회
-        Member member = memberRepository.getReferenceById(memberId);
-
-        ticketType.increaseIssuedQuantity();
-
-        Ticket ticket = Ticket.createNormalTicket(ticketType, member);
-        ticketRepository.save(ticket);
-
         return TicketRequest.from(memberId, ticketType);
+
+//        // 쿼리 날리지 않고 프록시로 조회
+//        Member member = memberRepository.getReferenceById(memberId);
+//
+//        ticketType.increaseIssuedQuantity();
+//
+//        Ticket ticket = Ticket.createNormalTicket(ticketType, member);
+//        ticketRepository.save(ticket);
+
+
     }
 }

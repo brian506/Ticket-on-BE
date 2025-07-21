@@ -26,6 +26,7 @@ public class PaymentMessage {
 
     public Payment toEntity(PaymentMessage message){
         return Payment.builder()
+                .ticketTypeId(message.getTicketTypeId())
                 .orderId(message.getOrderId())
                 .memberId(message.getMemberId())
                 .paymentStatus(PaymentStatus.SUCCESS)

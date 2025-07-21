@@ -21,6 +21,9 @@ public class Payment {
     @Column(name = "ticket_id",nullable = true)
     private Long ticketId;
 
+    @Column(name = "ticket_type_id")
+    private Long ticketTypeId;
+
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 

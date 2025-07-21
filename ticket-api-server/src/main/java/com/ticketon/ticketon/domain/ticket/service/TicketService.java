@@ -31,7 +31,6 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final MemberRepository memberRepository;
-    private final PaymentRepository paymentRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     private final Map<String, TicketIssueStrategy> strategyMap;
@@ -41,6 +40,7 @@ public class TicketService {
         return TicketRequest.from(memberId, ticketType);
     }
 
+    // (4)
     public Ticket saveTicketInfo(PaymentMessage message, Long memberId) {
         TicketType ticketType = ticketTypeRepository.getReferenceById(message.getTicketTypeId());
         Member member = memberRepository.getReferenceById(memberId);
@@ -62,9 +62,6 @@ public class TicketService {
 
         return ticketRequest;
     }
-
-
-
 
     // 멤버 티켓 목록
     public List<TicketResponse> findMyTickets(Long memberId) {
