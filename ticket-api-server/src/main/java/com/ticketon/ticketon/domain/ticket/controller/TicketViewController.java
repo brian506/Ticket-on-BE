@@ -7,6 +7,7 @@ import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 
+import com.ticketon.ticketon.domain.ticket.service.TicketAccessValidator;
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
 import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategyType;
 import com.ticketon.ticketon.global.annotation.CurrentUser;
@@ -31,6 +32,7 @@ public class TicketViewController {
 
     private final TicketService ticketService;
     private final EventItemService eventItemService;
+    private final TicketAccessValidator ticketAccessValidator;
 
 //    // 티켓 구매
 //    @PostMapping(Urls.TICKET_PURCHASE)
@@ -56,7 +58,7 @@ public class TicketViewController {
     // 대기열을 통과한 유저인지 검증
     private void validateTicketAccessFor(CustomUserDetails userDetails) throws AccessDeniedException {
         String memberEmail = userDetails.getUsername();
-        //ticketAccessValidator.validTicketAccess(memberEmail);
+        ticketAccessValidator.validTicketAccess(memberEmail);
     }
 
     // 내 티켓 조회 페이지
