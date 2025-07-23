@@ -21,4 +21,12 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  reservation-redis:
+    image: redis:7.0.11
+    container_name: reservation-redis
+    command: [ "redis-server", "--port", "6380" ]
+    ports:
+      - "6380:6380"
+    networks:
+      - monitoring
 

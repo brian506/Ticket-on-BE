@@ -44,7 +44,6 @@ public class PaymentViewController {
         // 대기열 통과한 유저인지 검증 //
         String orderId = new ULID().nextULID();
         TicketPurchaseRequest ticketPurchaseRequest = new TicketPurchaseRequest(ticketTypeId,quantity);
-        // 락 구현부 수정필요
         TicketRequest ticketRequest = ticketService.requestTicket(ticketPurchaseRequest, userDetails.getMemberId());
         String eventTitle = eventItemService.getTitleByTicketTypeId(ticketPurchaseRequest.getTicketTypeId());
         model.addAttribute("clientKey",clientKey);

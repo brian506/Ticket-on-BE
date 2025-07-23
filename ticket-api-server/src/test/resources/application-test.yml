@@ -68,41 +68,30 @@ redis:
   reservation:
     host: localhost
     port: 6379
+  waiting-line:
+    host: localhost
+    port: 6379
 
   cache:
     host: localhost
     port: 6380
 
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: false
 
-management:
-  metrics:
-    export:
-      otlp:
-        enabled: true
-        endpoint: http://localhost:4318
-    enable:
-      all: true
-      jvm: true
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-    prometheus:
-      enabled: true
+stomp:
+  url: ${WEBSOCKET_BASE_URL}
 
-otel:
-  resource:
-    attributes:
-      service.name: ticket-service
-  exporter:
-    otlp:
-      url: http://localhost:4317
-      protocol: grpc
+queue-server:
+  url: ${QUEUE_BASE_URL}
+
+
 
 logging:
   level:
     root: INFO
-    io.opentelemetry: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
     org.springframework.orm.jpa: DEBUG

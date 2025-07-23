@@ -26,7 +26,7 @@ services:
     container_name: reservation-redis
     command: ["redis-server", "--port", "6380"]
     ports:
-      - "6380:6380"
+      - "6380:6379"
     networks:
       - monitoring
 

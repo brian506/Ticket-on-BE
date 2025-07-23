@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: docker
+    active: test
   config:
     import: "optional:file:.env[.properties]"
 
@@ -25,10 +25,10 @@ logging:
     org.springframework.orm.jpa: DEBUG
     org.springframework.transaction: debug
 
-snail-catch:
-  enabled: false
-  repository-pointcut: execution(* com.ticketon.ticketon.domain..repository..*(..))
-  api-key: 13a4d744b37046e2b62f90077c0936f8
+#snail-catch:
+#  enabled: false
+#  repository-pointcut: execution(* com.ticketon.ticketon.domain..repository..*(..))
+#  api-key: 13a4d744b37046e2b62f90077c0936f8
 
 server:
   tomcat:

@@ -8,7 +8,6 @@ import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
-import com.ticketon.ticketon.exception.custom.ExceededTicketQuantityException;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

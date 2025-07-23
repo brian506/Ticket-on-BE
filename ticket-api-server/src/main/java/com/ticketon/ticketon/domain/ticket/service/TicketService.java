@@ -12,6 +12,8 @@ import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
+import com.ticketon.ticketon.domain.ticket.service.strategy.PessimisticLockTicketIssueService;
+import com.ticketon.ticketon.domain.ticket.service.strategy.RedisLockTicketIssueService;
 import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import jakarta.transaction.Transactional;
@@ -20,6 +22,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +35,8 @@ public class TicketService {
     private final TicketTypeRepository ticketTypeRepository;
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final RedisLockTicketIssueService redisService;
+    private final PessimisticLockTicketIssueService pessimisticService;
 
     private final Map<String, TicketIssueStrategy> strategyMap;
 
@@ -42,12 +47,9 @@ public class TicketService {
 
     // (4)
     public Ticket saveTicketInfo(PaymentMessage message, Long memberId) {
-        Long ticketTypeId = message.getTicketTypeId();
-        TicketType ticketType = OptionalUtil.getOrElseThrow(ticketTypeRepository.findByIdForUpdate(ticketTypeId),"티켓타입 없음"); // 비관락
 
-        if (ticketType.getIssuedQuantity() >= ticketType.getMaxQuantity()) {
-            throw new IllegalStateException("티켓이 모두 소진되었습니다.");
-        }
+        //TicketType ticketType = redisService.purchaseTicket(message,memberId); // 레디스 + 비관락
+        TicketType ticketType = pessimisticService.purchaseTicket(message,memberId); // 비관락
 
         Member member = memberRepository.getReferenceById(memberId);
         Ticket ticket = Ticket.createNormalTicket(ticketType, member);
@@ -56,18 +58,18 @@ public class TicketService {
         return ticketRepository.save(ticket);
     }
 
-    public TicketRequest purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {
-
-        TicketIssueStrategy strategy = strategyMap.get(strategyType);
-        if (strategy == null) {
-            throw new IllegalArgumentException("존재하지 않는 전략 타입: " + strategyType);
-        }
-
-        TicketRequest ticketRequest = strategy.purchaseTicket(request, memberId);
-        redisTemplate.delete("allowed:" + memberId);
-
-        return ticketRequest;
-    }
+//    public TicketRequest purchaseTicket(String strategyType, TicketPurchaseRequest request, Long memberId) {
+//
+//        TicketIssueStrategy strategy = strategyMap.get(strategyType);
+//        if (strategy == null) {
+//            throw new IllegalArgumentException("존재하지 않는 전략 타입: " + strategyType);
+//        }
+//
+//        TicketRequest ticketRequest = strategy.purchaseTicket(request, memberId);
+//        redisTemplate.delete("allowed:" + memberId);
+//
+//        return ticketRequest;
+//    }
 
     // 멤버 티켓 목록
     public List<TicketResponse> findMyTickets(Long memberId) {

@@ -1,6 +1,9 @@
 package com.ticketon.ticketon.payment;
 
+import com.ticket.exception.custom.DataNotFoundException;
+import com.ticket.exception.custom.ExceededTicketQuantityException;
 import com.ticketon.ticketon.domain.eventitem.entity.EventItem;
+import com.ticketon.ticketon.domain.eventitem.entity.EventItemStatus;
 import com.ticketon.ticketon.domain.eventitem.repository.EventItemRepository;
 import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
@@ -16,6 +19,7 @@ import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.domain.ticket.service.strategy.PessimisticLockTicketIssueService;
 
+import com.ticketon.ticketon.domain.ticket.service.strategy.RedisLockTicketIssueService;
 import jakarta.transaction.Transactional;
 import jdk.jfr.Event;
 import org.junit.jupiter.api.*;
@@ -24,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,13 +40,16 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootTest // 전체 컨텍스트 로딩
-@Transactional
+@ActiveProfiles("test")
 @TestPropertySource(properties = {
         "spring.datasource.url=jdbc:mysql://localhost:3306/ticket_on?serverTimezone=Asia/Seoul",
         "spring.datasource.username=root",
         "spring.datasource.password=wind6298",
         "toss.client-key=test_ck_pP2YxJ4K871KbDe5qoQWVRGZwXLO",
-        "waiting.api.enter-url="// 테스트 코드에서는 환경변수를 미리 설정
+        "waiting.api.enter-url=",// 테스트 코드에서는 환경변수를 미리 설정
+        "stomp.url=",
+        "queue-server.url="
+
 })
 public class TicketPurchaseLockTest {
 
@@ -63,8 +71,8 @@ public class TicketPurchaseLockTest {
     @Autowired
     private PaymentService paymentService;
 
-//    @Autowired
-//    private RedisLockTicketIssueService redisLockService;
+    @Autowired
+    private RedisLockTicketIssueService redisLockService;
 
     private static final int CONCURRENT_USERS = 100; // 사용자수
     private static final Long TICKET_STOCK = 50L; // 티켓 재고
@@ -81,7 +89,6 @@ public class TicketPurchaseLockTest {
 
         ids = setupTestData();
         ticketTypeId = setupTicketType();
-
     }
 
     @Test
@@ -110,8 +117,8 @@ public class TicketPurchaseLockTest {
                             .build();
 
                     paymentService.saveTicketAndPayment(message);
-                }catch (Exception e){
-                    e.printStackTrace();
+                }catch (InterruptedException e){
+                    e.getStackTrace();
                 }finally {
                     finishLatch.countDown(); // 작업 완료
                 }
@@ -128,8 +135,8 @@ public class TicketPurchaseLockTest {
 
         Assertions.assertEquals(result.getIssuedQuantity(),TICKET_STOCK);
         Assertions.assertEquals(tickets.size(),TICKET_STOCK);
-
     }
+
     @Test
     @DisplayName("100명이 동시에 티켓 구매 요청 시 레디스 락 수행")
     void concurrentTest_redisLock() throws Exception {
@@ -138,13 +145,40 @@ public class TicketPurchaseLockTest {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch finishLatch = new CountDownLatch(CONCURRENT_USERS);
 
-//        for(int i = 0; i < CONCURRENT_USERS; i++){
-//            final in
-//        }
-
+        for(int i = 0; i < CONCURRENT_USERS; i++){
+            final int index = i;
+            executorService.submit(() -> {
+                try {
+                    startLatch.await();
+                    Long memberId = ids.get(index);
+                    PaymentMessage message = PaymentMessage.builder()
+                            .ticketTypeId(ticketTypeId + index)
+                            .memberId(memberId)
+                            .amount(10000)
+                            .paymentKey("payment-key")
+                            .orderId("orderId" + memberId)
+                            .approvedAt(LocalDateTime.now())
+                            .requestedAt(LocalDateTime.now())
+                            .build();
+                    paymentService.saveTicketAndPayment(message);
+                }catch (InterruptedException e){
+                    e.getStackTrace();
+                }finally {
+                    finishLatch.countDown();
+                }
+            });
+        }
         //when
+        startLatch.countDown();
+        finishLatch.await(20,TimeUnit.SECONDS);
+        executorService.shutdown();
 
         //then
+        TicketType ticketType = ticketTypeRepository.findById(ticketTypeId).orElseThrow();
+        List<Ticket> tickets = ticketRepository.findAll();
+
+        Assertions.assertEquals(ticketType.getIssuedQuantity(),TICKET_STOCK);
+        Assertions.assertEquals(tickets.size(),TICKET_STOCK);
 
     }
 
@@ -183,6 +217,7 @@ public class TicketPurchaseLockTest {
                 .title("싸이의 흠뻑쇼")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now())
+                .eventItemStatus(EventItemStatus.OPEN)
                 .build();
         return eventItemRepository.save(eventItem);
     }
