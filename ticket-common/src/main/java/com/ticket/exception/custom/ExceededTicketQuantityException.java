@@ -6,9 +6,9 @@ import org.springframework.http.HttpStatus;
 
 public class ExceededTicketQuantityException extends ExceptionBase {
 
-    private static final String MESSAGE_TEMPLATE = "[%s(%d)] 남은 티켓보다 수량보다 많은 티켓 수량을 요청할 수 없습니다.";
+    private static final String MESSAGE_TEMPLATE = "[%s(%d)] 남은 티켓 수량보다 많은 티켓 수량을 요청할 수 없습니다.";
 
-    public ExceededTicketQuantityException(final String ticketName, final Long price) {
+    public ExceededTicketQuantityException(final String ticketName, final Integer price) {
         this.errorCode = ErrorCode.EXCEEDED_TICKET_QUANTITY;
         this.errorMessage = String.format(MESSAGE_TEMPLATE, ticketName, price);
     }

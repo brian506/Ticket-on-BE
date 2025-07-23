@@ -34,6 +34,9 @@ public class Ticket {
     @Column(name = "status", nullable = false)
     private TicketStatus ticketStatus;
 
+    @Column(name = "price",nullable = false)
+    private Integer price;
+
     public Long getTicketTypeId() {
         return ticketType.getId();
     }
@@ -57,6 +60,7 @@ public class Ticket {
         return Ticket.builder().
                 ticketType(ticketType).
                 member(member).
+                price(ticketType.getPrice()).
                 ticketStatus(TicketStatus.SOLD_OUT).
                 build();
     }
@@ -64,7 +68,7 @@ public class Ticket {
         return Ticket.builder()
                 .id(id)
                 .member(member)
-//                .price(price)
+                .price(price)
                 .build();
     }
 }

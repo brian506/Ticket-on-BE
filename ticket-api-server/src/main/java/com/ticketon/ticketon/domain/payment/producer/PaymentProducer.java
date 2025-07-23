@@ -21,6 +21,7 @@ public class PaymentProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
+    // (3)
     public void sendPayment(final PaymentConfirmResponse response, final PaymentConfirmRequest request) {
         PaymentMessage message = response.fromResponse(response,request);
         log.info("paymentMessage : {} " , message);

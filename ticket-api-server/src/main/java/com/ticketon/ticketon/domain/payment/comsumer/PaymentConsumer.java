@@ -25,11 +25,10 @@ import org.springframework.stereotype.Service;
         containerFactory = "paymentKafkaListenerContainerFactory")
 public class PaymentConsumer {
 
-    private final TicketService ticketService;
-    private final PaymentRepository paymentRepository;
+    private final PaymentService paymentService;
 
     // 예약,결제 정보 저장
-    @KafkaHandler
+    @KafkaHandler // (6)
     public void consumePayment(PaymentMessage message, Acknowledgment ack) {
         try {
             log.info("message 정보 : {}",message.toString());
@@ -38,13 +37,7 @@ public class PaymentConsumer {
                 return; // Kafka ack 안 해주면 retry 발생
             }
 
-            // 예약 정보 저장
-            Ticket ticket = ticketService.saveTicketInfo(message, message.getMemberId());
-            // 티켓 정보 먼저 저장해야 ticketId 저장 가능
-            Payment payment = message.toEntity(message);
-            payment.setTicketId(ticket.getId());
-            paymentRepository.save(payment);
-
+           paymentService.saveTicketAndPayment(message);
             // 오프셋 ack 여부 판단
             ack.acknowledge();
 

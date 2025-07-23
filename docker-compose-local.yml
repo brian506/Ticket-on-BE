@@ -1,4 +1,18 @@
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: ticket-mysql
+    restart: always
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    networks:
+      - monitoring
+
+
   wating-line-redis:
     image: redis:7.0.11
     container_name: wating-line-redis
@@ -12,7 +26,7 @@ services:
     container_name: reservation-redis
     command: ["redis-server", "--port", "6380"]
     ports:
-      - "6380:6380"
+      - "6380:6379"
     networks:
       - monitoring
 
@@ -189,4 +203,5 @@ networks:
 volumes:
   grafana-storage:
   influxdb-storage:
+
 

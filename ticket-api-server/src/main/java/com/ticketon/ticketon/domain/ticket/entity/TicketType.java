@@ -46,7 +46,7 @@ public class TicketType {
 
     // 해당 티켓 가격
     @Column(name = "price", nullable = false)
-    private Long price;
+    private Integer price;
 
     // 티켓 상태
     @Enumerated(EnumType.STRING)

@@ -8,7 +8,7 @@ public class InvalidTicketCancellationException extends ExceptionBase {
 
     private static final String MESSAGE_TEMPLATE = "[%s(%d)] 발급된 티켓이 없습니다.";
 
-    public InvalidTicketCancellationException(String ticketName, Long price) {
+    public InvalidTicketCancellationException(String ticketName, Integer price) {
         this.errorCode = ErrorCode.INVALID_TICKET_CANCELLATION;
         this.errorMessage = String.format(MESSAGE_TEMPLATE, ticketName, price);
     }

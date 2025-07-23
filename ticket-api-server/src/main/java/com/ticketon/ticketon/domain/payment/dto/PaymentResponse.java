@@ -20,7 +20,7 @@ public class PaymentResponse {
     private Long memberId;
     private String orderId;
     private PaymentStatus status;
-    private int amount;
+    private Integer amount;
     private LocalDateTime approvedAt;
 
     public static PaymentResponse toDto(Payment payment){

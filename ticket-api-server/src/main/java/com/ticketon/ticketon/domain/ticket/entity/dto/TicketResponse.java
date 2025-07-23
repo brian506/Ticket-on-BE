@@ -21,7 +21,7 @@ public class TicketResponse {
     private String memberEmail;
     @Enumerated(EnumType.STRING)
     private TicketStatus ticketStatus;
-    private int price;
+    private Integer price;
 
     public static TicketResponse from(Ticket ticket) {
         return TicketResponse.builder()

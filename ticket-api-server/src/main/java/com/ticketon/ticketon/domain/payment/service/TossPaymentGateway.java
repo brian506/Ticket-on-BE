@@ -1,18 +1,21 @@
 package com.ticketon.ticketon.domain.payment.service;
 
-import com.ticketon.ticketon.domain.payment.dto.*;
-import com.ticketon.ticketon.config.PaymentProperties;
+
 import com.ticket.exception.custom.PaymentCancelException;
 import com.ticket.exception.custom.PaymentConfirmException;
+import com.ticketon.ticketon.domain.payment.dto.*;
+import com.ticketon.ticketon.config.PaymentProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
@@ -34,6 +37,8 @@ public class TossPaymentGateway implements PaymentGateway {
                 .body(tossRequest)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
+                    String errorBody = getErrorBody(res);
+                    System.out.println("Toss error response: " + errorBody);
                     throw new PaymentConfirmException();
                 })
                 .body(PaymentConfirmResponse.class);
@@ -52,5 +57,10 @@ public class TossPaymentGateway implements PaymentGateway {
                     throw new PaymentCancelException("결제 취소 요청 실패: Toss 응답 오류");
                 })
                 .body(PaymentCancelResponse.class);
+    }
+
+    public String getErrorBody(ClientHttpResponse res) throws IOException {
+        return new  BufferedReader(new InputStreamReader(res.getBody()))
+                .lines().collect(Collectors.joining("\n"));
     }
 }

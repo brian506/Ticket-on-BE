@@ -10,7 +10,7 @@ public class TicketRequest {
 
     private Long ticketTypeId;
     private Long memberId;
-    private int amount;
+    private Integer amount;
 
     public static TicketRequest from(Long memberId, TicketType ticketType) {
         return TicketRequest.builder()

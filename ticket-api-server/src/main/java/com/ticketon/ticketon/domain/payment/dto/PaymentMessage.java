@@ -19,13 +19,14 @@ public class PaymentMessage {
     private String paymentKey;
     private Long memberId;
     private String orderId;
-    private int amount;
+    private Integer amount;
     private LocalDateTime requestedAt;
     private LocalDateTime approvedAt;
     private LocalDateTime canceledAt;
 
     public Payment toEntity(PaymentMessage message){
         return Payment.builder()
+                .ticketTypeId(message.getTicketTypeId())
                 .orderId(message.getOrderId())
                 .memberId(message.getMemberId())
                 .paymentStatus(PaymentStatus.SUCCESS)

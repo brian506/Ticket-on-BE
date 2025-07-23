@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import jakarta.validation.constraints.*;
 
 @Getter
 @Setter
@@ -12,6 +13,8 @@ import lombok.Setter;
 public class TicketPurchaseRequest {
 
     private Long ticketTypeId;
+
+    @Max(1)
     private Integer quantity;
 
 }
