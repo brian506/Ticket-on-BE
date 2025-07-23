@@ -1,4 +1,5 @@
 rootProject.name = 'ticketon'
 include 'ticket-queue-server'
 include 'ticket-api-server'
+include 'ticket-common'
 

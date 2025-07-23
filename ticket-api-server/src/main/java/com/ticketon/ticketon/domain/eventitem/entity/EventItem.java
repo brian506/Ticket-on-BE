@@ -23,18 +23,20 @@ public class EventItem {
     @Column(name = "event_item_id", nullable = false)
     private Long id;
 
-    // 공연 제목 Ex) 2025 싸이의 흠뻑쇼
     @Column(name = "title")
     private String title;
 
-    // 공연 시작 날짜
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    // 마지막 공연 날짜
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
     @OneToMany(mappedBy = "eventItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TicketType> ticketTypes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "event_status", nullable = false)
+    private EventItemStatus eventItemStatus;
+
 }

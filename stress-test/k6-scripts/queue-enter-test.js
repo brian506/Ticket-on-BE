@@ -8,28 +8,27 @@ export const options = {
       executor: 'constant-arrival-rate',
       rate: 50,
       timeUnit: '1s',
-      duration: '10s', //
+      duration: '10s',
       preAllocatedVUs: 100,
-      maxVUs: 100,    // ← 더 많은 사용자 할당
+      maxVUs: 100,
     },
   },
 };
+
 export default function () {
   const uniqueId = uuidv4();
   const email = `user-${uniqueId}@example.com`;
 
-  const params = {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+  const headers = {
+    'Content-Type': 'application/json',
   };
 
-  const body = `email=${encodeURIComponent(email)}`;
+  const body = JSON.stringify({ email });
 
-  const res = http.post('http://localhost:8080/v1/api/queues/enter', body, params);
+  const res = http.post('http://localhost:8082/v1/api/queues/enter', body, { headers });
 
   check(res, {
     'status is 200': (r) => r.status === 200,
-    'contains 대기열 메시지': (r) => r.body.includes('대기열 등록 완료'),
+    'contains 요청 수신 완료': (r) => r.body.includes('요청 수신 완료'),
   });
 }

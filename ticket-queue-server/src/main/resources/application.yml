@@ -12,7 +12,6 @@ logging:
     root: INFO
     io.opentelemetry: DEBUG
 
-
 kafka:
   admin:
     properties:
@@ -67,6 +66,7 @@ management:
       kafka: true
       all: true
       jvm: true
+      reactor.netty: true
   endpoints:
     web:
       exposure:

@@ -1,18 +1,14 @@
 package com.ticketon.ticketon.domain.payment.controller;
 
-import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
+import com.ticket.dto.SuccessResponse;
 import com.ticketon.ticketon.domain.payment.dto.PaymentCancelRequest;
 import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmRequest;
 import com.ticketon.ticketon.domain.payment.dto.PaymentResponse;
-import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.service.PaymentService;
-import com.ticketon.ticketon.global.annotation.CurrentUser;
-import com.ticketon.ticketon.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j

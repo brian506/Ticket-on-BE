@@ -60,9 +60,13 @@ kafka:
     ack-mode: manual
 
 redis:
-  reservation:
+  reservation: # 예약 서버와 함께 사용할 Redis
     host: reservation-redis
     port: 6380
+
+  waiting-line: # 대기열에 순서를 관리할 Redis
+    host: wating-line-redis
+    port: 6379
 
 
 management:
@@ -81,9 +85,11 @@ management:
     prometheus:
       enabled: true
 
-waiting:
-  api:
-    enter-url: ${WAITING_LINE_BASE_URL}
+stomp:
+  url: ${WEBSOCKET_BASE_URL}
+
+queue-server:
+  url: ${QUEUE_BASE_URL}
 
 otel:
   resource:

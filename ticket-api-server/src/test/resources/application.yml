@@ -1,0 +1,89 @@
+spring:
+  aop:
+    auto: false
+  profiles:
+    active: test
+
+  autoconfigure:
+    exclude:
+      - org.springframework.data.web.config.SpringDataWebAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.observation.ObservationAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: {DB_URL}
+    username: {DB_USER_NAME}
+    password: {DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 100
+      minimum-idle: 10
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      validation-timeout: 5000
+      initialization-fail-timeout: 1
+      read-only: false
+      leak-detection-threshold: 0
+
+  observability:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+      database-platform: org.hibernate.dialect.MySQLDialect
+      defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: false
+        format_sql: false
+
+  logging:
+    level:
+      root: INFO
+      io.opentelemetry: DEBUG
+  kafka:
+    consumer:
+      enabled: false
+
+redis:
+  reservation:
+    host: localhost
+    port: 6379
+
+
+kafka:
+  consumer:
+    payment-group:
+      group-id: dummy-group
+  topic-config:
+    payment:
+      name: dummy-topic
+  admin:
+    properties:
+      bootstrap:
+        servers: dummy:9092
+
+management:
+  endpoints:
+    enabled-by-default: false
+  health:
+    enabled: false
+  metrics:
+    export:
+      enabled: false
+
+toss:
+  secret-key: test_sk_ex6BJGQOVDKOYJ0OPdpn3W4w2zNb
+  client-key: test_ck_pP2YxJ4K871KbDe5qoQWVRGZwXLO
+  base-url: https://api.tosspayments.com/v1/payments
+  confirm-end-point: /confirm
+  cancel-end-point: /cancel
+
+waiting:
+  api:
+    enter-url: http://localhost:8082

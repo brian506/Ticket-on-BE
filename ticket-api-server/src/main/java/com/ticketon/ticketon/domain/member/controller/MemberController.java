@@ -1,8 +1,8 @@
 package com.ticketon.ticketon.domain.member.controller;
 
+import com.ticket.dto.SuccessResponse;
 import com.ticketon.ticketon.domain.member.dto.MemberSingUpRequest;
 import com.ticketon.ticketon.domain.member.service.MemberService;
-import com.ticketon.ticketon.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
