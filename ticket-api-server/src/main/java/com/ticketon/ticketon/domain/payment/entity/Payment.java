@@ -35,7 +35,7 @@ public class Payment {
     private PaymentStatus paymentStatus;
 
     @Column(name = "amount", nullable = false)
-    private int amount;
+    private Integer amount;
 
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;

@@ -23,6 +23,7 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
     org.springframework.orm.jpa: DEBUG
+    org.springframework.transaction: debug
 
 snail-catch:
   enabled: false

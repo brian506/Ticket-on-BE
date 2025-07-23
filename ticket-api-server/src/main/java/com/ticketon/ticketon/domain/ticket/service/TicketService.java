@@ -42,10 +42,16 @@ public class TicketService {
 
     // (4)
     public Ticket saveTicketInfo(PaymentMessage message, Long memberId) {
-        TicketType ticketType = ticketTypeRepository.getReferenceById(message.getTicketTypeId());
-        Member member = memberRepository.getReferenceById(memberId);
+        Long ticketTypeId = message.getTicketTypeId();
+        TicketType ticketType = OptionalUtil.getOrElseThrow(ticketTypeRepository.findByIdForUpdate(ticketTypeId),"티켓타입 없음"); // 비관락
 
+        if (ticketType.getIssuedQuantity() >= ticketType.getMaxQuantity()) {
+            throw new IllegalStateException("티켓이 모두 소진되었습니다.");
+        }
+
+        Member member = memberRepository.getReferenceById(memberId);
         Ticket ticket = Ticket.createNormalTicket(ticketType, member);
+
         ticketType.increaseIssuedQuantity();
         return ticketRepository.save(ticket);
     }

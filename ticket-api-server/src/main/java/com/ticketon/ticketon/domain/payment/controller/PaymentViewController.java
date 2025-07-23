@@ -9,9 +9,11 @@ import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
 
+import com.ticketon.ticketon.domain.ticket.service.strategy.PessimisticLockTicketIssueService;
 import com.ticketon.ticketon.global.annotation.CurrentUser;
 import com.ticketon.ticketon.global.constants.Urls;
 import de.huxhorn.sulky.ulid.ULID;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -27,10 +29,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentViewController {
 
-
     private final TicketService ticketService;
     private final EventItemService eventItemService;
-    private final PaymentService paymentService;
+
 
     @Value("${toss.client-key}")
     private String clientKey;
@@ -38,7 +39,7 @@ public class PaymentViewController {
     // 결제 요청 시 필요한 예약 정보
     @GetMapping(Urls.PAYMENT_PREPARE)
     public String paymentRequest(@RequestParam Long ticketTypeId,
-                                 @RequestParam int quantity,
+                                 @RequestParam @Valid int quantity,
                                  @CurrentUser CustomUserDetails userDetails, Model model){
         // 대기열 통과한 유저인지 검증 //
         String orderId = new ULID().nextULID();

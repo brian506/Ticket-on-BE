@@ -14,7 +14,7 @@ public class TicketTypeResponse {
     private String description;
     private Long maxIssueQuantity;
     private Long currentIssuedCount;
-    private Long price;
+    private Integer price;
     private TicketTypeStatus ticketTypeStatus;
 
     public static TicketTypeResponse from(TicketType ticketType) {

@@ -9,7 +9,10 @@ services:
       MYSQL_ROOT_HOST: '%'
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
-      
+    networks:
+      - monitoring
+
+
   wating-line-redis:
     image: redis:7.0.11
     container_name: wating-line-redis
