@@ -25,7 +25,6 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final PaymentProducer paymentProducer;
     private final TicketService ticketService;
-    private final TicketTypeRepository ticketTypeRepository;
 
     // 결제 승인 요청 (2)
     public void confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {

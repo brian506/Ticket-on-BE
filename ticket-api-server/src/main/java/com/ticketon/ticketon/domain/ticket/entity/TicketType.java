@@ -64,7 +64,7 @@ public class TicketType {
         this.issuedQuantity--;
     }
 
-    private void validateCanIssueTicket() {
+    public void validateCanIssueTicket() {
         if (this.issuedQuantity >= this.maxQuantity) {
             throw new ExceededTicketQuantityException(this.getName(), this.getPrice());
         }
