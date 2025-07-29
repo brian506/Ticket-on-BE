@@ -1,12 +1,12 @@
 spring:
   profiles:
-    active: test
+    active: docker
   config:
     import: "optional:file:.env[.properties]"
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       database-platform: org.hibernate.dialect.MySQLDialect
     defer-datasource-initialization: true
     properties:

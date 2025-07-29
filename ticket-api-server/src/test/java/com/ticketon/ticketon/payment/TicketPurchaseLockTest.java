@@ -49,7 +49,7 @@ public class TicketPurchaseLockTest {
     private PaymentService paymentService;
 
     private static final int CONCURRENT_USERS = 100; // 사용자수
-    private static final Long TICKET_STOCK = 50L; // 티켓 재고
+    private static final Long TICKET_STOCK = 100L; // 티켓 재고
     private Long ticketTypeId;
     private List<Long> ids; // 유저Id 저장 리스트
 
@@ -64,6 +64,14 @@ public class TicketPurchaseLockTest {
         ids = setupTestData();
         ticketTypeId = setupTicketType();
     }
+//    @AfterEach
+//    void cleanUp(){
+//        paymentRepository.deleteAllInBatch();
+//        ticketRepository.deleteAllInBatch();
+//        ticketTypeRepository.deleteAllInBatch();
+//        memberRepository.deleteAllInBatch();
+//        eventItemRepository.deleteAllInBatch();
+//    }
 
     @Test
     @DisplayName("100명이 동시에 티켓 구매 요청 시 비관적 락 정상 수행") // 티켓 수량에 처리에 대한 비관락
@@ -118,7 +126,7 @@ public class TicketPurchaseLockTest {
                     PaymentMessage message = setUpPaymentMessage(memberId);
                     paymentService.saveTicketAndPayment(message);
                 }catch (InterruptedException e){
-                    e.getStackTrace();
+                    e.printStackTrace();
                 }finally {
                     finishLatch.countDown();
                 }
@@ -157,7 +165,7 @@ public class TicketPurchaseLockTest {
         TicketType ticketType = TicketType.builder()
                 .eventItem(eventItem)
                 .name("테스트 티켓")
-                .price(10000)
+                .price(1000)
                 .maxQuantity( TICKET_STOCK)
                 .issuedQuantity(0L)
                 .status(TicketTypeStatus.READY)
@@ -180,7 +188,7 @@ public class TicketPurchaseLockTest {
          PaymentMessage paymentMessage = PaymentMessage.builder()
                  .ticketTypeId(ticketTypeId)
                  .memberId(memberId)
-                 .amount(10000)
+                 .amount(1000)
                  .paymentKey("payment-key")
                  .orderId("orderId" + memberId)
                  .approvedAt(LocalDateTime.now())

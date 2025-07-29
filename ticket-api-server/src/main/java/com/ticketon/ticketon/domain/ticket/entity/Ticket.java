@@ -37,6 +37,9 @@ public class Ticket {
     @Column(name = "price",nullable = false)
     private Integer price;
 
+    @Column(name ="orderId",nullable = false)
+    private String orderId;
+
     public Long getTicketTypeId() {
         return ticketType.getId();
     }
@@ -56,19 +59,13 @@ public class Ticket {
         }
     }
 
-    public static Ticket createNormalTicket(TicketType ticketType, Member member) {
+    public static Ticket createNormalTicket(TicketType ticketType, Member member,String orderId) {
         return Ticket.builder().
                 ticketType(ticketType).
                 member(member).
                 price(ticketType.getPrice()).
+                orderId(orderId).
                 ticketStatus(TicketStatus.SOLD_OUT).
                 build();
-    }
-    public static Ticket toDto(Long id,Member member,Integer price){
-        return Ticket.builder()
-                .id(id)
-                .member(member)
-                .price(price)
-                .build();
     }
 }

@@ -35,6 +35,7 @@ public class PaymentConsumerConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, paymentGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,100); // 한번에 가져올 최대 메시지 수
         return props;
     }
 
@@ -47,11 +48,21 @@ public class PaymentConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
     }
 
-    @Bean("paymentKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConcurrency(3); // 3개의 컨슈머 스레드로 병렬처리
+//    @Bean("paymentKafkaListenerContainerFactory")
+//    public ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> kafkaListenerContainerFactory() {
+//        ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+//        factory.setConcurrency(3); // 3개의 컨슈머 스레드로 병렬처리
+//        factory.setConsumerFactory(consumerFactory());
+//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+//        return factory;
+//    }
+
+    @Bean("paymentKafkaBatchListenerContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String,PaymentMessage> batchKafkaListenerContainerFactory(){
+        ConcurrentKafkaListenerContainerFactory<String,PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setConcurrency(3);
+        factory.setBatchListener(true);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }

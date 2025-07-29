@@ -34,11 +34,17 @@ kafka:
       partitions: 3
       replicas: 1
 
+
   producer:
     bootstrap-servers: kafka:9092
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     retry: 2
+    properties:
+      max.block.ms: 5000 # 버퍼가 가득 찼을 때 대기 시간(5초)
+      linger.ms: 20 # 추가 메시지 기다리는 최대시간(20ms)
+    buffer-memory: 67108864 # 버퍼 크기 (67MB)
+
 
   consumer:
     payment-group:
@@ -65,7 +71,7 @@ redis:
     port: 6380
 
   waiting-line: # 대기열에 순서를 관리할 Redis
-    host: wating-line-redis
+    host: waiting-line-redis
     port: 6379
 
 
