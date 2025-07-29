@@ -21,7 +21,7 @@
 - DB의 `SELECT ... FOR UPDATE`를 사용하여 티켓 수량 업데이트를 직렬 처리
 - 하나의 Consumer에서 순차적으로 트랜잭션 처리
 
-![비관락](images/pessimisticLock.png)
+![pessimisticLock.png](pessimisticLock.png)![비관락](images/pessimisticLock.png)
 
 ####  결과
 - 데이터 정합성: **100% 보장**
@@ -36,7 +36,7 @@
 - Redisson을 사용한 분산 락 적용
 - 트랜잭션 진입 전 Redis 락을 획득하여 동시성 제어
 
-![레디스락](images/redisLock.png)
+![redisLock.png](redisLock.png)![레디스락](images/redisLock.png)
 
 ####  결과
 - 데이터 정합성: **100% 보장**
@@ -58,7 +58,7 @@
 2. **일정량 수신되면 한 번만 락을 걸어 배치로 DB 처리**
 3. 병렬 Consumer (`setConcurrency(3)`) 및 Kafka 파티션 병렬성을 함께 활용
 
-![레디스락2](images/fixedRedisLock.png)
+![fixedRedisLock.png](fixedRedisLock.png)![레디스락2](images/fixedRedisLock.png)
 
 ####  결과
 - 데이터 정합성: **100% 보장**
