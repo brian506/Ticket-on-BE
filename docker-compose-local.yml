@@ -13,9 +13,9 @@ services:
       - monitoring
 
 
-  wating-line-redis:
+  waiting-line-redis:
     image: redis:7.0.11
-    container_name: wating-line-redis
+    container_name: waiting-line-redis
     ports:
       - "6379:6379"
     networks:
@@ -67,7 +67,7 @@ services:
     restart: always
     depends_on:
       - reservation-redis
-      - wating-line-redis
+      - waiting-line-redis
     networks:
       - monitoring
     volumes:
@@ -111,7 +111,7 @@ services:
     networks:
       - monitoring
     depends_on:
-      - wating-line-redis
+      - waiting-line-redis
 
   node-exporter:
     image: prom/node-exporter:latest

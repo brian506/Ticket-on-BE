@@ -13,7 +13,7 @@ public class PaymentConfirmRequest {
     private String paymentKey;
     private Long memberId;
     private String orderId;
-    private int amount;
+    private Integer amount;
 
     public TossConfirmRequest toTossConfirmRequest() {
         return new TossConfirmRequest(

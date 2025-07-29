@@ -9,7 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Table(name = "ticket_types")
 @Entity
 @Getter
@@ -44,6 +46,10 @@ public class TicketType {
     @Column(name = "issued_quantity", nullable = false)
     private Long issuedQuantity;
 
+//    // 발급 가능한 티켓 개수
+//    @Column(name = "available_quantity",nullable = false)
+//    private Long availableQuantity;
+
     // 해당 티켓 가격
     @Column(name = "price", nullable = false)
     private Integer price;
@@ -57,14 +63,17 @@ public class TicketType {
         validateCanIssueTicket();
         this.issuedQuantity++;
     }
-
+    public Long getAvailableQuantity(){
+        return this.maxQuantity - this.issuedQuantity;
+    }
 
     public void decreaseTicketQuantity() {
         validateCanCancelTicket();
         this.issuedQuantity--;
     }
 
-    private void validateCanIssueTicket() {
+    public void validateCanIssueTicket() {
+        log.info("발행 수량 확인: issuedQuantity={}, maxQuantity={}", issuedQuantity, maxQuantity);
         if (this.issuedQuantity >= this.maxQuantity) {
             throw new ExceededTicketQuantityException(this.getName(), this.getPrice());
         }

@@ -1,13 +1,22 @@
 spring:
-  config:
-    import: "optional:file:.env[.properties]"
+
+
+  aop:
+    auto: false
+
+  autoconfigure:
+    exclude:
+      - org.springframework.data.web.config.SpringDataWebAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.observation.ObservationAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.health.HealthEndpointAutoConfiguration
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ticket_on?serverTimezone=Asia/Seoul
     username: root
     password: wind6298
-
-
     hikari:
       maximum-pool-size: 100
       minimum-idle: 10
@@ -19,50 +28,27 @@ spring:
       read-only: false
       leak-detection-threshold: 0
 
-kafka:
-  admin:
+  observability:
+    enabled: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+      database-platform: org.hibernate.dialect.MySQLDialect
+      defer-datasource-initialization: true
     properties:
-      bootstrap.servers: localhost:9092
-  topic-config:
-    payment:
-      name: payment-topic
-      partitions: 3
-      replicas: 1
-    ticket:
-      name: ticket-topic
-      partitions: 3
-      replicas: 1 # 복제본 : 장애 대비용
-    waiting:
-      name: waiting-topic
-      partitions: 3
-      replicas: 1
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: false
+        format_sql: false
 
-
-  producer:
-    bootstrap-servers: localhost:9092
-    key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    retry: 2
-
-  consumer:
-    payment-group:
-      bootstrap-servers: localhost:9092
-      group-id: payment-group
-      auto-offset-reset: latest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-
-    waiting-group:
-      bootstrap-servers: localhost:9092
-      group-id: waiting-group
-      auto-offset-reset: latest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-
-    listener:
-    missing-topics-fatal: false # topic 이 없을 때 중단 방지
-    ack-mode: manual # 오프셋 커밋 커스텀(결제 성공 시에만 오프셋 커밋)
-
+  logging:
+    level:
+      root: INFO
+      io.opentelemetry: DEBUG
+  kafka:
+    consumer:
+      enabled: false
 
 redis:
   reservation:
@@ -72,27 +58,47 @@ redis:
     host: localhost
     port: 6379
 
-  cache:
-    host: localhost
-    port: 6380
+
+kafka:
+  consumer:
+    payment-group:
+      group-id: dummy-group
+  topic-config:
+    payment:
+      name: dummy-topic
+  admin:
+    properties:
+      bootstrap:
+        servers: dummy:9092
+
+management:
+  endpoints:
+    enabled-by-default: false
+  health:
+    enabled: false
+  metrics:
+    export:
+      enabled: false
+
+toss:
+  secret-key: test_sk_ex6BJGQOVDKOYJ0OPdpn3W4w2zNb
+  client-key: test_ck_pP2YxJ4K871KbDe5qoQWVRGZwXLO
+  base-url: https://api.tosspayments.com/v1/payments
+  confirm-end-point: /confirm
+  cancel-end-point: /cancel
+
+#waiting:
+#  api:
+#    enter-url: http://localhost:8082
+
+stomp:
+  url: http://localhost:8081
+
+queue-server:
+  url: http://localhost:8082
 
 decorator:
   datasource:
     p6spy:
       enable-logging: false
 
-stomp:
-  url: ${WEBSOCKET_BASE_URL}
-
-queue-server:
-  url: ${QUEUE_BASE_URL}
-
-
-
-logging:
-  level:
-    root: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-    org.springframework.orm.jpa: DEBUG
-    org.springframework.transaction: debug

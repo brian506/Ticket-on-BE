@@ -13,8 +13,8 @@ import java.util.Base64;
 @Configuration
 public class RestClientConfig {
 
-    private static final int CONNECTION_TIMEOUT_SECONDS = 30;
-    private static final int READ_TIMEOUT_SECONDS = 30;
+    private static final int CONNECTION_TIMEOUT_SECONDS = 3;
+    private static final int READ_TIMEOUT_SECONDS = 7;
 
     @Bean
     public RestClient restClient(PaymentProperties paymentProperties) {
