@@ -2,32 +2,51 @@
 
 ----
 
-```
-Ticketon은 대규모 트래픽 속에서도 안정적으로 티켓을 예매할 수 있는 고성능 분산 티켓팅 시스템입니다.
-실시간 경쟁 상황에서도 공정성과 성능을 최우선으로 설계하였습니다.
+## 프로젝트 목표
 
-목표: 수십만 건의 요청을 짧은 시간 내 처리하며 오버부킹을 방지하고, 정확한 예약을 보장하는 시스템 구축.
+```
+대규모 트래픽에 대응하기 위해 설계된 티켓팅 서비스입니다. 백엔드 개발자 3명이 함께 논블로킹·비동기 아키텍처 학습을 목적으로 시작한 프로젝트로, 
+Kafka 기반의 이벤트 처리 방식을 도입해 단일 대기열 서버에서 최대 60,000 TPS를 안정적으로 처리할 수 있도록 단계적으로 발전시켰습니다.
 ```
 
+## 👨‍💻 팀원 소개
+
+| 이름    | 역할                            | 이메일                 | 사진                                                  |
+|---------|----------------------------------|-------------------------|-----------------------------------------------------|
+| 최영민   | 금융 데이터 정합성 유지 및 락 테스트   | brian506@naver.com       | <img src=" " width="100"/>                          |
+| 신민석   | 대기열 입장 기능, 부하 테스트         | sin1768@naver.com        | <img src="images/minseok-profile.jpeg" width="80"/> |
+| 김영솔   | 비관적락, 낙관적락, 분산락 구현        | onagu7167@gmail.com      | <img src="images/sol-profile.jpeg" width="100"/>    |
 
 ### 기술 스택  
 
 **Version** : `JDK21`  
-**Backend** : `Spring Boot`, `JPA`, `QueryDSL`  
+**Backend** : `Spring Boot`, `Spring WebFlux`, `Kafka`, `WebSocket`, `JPA`,  
 **Database** : `MySQL`, `Redis`  
-**Devops** : `Nginx`, `Docker`,
+**Devops** : `Nginx`, `Docker`, `AWS`
 
 
 
-### 시스템 아키텍처 (초기)
+### 시스템 아키텍처
 
-![티켓팅 시스템 아키텍처](images/flow.png)
+<img src="https://github.com/user-attachments/assets/2fb2fd47-8296-4c94-a6af-643a5728a61b" width="600"/>
 
+### 대기열 입장 아키텍처
 
+<img src="https://github.com/user-attachments/assets/e423d91b-6e8e-4b8b-8ea0-aefe6a8d93c1" width="600"/>
+
+### 모니터링 아키텍처
+
+<img src="https://github.com/user-attachments/assets/043e352d-aa8e-493e-936c-1e2d672d1c9e" width="600"/>
+
+### 분산락 아키텍처
+
+<img src="https://github.com/user-attachments/assets/bb9fc320-dbab-46d0-b21e-c25c5af5d4b9" width="600"/>
 
 ### 실행 방법
 
 1. 루트 디렉토리에 .env 파일에 아래 환경변수들 필수 사용  
+
+**RDS 관련 설정들은 개별 문의 : sin1768@naver.com**
 
 ```
 DB_NAME=ticket_on
@@ -37,6 +56,13 @@ DB_USER_NAME=root
 DB_PASSWORD=[DB비번]
 LOKI_URL=http://loki:3100/loki/api/v1/push
 OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+TOSS_SECRET_KEY=test_sk_ex6BJGQOVDKOYJ0OPdpn3W4w2zNb
+TOSS_CLIENT_KEY=test_ck_pP2YxJ4K871KbDe5qoQWVRGZwXLO
+WEBSOCKET_BASE_URL=http://localhost:8081
+QUEUE_BASE_URL=http://localhost:8082
+RDS_DB_URL={RDS URL}
+RDS_USER_NAME={RDS 사용자}
+RDS_USER_PASSWORD={RDS 비번}
 ```
 
 3. start.sh 권한 부여  
@@ -80,21 +106,9 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
 
 
 
-### Redis TTL, Eviction, 캐싱 전략 정리
-
-**사용자 대기 순서를 관리하는 Redis**
-
-TTL : 30분으로 설정  
-Eviction : 
-캐성 전략 :  
-
-### Redis 서버 구성
+### Redis 구성
 
 | 용도                           | 호스트 이름 (`host`)     | 포트 (`port`) | 설명                                              |
 |--------------------------------|---------------------------|----------------|----------------------------------------------------|
 | 대기열 순서 관리 Redis         | `wating-line-redis`       | `6379`         | 사용자의 대기 순서를 관리하는 Redis 인스턴스   |
 | 예약 서버용 Redis (분산락 등) | `reservation-redis`       | `6380`         | 예약 처리 시 분산락 및 입장 인원 검증 등을 위한 Redis |
-
-
-대기 서버 포트 : 8080 (nginx)
-예약 서버 포트 : 8081 (nginx)
