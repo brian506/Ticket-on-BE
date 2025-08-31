@@ -13,7 +13,7 @@ Kafka 기반의 이벤트 처리 방식을 도입해 단일 대기열 서버에�
 
 | 이름    | 역할                            | 이메일                 | 사진                                                  |
 |---------|----------------------------------|-------------------------|-----------------------------------------------------|
-| 최영민   | 금융 데이터 정합성 유지 및 락 테스트   | brian506@naver.com       | <img src=" " width="100"/>                          |
+| 최영민   | 금융 데이터 정합성 유지 및 락 테스트,리펙토링   | brian506@naver.com       | <img src=" " width="100"/>                          |
 | 신민석   | 대기열 입장 기능, 부하 테스트         | sin1768@naver.com        | <img src="https://github.com/user-attachments/assets/593ea7ec-5e57-4f15-b302-57b5b85934b4" width="80"/> |
 | 김영솔   | 비관적락, 낙관적락, 분산락 구현        | onagu7167@gmail.com      | <img src="https://github.com/user-attachments/assets/43dcb73b-d3f6-4cd8-b7e2-b9468357196d" width="80"/>    |
 
