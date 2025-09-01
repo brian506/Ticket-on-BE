@@ -24,7 +24,7 @@ public class PaymentProducer {
     public void sendPayment(final PaymentConfirmResponse response, final PaymentConfirmRequest request) {
         PaymentMessage message = response.fromResponse(response,request);
         log.info("paymentMessage : {} " , message);
-        kafkaTemplate.send(topic, message.getOrderId(), message);
+        kafkaTemplate.send(topic, String.valueOf(message.getTicketTypeId()), message);
         // orderId 를 기준으로 같은 파티션으로 전달(중복 방지)
     }
 }
