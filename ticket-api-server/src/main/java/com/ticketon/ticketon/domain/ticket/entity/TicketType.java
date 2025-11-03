@@ -85,4 +85,11 @@ public class TicketType {
         }
     }
 
+    public boolean decreaseStock(){
+        if (this.maxQuantity - this.issuedQuantity > 0){
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -1,9 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>결제 성공</title>
-</head>
 <body>
 <h1>섹싀 하게 결제 완료했다잉</h1>
 <p id="status">결제 승인 처리 중...</p>
@@ -13,15 +9,18 @@
     const paymentKey = /*[[${paymentKey}]]*/ "";
     const orderId    = /*[[${orderId}]]*/ "";
     const amount     = /*[[${amount}]]*/ 0;
-    const ticketTypeId = /*[[${ticketTypeId}]]*/ 0;
-    const memberId    = /*[[${memberId}]]*/ 0;
+    // const ticketTypeId = ... (삭제)
+    // const memberId     = ... (삭제)
 
 
+    // 3. [수정됨] 백엔드 API에는 orderId, paymentKey, amount만 보냅니다.
+    //    백엔드 API는 이 orderId로 DB에서 티켓을 찾고
+    //    amount가 위조되지 않았는지 검증해야 합니다.
     fetch('/v1/api/payments/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          paymentKey, orderId, amount, ticketTypeId, memberId
+          paymentKey, orderId, amount
         })
     })
         .then(res => { if (!res.ok) throw new Error('결제 승인 실패'); return res.json(); })

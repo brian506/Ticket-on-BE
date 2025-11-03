@@ -1,10 +1,15 @@
 package com.ticketon.ticketon.domain.payment.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ticket.exception.custom.DataNotFoundException;
 import com.ticketon.ticketon.domain.payment.dto.*;
+import com.ticketon.ticketon.domain.payment.entity.OutboxMessage;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
-import com.ticketon.ticketon.domain.payment.producer.PaymentProducer;
+import com.ticketon.ticketon.domain.payment.repository.OutboxRepository;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
+import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import de.huxhorn.sulky.ulid.ULID;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,41 +29,38 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PaymentService {
 
     private final PaymentGateway paymentGateway;
     private final PaymentRepository paymentRepository;
-    private final PaymentProducer paymentProducer;
+    private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
+    private final TicketRepository ticketRepository;
 
-    public void confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
-         PaymentConfirmResponse paymentConfirmResponse = paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
+    //todo pg 사 호출 - 성공,취소 예외 처리
+    public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
+         return paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
 
         // 부하테스트용 ( pg 호출 x )
 //        String orderId = new ULID().nextULID();
 //        PaymentConfirmResponse paymentConfirmResponse = new PaymentConfirmResponse(orderId,10000,"test-key", OffsetDateTime.now(),OffsetDateTime.now());
+    }
+    @Transactional
+    public void savePayment(PaymentConfirmRequest request,PaymentConfirmResponse paymentResponse){
+        Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(request.getTicketId()),"존재하지 않는 티켓입니다.");
 
-        paymentProducer.sendPayment(paymentConfirmResponse,paymentConfirmRequest);
+        // PAID 로 상태변경
+        int updatedRows = ticketRepository.updateTicketStatus(ticket.getId());
+
+        if(updatedRows == 0){
+            throw new DataNotFoundException("존재하지 않거나 만료된 예약입니다.");
+        }
+        PaymentMessage message = paymentResponse.fromResponse(paymentResponse,ticket);
+
+        savePaymentToOutbox(message);
     }
 
-    public void savePaymentsByTickets(List<Ticket> savedTickets,List<PaymentMessage> messages) {
-        // ticket 에 저장된 orderId 로 message key 값 설정
-        Map<String, PaymentMessage> messageMap = messages.stream()
-                .collect(Collectors.toMap(PaymentMessage::getOrderId, message -> message,
-                        (existingMessage, newMessage) -> existingMessage));
 
-        List<Payment> payments = savedTickets.stream()
-                .map(ticket -> {
-                    // ticket 의 고유한 orderId 로 message 가져와서 payment 객체 저장
-                    PaymentMessage message = messageMap.get(ticket.getOrderId());
-                    Payment payment = message.toEntity(message);
-                    payment.setTicketId(ticket.getId());
-                    return payment;
-                })
-                .collect(Collectors.toList());
-
-        paymentRepository.saveAll(payments);
-    }
 
     // 결제 취소 요청
     public void cancelPayment(PaymentCancelRequest paymentCancelRequest) {
@@ -71,5 +74,23 @@ public class PaymentService {
     public PaymentResponse findByTicketTypeId(Long ticketId) {
         Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findByTicketId(ticketId), "존재하지 않는 결제 정보입니다.");
         return PaymentResponse.toDto(payment);
+    }
+
+    private void savePaymentToOutbox(PaymentMessage paymentMessage){
+        try {
+            String jsonPayload = objectMapper.writeValueAsString(paymentMessage);
+
+            OutboxMessage message = OutboxMessage.builder()
+                    .topic("ticket-confirm")
+                    .payload(jsonPayload)
+                    .build();
+
+            // T2 트랜잭션에 포함되어 DB에 저장
+            outboxRepository.save(message);
+
+        } catch (JsonProcessingException e) {
+            // 직렬화 실패는 심각한 시스템 오류이므로 RuntimeException 처리
+            throw new RuntimeException("Kafka payload 직렬화에 실패했습니다.", e);
+        }
     }
 }

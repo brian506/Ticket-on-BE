@@ -48,23 +48,23 @@ public class PaymentConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
     }
 
-//    @Bean("paymentKafkaListenerContainerFactory")
-//    public ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> kafkaListenerContainerFactory() {
-//        ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConcurrency(3); // 3개의 컨슈머 스레드로 병렬처리
-//        factory.setConsumerFactory(consumerFactory());
-//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-//        return factory;
-//    }
-
-    @Bean("paymentKafkaBatchListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String,PaymentMessage> batchKafkaListenerContainerFactory(){
-        ConcurrentKafkaListenerContainerFactory<String,PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    @Bean("paymentKafkaListenerContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConcurrency(3); // 3개의 컨슈머 스레드로 병렬처리
         factory.setConsumerFactory(consumerFactory());
-        factory.setConcurrency(3);
-        factory.setBatchListener(true);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
         return factory;
     }
+
+//    @Bean("paymentKafkaBatchListenerContainerFactory")
+//    public ConcurrentKafkaListenerContainerFactory<String,PaymentMessage> batchKafkaListenerContainerFactory(){
+//        ConcurrentKafkaListenerContainerFactory<String,PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+//        factory.setConsumerFactory(consumerFactory());
+//        factory.setConcurrency(3);
+//        factory.setBatchListener(true);
+//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+//        return factory;
+//    }
 }
 

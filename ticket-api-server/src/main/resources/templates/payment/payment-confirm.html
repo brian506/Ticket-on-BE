@@ -1,33 +1,26 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>결제 준비</title>
-    <script src="https://js.tosspayments.com/v1"></script>
-</head>
 <body>
-<h1>결제 정보 확인</h1>
-<p>상품명: <strong th:text="${orderName}"></strong></p>
-<p>금액: <strong th:text="${amount}"></strong>원</p>
-
 <button id="payment-button">결제하기</button>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
       const toss       = TossPayments(/*[[${clientKey}]]*/ "");
-      const ticketTypeId = /*[[${ticketTypeId}]]*/ 0;
-      const memberId    = /*[[${memberId}]]*/ 0;
+      // const ticketTypeId = ... (삭제)
+      // const memberId     = ... (삭제)
       const orderId     = /*[[${orderId}]]*/ "";
       const amount     = /*[[${amount}]]*/ 0;
       const orderName  = /*[[${orderName}]]*/ "";
-      const baseUrl    = window.location.origin;  // 현재 스키마+호스트+포트 자동 감지
+      const baseUrl    = window.location.origin;
 
       document.getElementById('payment-button').addEventListener('click', () => {
         toss.requestPayment('카드', {
           amount:    amount,
           orderId:   orderId,
           orderName: orderName,
-          successUrl: `${baseUrl}/payment/success?ticketTypeId=${ticketTypeId}&memberId=${memberId}`,
+          // 2. [수정됨] successUrl을 깔끔하게 변경
+          //    Toss가 여기에 자동으로 paymentKey, orderId, amount를 붙여줍니다.
+          successUrl: `${baseUrl}/payment/success`,
           failUrl:    `${baseUrl}/payment/fail`
         })
         .catch(error => alert(error.message));

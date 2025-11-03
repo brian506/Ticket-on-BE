@@ -3,10 +3,7 @@ package com.ticketon.ticketon.domain.ticket.repository;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -20,4 +17,9 @@ public interface TicketTypeRepository extends JpaRepository<TicketType, Long> {
     })
     @Query("SELECT t FROM TicketType t WHERE t.id = :id")
     Optional<TicketType> findByIdForUpdate(@Param("id") Long id);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE TicketType t SET t.maxQuantity = t.maxQuantity - t.issuedQuantity "+
+            "WHERE t.id = :id AND t.maxQuantity > 0")
+    int decreaseTicketAtomically(@Param("id") Long id);
 }
