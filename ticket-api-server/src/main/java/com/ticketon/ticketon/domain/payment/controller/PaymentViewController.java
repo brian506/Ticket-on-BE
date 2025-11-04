@@ -2,7 +2,11 @@ package com.ticketon.ticketon.domain.payment.controller;
 
 import com.ticketon.ticketon.domain.eventitem.service.EventItemService;
 import com.ticketon.ticketon.domain.member.entity.CustomUserDetails;
+import com.ticketon.ticketon.domain.payment.dto.PaymentConfirmRequest;
+import com.ticketon.ticketon.domain.payment.service.PaymentGateway;
+import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
+import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
@@ -28,6 +32,7 @@ public class PaymentViewController {
 
     private final TicketService ticketService;
     private final EventItemService eventItemService;
+    private final PaymentGateway paymentGateway;
 
     @Value("${toss.client-key}")
     private String clientKey;
@@ -36,32 +41,29 @@ public class PaymentViewController {
     @GetMapping(Urls.PAYMENT_PREPARE)
     public String paymentRequest(@RequestParam Long ticketTypeId,
                                  @RequestParam @Valid int quantity,
-                                 @CurrentUser CustomUserDetails userDetails, Model model){
-        String orderId = new ULID().nextULID();
+                                 @CurrentUser CustomUserDetails userDetails,Model model){
         TicketPurchaseRequest ticketPurchaseRequest = new TicketPurchaseRequest(ticketTypeId,quantity);
         TicketRequest ticketRequest = ticketService.requestTicket(ticketPurchaseRequest, userDetails.getMemberId());
+        TicketReadyResponse response = ticketService.purchaseTicket(ticketRequest);
         String eventTitle = eventItemService.getTitleByTicketTypeId(ticketPurchaseRequest.getTicketTypeId());
-        model.addAttribute("clientKey",clientKey);
-        model.addAttribute("orderId",orderId);
-        model.addAttribute("ticketTypeId",ticketTypeId);
-        model.addAttribute("memberId",ticketRequest.getMemberId());
-        model.addAttribute("amount",ticketRequest.getAmount());
-        model.addAttribute("orderName",eventTitle);
+        model.addAttribute("clientKey", clientKey);
+        model.addAttribute("orderId", response.getOrderId());
+        model.addAttribute("ticketTypeId", ticketTypeId);
+        model.addAttribute("memberId", response.getMemberId());
+        model.addAttribute("amount", response.getPrice());
+        model.addAttribute("orderName", eventTitle);
         return "payment/paymentConfirm";
     }
+
     // 결제 성공
     @GetMapping("/success")
     public String confirmPayment(@RequestParam String paymentKey,
                                  @RequestParam String orderId,
                                  @RequestParam int amount,
-                                 @RequestParam Long ticketTypeId,
-                                 @RequestParam Long memberId,
                                  Model model){
         model.addAttribute("paymentKey",paymentKey);
         model.addAttribute("orderId",orderId);
         model.addAttribute("amount",amount);
-        model.addAttribute("ticketTypeId",ticketTypeId);
-        model.addAttribute("memberId",memberId);
         return "payment/paymentSuccess";
     }
 

@@ -9,6 +9,13 @@ services:
       MYSQL_ROOT_HOST: '%'
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
+    command: # mysql 의 변경 내역을 binlog 로 남기기위함
+      - --server-id=1
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --binlog-row-image=FULL
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
     networks:
       - monitoring
 
@@ -54,6 +61,32 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - monitoring
+
+  kafka-connect:
+    image: debezium/connect:2.6
+    container_name: kafka-connect
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: "kafka:9092"
+      GROUP_ID: "connect-cluster"
+      CONFIG_STORAGE_TOPIC: "connect_configs"
+      OFFSET_STORAGE_TOPIC: "connect_offsets"
+      STATUS_STORAGE_TOPIC: "connect_status"
+      # (싱글 브로커이므로 리플리케이션 팩터는 1로 설정)
+      CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      STATUS_STORAGE_REPLICATION_FACTOR: "1"
+      # JSON 컨버터 사용
+      KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      # JDBC 드라이버 (Debezium 이미지에 포함되어 있음)
+      CONNECT_PLUGIN_PATH: "/kafka/connect"
+    networks:
+      - monitoring
+    depends_on:
+      - kafka
+      - mysql
 
   queue-server-1:
     build: ./ticket-queue-server

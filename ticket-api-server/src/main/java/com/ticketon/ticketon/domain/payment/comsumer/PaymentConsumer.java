@@ -1,5 +1,8 @@
 package com.ticketon.ticketon.domain.payment.comsumer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ticket.exception.custom.KafkaConsumerException;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
@@ -29,51 +32,33 @@ import java.util.List;
 @KafkaListener(
         topics = "${kafka.topic-config.payment.name}",
         groupId = "${kafka.consumer.payment-group.group-id}",
-        containerFactory = "paymentKafkaBatchListenerContainerFactory")
+        containerFactory = "paymentKafkaListenerContainerFactory")
 public class PaymentConsumer {
 
-    private final PaymentService paymentService;
-    private final TicketTypeRepository ticketTypeRepository;
     private final TicketService ticketService;
-    private final RedisLockTicketIssueService redisLock;
+    private final ObjectMapper objectMapper;
+
 
     // 예약,결제 정보 저장
     @KafkaHandler
-    public void consumePayment(List<PaymentMessage> messages, Acknowledgment ack) {
-        if (messages.isEmpty()) {
-            return; // Kafka ack 안 해주면 retry 발생
+    public void consumePayment(String payload, Acknowledgment ack) {
+        try{
+            PaymentMessage message = objectMapper.readValue(payload, PaymentMessage.class);
+            ticketService.issueTicket(message);
+            ack.acknowledge(); // 작업 성공시 브로커에게 완료 메시지 전송
         }
-        Long ticketTypeId = messages.get(0).getTicketTypeId();
-        String lockName = "ticket:lock" + ticketTypeId;
-
-        try {
-           redisLock.redisLockOnMessage(lockName, () ->{
-               entireTransaction(messages,ticketTypeId);
-               return null;
-           });
-
-            // 위의 로직이 다 끝났을 때 호출
+        catch (JsonProcessingException e) { // json 변환실패
+            // 이 메시지는 영원히 처리할 수 없으므로, ack를 보내고 로그를 남깁니다.
+            log.error("JSON 파싱 실패. payload: {}", payload);
             ack.acknowledge();
-
-        }catch (Exception e){
-            log.error("payment message invalid : {}", e);
+        }
+        catch (KafkaConsumerException e){
+            log.error("티켓 최종 발급 처리 실패. payload {}",payload);
         }
 
     }
 
-    @Transactional
-    public void entireTransaction(List<PaymentMessage> messages,Long ticketTypeId){
 
-        TicketType ticketType = OptionalUtil.getOrElseThrow(ticketTypeRepository.findById(ticketTypeId),"존재하지 않는 ticketTypeId");
 
-        List<Ticket> successTickets = ticketService.createTicketInfoInBatch(ticketType,messages);
-
-        List<Ticket> savedTickets = ticketService.saveAll(successTickets);
-
-        if(!savedTickets.isEmpty()){
-            paymentService.savePaymentsByTickets(savedTickets,messages);
-        }
-
-    }
 }
 

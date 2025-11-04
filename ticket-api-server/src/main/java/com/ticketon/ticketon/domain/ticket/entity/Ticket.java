@@ -3,10 +3,9 @@ package com.ticketon.ticketon.domain.ticket.entity;
 import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticket.exception.custom.TicketAlreadyCancelledException;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 
 @Table(name = "tickets")
@@ -30,6 +29,7 @@ public class Ticket {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private TicketStatus ticketStatus;
@@ -39,6 +39,9 @@ public class Ticket {
 
     @Column(name ="orderId",nullable = false)
     private String orderId;
+
+    @Column(name = "expired_at",nullable = false)
+    private LocalDateTime expiredAt;
 
     public Long getTicketTypeId() {
         return ticketType.getId();
@@ -67,5 +70,16 @@ public class Ticket {
                 orderId(orderId).
                 ticketStatus(TicketStatus.SOLD_OUT).
                 build();
+    }
+
+    public static Ticket createTicket(TicketType ticketType,Member member){
+        return Ticket.builder()
+                .member(member)
+                .ticketType(ticketType)
+                .price(ticketType.getPrice())
+                .ticketStatus(TicketStatus.PENDING)
+                .expiredAt(LocalDateTime.now().plusMinutes(10))
+                .build();
+
     }
 }

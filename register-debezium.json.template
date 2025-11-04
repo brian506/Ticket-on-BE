@@ -1,0 +1,22 @@
+{
+  "name": "ticket-mysql-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "ticket-mysql",
+    "database.port": "3306",
+    "database.user": "root",
+    "database.password": "wind6298",
+    "database.server.id": "184054",
+    "database.server.name": "ticket-mysql",
+    "database.include.list": "ticket_on",
+
+    "table.include.list": "${DB_NAME}.outbox_table,${DB_NAME}.ticket",
+
+    "database.history.kafka.bootstrap.servers": "kafka:9092",
+    "database.history.kafka.topic": "dbhistory.ticket-mysql-server",
+
+    "topic.prefix": "cdc",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+    "schema.history.internal.kafka.topic": "schemahistory.ticket-mysql-server"
+  }
+}

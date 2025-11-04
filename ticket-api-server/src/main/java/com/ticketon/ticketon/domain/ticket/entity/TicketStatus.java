@@ -1,7 +1,9 @@
 package com.ticketon.ticketon.domain.ticket.entity;
 
 public enum TicketStatus {
-    AVAILABLE,
+    PENDING,
+    PAID,
     SOLD_OUT,
-    CANCELLED
+    CANCELLED,
+    CONFIRMED
 }

@@ -15,6 +15,7 @@ import com.ticketon.ticketon.global.constants.Urls;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,15 +34,6 @@ public class TicketViewController {
     private final TicketService ticketService;
     private final EventItemService eventItemService;
     private final TicketAccessValidator ticketAccessValidator;
-
-//    // 티켓 구매
-//    @PostMapping(Urls.TICKET_PURCHASE)
-//    public String purchaseTicket(TicketPurchaseRequest ticketPurchaseRequest, @CurrentUser CustomUserDetails userDetails) throws AccessDeniedException {
-//        validateTicketAccessFor(userDetails);
-//
-//        ticketService.purchaseTicket(TicketIssueStrategyType.OPTIMISTIC.getCode(), ticketPurchaseRequest, userDetails.getMember().getId());
-//        return "payment/paymentConfirm";
-//    }
 
 
 

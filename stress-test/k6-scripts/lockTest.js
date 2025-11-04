@@ -4,7 +4,7 @@ import { uuidv4 } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';  // UUID ë
 
 
 export let options = {
-    vus : 100,
+    vus : 1,
     duration : '15s',
 };
 

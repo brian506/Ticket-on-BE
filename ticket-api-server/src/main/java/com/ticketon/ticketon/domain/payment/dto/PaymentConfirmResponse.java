@@ -1,6 +1,8 @@
 package com.ticketon.ticketon.domain.payment.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
+import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import de.huxhorn.sulky.ulid.ULID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,15 +25,14 @@ public class PaymentConfirmResponse {
     private OffsetDateTime requestedAt;
     private OffsetDateTime approvedAt;
 
-    public PaymentMessage fromResponse(PaymentConfirmResponse response,PaymentConfirmRequest request) {
+    public PaymentMessage fromResponse(PaymentConfirmResponse paymentResponse,PaymentConfirmRequest request) {
         return PaymentMessage.builder()
-                .ticketTypeId(request.getTicketTypeId())
-                .paymentKey(response.getPaymentKey())
+                .paymentKey(paymentResponse.getPaymentKey())
                 .memberId(request.getMemberId())
-                .orderId(response.orderId)
-                .amount(response.getAmount())
-                .requestedAt(LocalDateTime.from(response.getRequestedAt()))
-                .approvedAt(response.getApprovedAt().toLocalDateTime())
+                .orderId(paymentResponse.getOrderId())
+                .amount(paymentResponse.getAmount())
+                .requestedAt(LocalDateTime.from(paymentResponse.getRequestedAt()))
+                .approvedAt(paymentResponse.getApprovedAt().toLocalDateTime())
                 .build();
     }
 }
