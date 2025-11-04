@@ -25,6 +25,10 @@ kafka:
     properties:
       bootstrap.servers: kafka:9092
   topic-config:
+    ticket:
+      name: ticket-confirm
+      partitions: 3
+      replicas: 1
     payment:
       name: payment-topic
       partitions: 3

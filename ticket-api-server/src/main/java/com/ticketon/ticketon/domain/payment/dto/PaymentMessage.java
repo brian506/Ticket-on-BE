@@ -26,6 +26,7 @@ public class PaymentMessage {
     private LocalDateTime requestedAt;
     private LocalDateTime approvedAt;
     private LocalDateTime canceledAt;
+    private LocalDateTime expiredAt;
 
     public Payment toEntity(PaymentMessage message){
         return Payment.builder()

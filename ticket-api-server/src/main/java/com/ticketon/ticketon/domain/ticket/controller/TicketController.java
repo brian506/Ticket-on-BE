@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/ticket")
 public class TicketController {
 
     private final TicketService ticketService;
 
     // 1. 먼저 결제 요청
-    @PostMapping(Urls.TICKET_REQUEST)
+    @PostMapping("/ticket-request")
     public ResponseEntity<?> requestTicket(@RequestBody TicketRequest request){
         TicketReadyResponse readyResponse = ticketService.purchaseTicket(request);
         SuccessResponse response = new SuccessResponse<>(true,"티켓 결제 요청 성공",readyResponse);

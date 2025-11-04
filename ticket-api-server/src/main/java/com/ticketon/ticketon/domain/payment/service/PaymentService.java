@@ -38,25 +38,23 @@ public class PaymentService {
     private final TicketRepository ticketRepository;
 
     //todo pg 사 호출 - 성공,취소 예외 처리
-    public PaymentConfirmResponse confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
-         return paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
-
+    public PaymentMessage confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
         // 부하테스트용 ( pg 호출 x )
-//        String orderId = new ULID().nextULID();
-//        PaymentConfirmResponse paymentConfirmResponse = new PaymentConfirmResponse(orderId,10000,"test-key", OffsetDateTime.now(),OffsetDateTime.now());
+        String orderId = new ULID().nextULID();
+        PaymentConfirmResponse response = new PaymentConfirmResponse(orderId,10000,"test-key", OffsetDateTime.now(),OffsetDateTime.now());
+//        PaymentConfirmResponse response = paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
+        PaymentMessage message =  response.fromResponse(response,paymentConfirmRequest);
+        savePayment(paymentConfirmRequest,message);
+        return message;
     }
     @Transactional
-    public void savePayment(PaymentConfirmRequest request,PaymentConfirmResponse paymentResponse){
+    public void savePayment(PaymentConfirmRequest request,PaymentMessage message){
         Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(request.getTicketId()),"존재하지 않는 티켓입니다.");
-
         // PAID 로 상태변경
         int updatedRows = ticketRepository.updateTicketStatus(ticket.getId());
-
         if(updatedRows == 0){
             throw new DataNotFoundException("존재하지 않거나 만료된 예약입니다.");
         }
-        PaymentMessage message = paymentResponse.fromResponse(paymentResponse,ticket);
-
         savePaymentToOutbox(message);
     }
 
@@ -79,15 +77,8 @@ public class PaymentService {
     private void savePaymentToOutbox(PaymentMessage paymentMessage){
         try {
             String jsonPayload = objectMapper.writeValueAsString(paymentMessage);
-
-            OutboxMessage message = OutboxMessage.builder()
-                    .topic("ticket-confirm")
-                    .payload(jsonPayload)
-                    .build();
-
-            // T2 트랜잭션에 포함되어 DB에 저장
+            OutboxMessage message = OutboxMessage.toEntityFromTicket(jsonPayload);
             outboxRepository.save(message);
-
         } catch (JsonProcessingException e) {
             // 직렬화 실패는 심각한 시스템 오류이므로 RuntimeException 처리
             throw new RuntimeException("Kafka payload 직렬화에 실패했습니다.", e);

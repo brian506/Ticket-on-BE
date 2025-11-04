@@ -24,4 +24,11 @@ public class OutboxMessage {
     // 모든 dto 가 JSON 으로 저장
     @Column(columnDefinition = "TEXT")
     private String payload;
+
+    public static OutboxMessage toEntityFromTicket(String payload){
+        return OutboxMessage.builder()
+                .topic("ticket-confirm")
+                .payload(payload)
+                .build();
+    }
 }

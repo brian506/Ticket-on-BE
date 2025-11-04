@@ -25,10 +25,10 @@ public class PaymentConfirmResponse {
     private OffsetDateTime requestedAt;
     private OffsetDateTime approvedAt;
 
-    public PaymentMessage fromResponse(PaymentConfirmResponse paymentResponse, Ticket ticket) {
+    public PaymentMessage fromResponse(PaymentConfirmResponse paymentResponse,PaymentConfirmRequest request) {
         return PaymentMessage.builder()
                 .paymentKey(paymentResponse.getPaymentKey())
-                .memberId(ticket.getMember().getId())
+                .memberId(request.getMemberId())
                 .orderId(paymentResponse.getOrderId())
                 .amount(paymentResponse.getAmount())
                 .requestedAt(LocalDateTime.from(paymentResponse.getRequestedAt()))

@@ -38,9 +38,9 @@ Kafka 기반의 이벤트 처리 방식을 도입해 단일 대기열 서버에�
 
 <img src="https://github.com/user-attachments/assets/043e352d-aa8e-493e-936c-1e2d672d1c9e" width="600"/>
 
-### 분산락 아키텍처
+### 예약-결제 아키텍처
 
-<img src="https://github.com/user-attachments/assets/bb9fc320-dbab-46d0-b21e-c25c5af5d4b9" width="600"/>
+<img src="https://github.com/user-attachments/assets/17696fc6-6a4c-45c9-b62a-c8185a869690" width="600"/>
 
 ### 실행 방법
 
