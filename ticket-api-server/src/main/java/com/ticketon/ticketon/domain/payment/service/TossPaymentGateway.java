@@ -60,7 +60,7 @@ public class TossPaymentGateway implements PaymentGateway {
     }
 
     public String getErrorBody(ClientHttpResponse res) throws IOException {
-        return new  BufferedReader(new InputStreamReader(res.getBody()))
+        return new BufferedReader(new InputStreamReader(res.getBody()))
                 .lines().collect(Collectors.joining("\n"));
     }
 }

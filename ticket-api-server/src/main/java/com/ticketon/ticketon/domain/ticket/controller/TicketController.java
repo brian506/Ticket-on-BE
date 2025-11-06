@@ -25,6 +25,6 @@ public class TicketController {
     public ResponseEntity<?> requestTicket(@RequestBody TicketRequest request){
         TicketReadyResponse readyResponse = ticketService.purchaseTicket(request);
         SuccessResponse response = new SuccessResponse<>(true,"티켓 결제 요청 성공",readyResponse);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 }

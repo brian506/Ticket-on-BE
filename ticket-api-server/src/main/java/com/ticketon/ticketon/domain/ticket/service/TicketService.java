@@ -29,16 +29,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class TicketService {
 
@@ -50,6 +44,7 @@ public class TicketService {
     private final Map<String, TicketIssueStrategy> strategyMap;
 
     // 원자적 재고 감소 - 상태 PENDING
+    @Transactional
     public TicketReadyResponse purchaseTicket(TicketRequest ticketRequest){
         TicketType ticketType = OptionalUtil.getOrElseThrow(ticketTypeRepository.findById(ticketRequest.getTicketTypeId()),"존재하지 않는 티켓입니다.");
         Member member = OptionalUtil.getOrElseThrow(memberRepository.findById(ticketRequest.getMemberId()),"존재하지 않는 샤용자입니다.");
@@ -61,12 +56,13 @@ public class TicketService {
             throw new ExceededTicketQuantityException(ticketType.getName(),ticketType.getPrice());
         }
         // 상태 PENDING 지정
-        Ticket ticket = Ticket.createTicket(ticketType,member);
+        Ticket ticket = Ticket.createTicket(ticketType,member,orderId);
         ticketRepository.save(ticket);
         return TicketReadyResponse.toDto(ticket,orderId);
     }
 
     // 티켓 최종 저장
+    @Transactional
     public void issueTicket(PaymentMessage message){
         Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(message.getTicketId()),"존재하지 않는 티켓입니다.");
 

@@ -1,6 +1,7 @@
 package com.ticketon.ticketon.domain.payment.comsumer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ticket.exception.custom.KafkaConsumerException;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
@@ -23,16 +24,13 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Profile("!test")
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@KafkaListener(
-        topics = "${kafka.topic-config.payment.name}",
-        groupId = "${kafka.consumer.payment-group.group-id}",
-        containerFactory = "paymentKafkaListenerContainerFactory")
 public class PaymentConsumer {
 
     private final TicketService ticketService;
@@ -40,24 +38,26 @@ public class PaymentConsumer {
 
 
     // 예약,결제 정보 저장
-    @KafkaHandler
-    public void consumePayment(String payload, Acknowledgment ack) {
-        try{
-            PaymentMessage message = objectMapper.readValue(payload, PaymentMessage.class);
-            ticketService.issueTicket(message);
+    @KafkaListener(
+            topics = "${kafka.topic-config.ticket.name}",
+            groupId = "${kafka.consumer.payment-group.group-id}",
+            containerFactory = "paymentKafkaListenerContainerFactory")
+    public void consumePayment(String message, Acknowledgment ack) {
+        try {
+            // Debezium 이 보낸 전체 JSON 문자열을 JsonNode 로 파싱
+            JsonNode rootNode = objectMapper.readTree(message);
+            // payload 에 있는 실제 메시지(PaymentMessage) 추출
+            JsonNode payload = rootNode.get("payload");
+            PaymentMessage payment = objectMapper.treeToValue(payload, PaymentMessage.class);
+            ticketService.issueTicket(payment);
             ack.acknowledge(); // 작업 성공시 브로커에게 완료 메시지 전송
-        }
-        catch (JsonProcessingException e) { // json 변환실패
-            // 이 메시지는 영원히 처리할 수 없으므로, ack를 보내고 로그를 남깁니다.
-            log.error("JSON 파싱 실패. payload: {}", payload);
-            ack.acknowledge();
-        }
-        catch (KafkaConsumerException e){
-            log.error("티켓 최종 발급 처리 실패. payload {}",payload);
+        } catch (KafkaConsumerException e) {
+            log.error("티켓 최종 발급 처리 실패. payload {}", message);
+        } catch (Exception e){
+            ack.acknowledge();;
         }
 
     }
-
 
 
 }

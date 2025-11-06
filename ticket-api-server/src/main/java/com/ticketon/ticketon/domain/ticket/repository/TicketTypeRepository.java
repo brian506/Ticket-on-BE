@@ -19,7 +19,7 @@ public interface TicketTypeRepository extends JpaRepository<TicketType, Long> {
     Optional<TicketType> findByIdForUpdate(@Param("id") Long id);
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE TicketType t SET t.maxQuantity = t.maxQuantity - t.issuedQuantity "+
-            "WHERE t.id = :id AND t.maxQuantity > 0")
+    @Query("UPDATE TicketType t SET t.issuedQuantity = t.issuedQuantity + 1 "+
+            "WHERE t.id = :id AND t.maxQuantity > t.issuedQuantity")
     int decreaseTicketAtomically(@Param("id") Long id);
 }

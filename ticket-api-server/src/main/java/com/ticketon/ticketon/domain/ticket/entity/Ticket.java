@@ -72,11 +72,12 @@ public class Ticket {
                 build();
     }
 
-    public static Ticket createTicket(TicketType ticketType,Member member){
+    public static Ticket createTicket(TicketType ticketType,Member member,String orderId){
         return Ticket.builder()
                 .member(member)
                 .ticketType(ticketType)
                 .price(ticketType.getPrice())
+                .orderId(orderId)
                 .ticketStatus(TicketStatus.PENDING)
                 .expiredAt(LocalDateTime.now().plusMinutes(10))
                 .build();

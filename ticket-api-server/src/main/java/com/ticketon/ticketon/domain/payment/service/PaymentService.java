@@ -14,8 +14,11 @@ import com.ticketon.ticketon.utils.OptionalUtil;
 import de.huxhorn.sulky.ulid.ULID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import javax.swing.text.html.Option;
 import java.time.OffsetDateTime;
@@ -33,20 +36,10 @@ public class PaymentService {
 
     private final PaymentGateway paymentGateway;
     private final PaymentRepository paymentRepository;
-    private final OutboxRepository outboxRepository;
-    private final ObjectMapper objectMapper;
     private final TicketRepository ticketRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    //todo pg 사 호출 - 성공,취소 예외 처리
-    public PaymentMessage confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
-        // 부하테스트용 ( pg 호출 x )
-        String orderId = new ULID().nextULID();
-        PaymentConfirmResponse response = new PaymentConfirmResponse(orderId,10000,"test-key", OffsetDateTime.now(),OffsetDateTime.now());
-//        PaymentConfirmResponse response = paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
-        PaymentMessage message =  response.fromResponse(response,paymentConfirmRequest);
-        savePayment(paymentConfirmRequest,message);
-        return message;
-    }
+
     @Transactional
     public void savePayment(PaymentConfirmRequest request,PaymentMessage message){
         Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(request.getTicketId()),"존재하지 않는 티켓입니다.");
@@ -55,10 +48,9 @@ public class PaymentService {
         if(updatedRows == 0){
             throw new DataNotFoundException("존재하지 않거나 만료된 예약입니다.");
         }
-        savePaymentToOutbox(message);
+        message.setExpiredAt(ticket.getExpiredAt());
+        eventPublisher.publishEvent(new OutboxEvent(message));
     }
-
-
 
     // 결제 취소 요청
     public void cancelPayment(PaymentCancelRequest paymentCancelRequest) {
@@ -68,20 +60,10 @@ public class PaymentService {
         paymentRepository.save(payment);
     }
 
-
     public PaymentResponse findByTicketTypeId(Long ticketId) {
         Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findByTicketId(ticketId), "존재하지 않는 결제 정보입니다.");
         return PaymentResponse.toDto(payment);
     }
 
-    private void savePaymentToOutbox(PaymentMessage paymentMessage){
-        try {
-            String jsonPayload = objectMapper.writeValueAsString(paymentMessage);
-            OutboxMessage message = OutboxMessage.toEntityFromTicket(jsonPayload);
-            outboxRepository.save(message);
-        } catch (JsonProcessingException e) {
-            // 직렬화 실패는 심각한 시스템 오류이므로 RuntimeException 처리
-            throw new RuntimeException("Kafka payload 직렬화에 실패했습니다.", e);
-        }
-    }
+
 }

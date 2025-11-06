@@ -36,21 +36,19 @@ public class PaymentConsumerConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,100); // 한번에 가져올 최대 메시지 수
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class);
         return props;
     }
 
     @Bean("paymentConsumerFactory")
-    public ConsumerFactory<String, PaymentMessage> consumerFactory() {
-        JsonDeserializer<PaymentMessage> deserializer = new JsonDeserializer<>(PaymentMessage.class);
-        deserializer.addTrustedPackages("*");
-        deserializer.setUseTypeMapperForKey(false);
+    public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = consumerConfigs();
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
+        return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean("paymentKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, PaymentMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String,String> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String,String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConcurrency(3); // 3개의 컨슈머 스레드로 병렬처리
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);

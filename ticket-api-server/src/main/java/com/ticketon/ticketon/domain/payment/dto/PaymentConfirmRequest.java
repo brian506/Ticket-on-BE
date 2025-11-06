@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class PaymentConfirmRequest {
+    private Long ticketTypeId;
     private Long ticketId;
     private String paymentKey;
     private Long memberId;
