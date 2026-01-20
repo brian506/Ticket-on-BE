@@ -5,20 +5,33 @@ spring:
     username: ${DB_USER_NAME}
     password: ${DB_PASSWORD}
     hikari:
-      maximum-pool-size: 100
-      minimum-idle: 10
+      maximum-pool-size: 50
+      minimum-idle: 5
       idle-timeout: 600000
       max-lifetime: 1800000
-      connection-timeout: 30000
+      connection-timeout: 3000         # 꼬리 줄이기(대기 짧게 실패)
       validation-timeout: 5000
       initialization-fail-timeout: 1
       read-only: false
-      leak-detection-threshold: 0
+      leak-detection-threshold: 3000   # 테스트 중에만 누수 감지
 
   sql:
     init:
       mode: always
       data-locations: classpath:data.sql
+
+server:
+  tomcat:
+    threads:
+      max: 100
+      min-spare: 20
+      max-queue-capacity: 1000
+    max-connections: 1500
+    accept-count: 50                 # 과도 큐잉 방지
+    connection-timeout: 60000
+    keep-alive-timeout: 10000         # 피크 꼬리 절단 (필요시 5~10s)
+    max-http-header-size: 8192
+    max-keep-alive-requests: 100
 
 kafka:
   admin:
@@ -37,19 +50,15 @@ kafka:
       name : waiting-topic
       partitions: 3
       replicas: 1
-
-
   producer:
     bootstrap-servers: kafka:9092
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
     value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    retry: 2
+    retry: 3
     properties:
-      max.block.ms: 5000 # 버퍼가 가득 찼을 때 대기 시간(5초)
-      linger.ms: 20 # 추가 메시지 기다리는 최대시간(20ms)
-    buffer-memory: 67108864 # 버퍼 크기 (67MB)
-
-
+      max.block.ms: 5000
+      linger.ms: 20
+    buffer-memory: 67108864
   consumer:
     payment-group:
       bootstrap-servers: kafka:9092
@@ -57,44 +66,44 @@ kafka:
       auto-offset-reset: latest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-
-
     waiting-group:
       bootstrap-servers: kafka:9092
       group-id: waiting-group
       auto-offset-reset: latest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-
   listener:
     missing-topics-fatal: false
     ack-mode: manual
 
 redis:
-  reservation: # 예약 서버와 함께 사용할 Redis
+  reservation:
     host: reservation-redis
     port: 6380
-
-  waiting-line: # 대기열에 순서를 관리할 Redis
+  waiting-line:
     host: waiting-line-redis
     port: 6379
 
-
 management:
-  metrics:
-    export:
-      otlp:
-        enabled: true
-        endpoint: http://otel-collector:4318
-    enable:
-      all: true
-      jvm: true
   endpoints:
     web:
       exposure:
-        include: "*"
+        include: "*"                   # 웹으로 노출
+  endpoint:                           # (단수) endpoint.*  ← 오타 수정
+    health:
+      show-details: always
     prometheus:
       enabled: true
+  metrics:
+    distribution:
+      # 모든 HTTP 요청에 대해 히스토그램 버킷을 생성합니다.
+      percentiles-histogram:
+        http.server.requests: true
+      # 슬라이딩 윈도우 기반의 백분위수도 보고 싶다면 추가합니다.
+      percentiles:
+        http.server.requests: 0.5, 0.9, 0.95, 0.99
+
+
 
 stomp:
   url: ${WEBSOCKET_BASE_URL}
@@ -102,11 +111,3 @@ stomp:
 queue-server:
   url: ${QUEUE_BASE_URL}
 
-otel:
-  resource:
-    attributes:
-      service.name: ticket-service
-  exporter:
-    otlp:
-      url: http://otel-collector:4317
-      protocol: grpc

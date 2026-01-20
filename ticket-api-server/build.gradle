@@ -26,34 +26,15 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
-bootRun {
-    jvmArgs = [
-            "-javaagent:${buildDir}/agent/opentelemetry-javaagent.jar",
-            "-Dotel.metrics.exporter=otlp",
-            "-Dotel.exporter.otlp.endpoint=http://otel-collector:4318/v1/metrics",
-            "-Dotel.exporter.otlp.protocol=http/protobuf",
-            "-Dotel.instrumentation.runtime-metrics.enabled=true",
-            "-Dotel.instrumentation.system-metrics.enabled=true",
-            "-Dotel.instrumentation.micrometer.enabled=true",
-            "-Dotel.resource.attributes=service.name=ticket-service",
-            "-Dotel.metrics.export.interval=1000",
-            "-Dotel.javaagent.debug=false",
-            "-Dotel.logs.exporter=none",
-            "-Dspring.main.allow-bean-definition-overriding=true"
-    ]
-}
-
 bootRun.dependsOn("copyAgent")
 
 dependencies {
     implementation project(':ticket-common')
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    agent 'io.opentelemetry.javaagent:opentelemetry-javaagent:2.7.0'
+
     implementation 'io.lettuce:lettuce-core'
     implementation 'io.micrometer:micrometer-core'
-    implementation 'io.opentelemetry:opentelemetry-api:1.50.0'
-    implementation 'io.opentelemetry:opentelemetry-sdk:1.50.0'
-    implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.50.0'
+
     implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.50.0'
     implementation 'io.micrometer:micrometer-registry-otlp'
     implementation 'io.micrometer:micrometer-registry-prometheus'
@@ -65,7 +46,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.29.0'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
@@ -76,48 +57,8 @@ dependencies {
 
 }
 
-tasks.register("copyAgent", Copy) {
-    from(configurations.agent)
-    into(layout.buildDirectory.dir("agent"))
-    rename { 'opentelemetry-javaagent.jar' }
-}
 
-jib {
-    from {
-        image = "eclipse-temurin:21-jdk"
-        platforms {
-            platform {
-                architecture = "arm64"
-                os = "linux"
-            }
-        }
-    }
-    extraDirectories {
-        paths {
-            path {
-                setFrom(layout.buildDirectory.dir("agent"))
-                into = "/otelagent"
-            }
-        }
-    }
-    container {
-        mainClass = "com.huisam.orderapplication.OrderApplicationKt"
-        jvmFlags = [
-                "-javaagent:/otelagent/opentelemetry-javaagent.jar",
-                "-Dotel.metrics.exporter=otlp",
-                "-Dotel.exporter.otlp.endpoint=http://otel-collector:4318/v1/metrics",
-                "-Dotel.exporter.otlp.protocol=http/protobuf",
-                "-Dotel.instrumentation.runtime-metrics.enabled=true",
-                "-Dotel.instrumentation.system-metrics.enabled=true",
-                "-Dotel.instrumentation.micrometer.enabled=true",
-                "-Dotel.resource.attributes=service.name=ticket-service",
-                "-Dotel.metrics.export.interval=1000",
-                "-Dotel.javaagent.debug=false",
-                "-Dotel.logs.exporter=none",
-                "-Dspring.main.allow-bean-definition-overriding=true"
-        ]
-    }
-}
+
 
 jibDockerBuild.dependsOn("copyAgent")
 

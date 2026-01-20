@@ -25,8 +25,8 @@ public class WebSecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(Urls.LOGIN, Urls.SIGN_UP,"/v1/api/payments/confirm" )
-                        .permitAll()
+                        .requestMatchers(Urls.LOGIN, Urls.SIGN_UP,"/v1/api/**" ).permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .httpBasic(withDefaults())

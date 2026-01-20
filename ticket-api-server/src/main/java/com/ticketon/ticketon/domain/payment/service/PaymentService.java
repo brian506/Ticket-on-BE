@@ -38,6 +38,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final TicketRepository ticketRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final OutboxEventService outboxEventService;
 
 
     @Transactional
@@ -49,7 +50,8 @@ public class PaymentService {
             throw new DataNotFoundException("존재하지 않거나 만료된 예약입니다.");
         }
         message.setExpiredAt(ticket.getExpiredAt());
-        eventPublisher.publishEvent(new OutboxEvent(message));
+        log.info("[Payment] 결제 저장 성공 {}", message.getOrderId());
+        outboxEventService.savePaymentToOutbox(new OutboxEvent(message));
     }
 
     // 결제 취소 요청

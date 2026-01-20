@@ -11,39 +11,6 @@ services:
     networks:
       - monitoring
 
-  redis-exporter:
-    image: oliver006/redis_exporter:v1.60.0
-    container_name: redis-exporter
-    ports:
-      - "9121:9121"
-    environment:
-      - REDIS_ADDR=redis://wating-line-redis:6379
-    networks:
-      - monitoring
-    depends_on:
-      - wating-line-redis
-
-
-  wating-line-redis:
-    image: redis:7.0.11
-    container_name: wating-line-redis
-    ports:
-      - "6379:6379"
-    restart: always
-    networks:
-      - monitoring
-
-  reservation-redis:
-    image: redis:7.0.11
-    container_name: reservation-redis
-    command: ["redis-server", "--port", "6380"]
-    ports:
-      - "6380:6380"
-    restart: always
-    networks:
-      - monitoring
-
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
@@ -70,27 +37,6 @@ services:
     networks:
       - monitoring
 
-
-  queue-server-1:
-    image: minseok1768/ticket-queue-server:latest
-    container_name: queue-server-1
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
-    env_file:
-      - .env
-    ports:
-      - "8082:8080"
-    depends_on:
-      - reservation-redis
-      - wating-line-redis
-    restart: always
-    networks:
-      - monitoring
-    volumes:
-      - ./wait-for-it.sh:/wait-for-it.sh
-
-
   api-server-1:
     image: minseok1768/ticket-api-server:latest
     container_name: reservation-server-1
@@ -107,7 +53,6 @@ services:
       - monitoring
     volumes:
       - ./wait-for-it.sh:/wait-for-it.sh
-
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -153,31 +98,7 @@ services:
       - grafana-storage:/var/lib/grafana
 
 
-  tempo:
-    image: grafana/tempo:2.4.1
-    container_name: tempo
-    ports:
-      - "3200:3200"
-    volumes:
-      - ./monitoring-config/tempo-config.yml:/etc/tempo-config.yml
-    command: --config.file=/etc/tempo-config.yml
-    networks:
-      - monitoring
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.93.0
-    container_name: otel-collector
-    ports:
-      - "4317:4317"
-      - "4318:4318"
-      - "8889:8889"
-    volumes:
-      - ./monitoring-config/otel-collector-config.yml:/etc/otel/otel-collector-config.yml
-    command: --config=/etc/otel/otel-collector-config.yml
-    networks:
-      - monitoring
-    depends_on:
-      - tempo
 
   prometheus:
     image: prom/prometheus
@@ -193,6 +114,60 @@ services:
     networks:
       - monitoring
 
+
+
+      redis-exporter:
+    image: oliver006/redis_exporter:v1.60.0
+    container_name: redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://wating-line-redis:6379
+    networks:
+      - monitoring
+    depends_on:
+      - wating-line-redis
+
+
+  wating-line-redis:
+    image: redis:7.0.11
+    container_name: wating-line-redis
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - monitoring
+
+  reservation-redis:
+    image: redis:7.0.11
+    container_name: reservation-redis
+    command: ["redis-server", "--port", "6380"]
+    ports:
+      - "6380:6380"
+    restart: always
+    networks:
+      - monitoring
+
+
+
+  queue-server-1:
+    image: minseok1768/ticket-queue-server:latest
+    container_name: queue-server-1
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
+    env_file:
+      - .env
+    ports:
+      - "8082:8080"
+    depends_on:
+      - reservation-redis
+      - wating-line-redis
+    restart: always
+    networks:
+      - monitoring
+    volumes:
+      - ./wait-for-it.sh:/wait-for-it.sh
 
 networks:
   monitoring:

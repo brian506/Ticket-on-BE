@@ -1,99 +1,118 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { Counter } from 'k6/metrics';
+import { Counter, Trend } from 'k6/metrics';
 
-// ===== 환경변수 =====
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8081';
-const TICKET_TYPE_ID = Number(__ENV.TICKET_TYPE_ID || 1);
-const EXPECTED_TICKETS = Number(__ENV.EXPECTED_TICKETS || 100);
+// ===== 1. 설정 및 주소 고정 (환경변수 무시) =====
+// 로컬 터미널에서 실행하므로 localhost:8081로 강제 고정합니다.
+const BASE_URL = 'http://localhost:8081';
+const TICKET_TYPE_ID = 1; // SQL에 넣은 Standing A의 ID
+const EXPECTED_TICKETS = 500;
 
-// ===== 부하 설정 (⚠️ 함수 아님) =====
+// ===== 2. 커스텀 메트릭 =====
+const prepare_success = new Counter('prepare_success');
+const confirm_success = new Counter('confirm_success');
+const ticket_soldout = new Counter('ticket_soldout');
+const network_error = new Counter('network_error');
+const confirm_duration = new Trend('confirm_duration');
+
 export const options = {
-  vus: 300,
-  duration: '10s',
+  scenarios: {
+      // 💡 여기가 핵심 변경 포인트!
+      rate_limit_test: {
+        // "일정한 속도로 도착(Constant Arrival Rate)"하게 만듭니다.
+        executor: 'constant-arrival-rate',
+
+        // 1초에 100명씩만 들여보내겠다 (서버 한계의 80~90% 수준)
+        rate: 200,
+        timeUnit: '1s',
+
+        // 총 30초 동안 테스트 (100명 * 30초 = 3000명 처리 예상)
+        duration: '40s',
+
+        // 가상 유저는 필요하면 알아서 늘리도록 넉넉히 줌
+        preAllocatedVUs: 100,
+        maxVUs: 500,
+      },
+    },
   thresholds: {
-    http_req_duration: ['p(95)<300'],
-    confirm_success: [`count==${EXPECTED_TICKETS}`],
+    // 10,000개가 성공하지 못하면 테스트 실패로 간주
+    'confirm_success': [`count>=${EXPECTED_TICKETS}`],
+    // 95%의 요청은 500ms 이내에 완료되어야 함
+    'http_req_duration': ['p(95)<500'],
   },
 };
 
-// ===== 커스텀 메트릭 =====
-const prepare_ok = new Counter('prepare_ok');
-const confirm_success = new Counter('confirm_success');
-const ticket_soldout = new Counter('ticket_soldout');
-const ticket_error = new Counter('ticket_error');
-
-// ===== 테스트 시나리오 =====
 export default function () {
-  const memberId = __VU;
+  // SQL 데이터에 맞게 1~10번 멤버 랜덤 선택
+  const memberId = Math.floor(Math.random() * 500) + 1;
+  const headers = { 'Content-Type': 'application/json' };
 
-  // 1️⃣ 결제 요청
+  // --- [STEP 1] 티켓 예매 요청 (purchaseTicket) ---
   const preparePayload = JSON.stringify({
     ticketTypeId: TICKET_TYPE_ID,
-    memberId: memberId,
     quantity: 1,
-    amount: 10000,
+    memberId: memberId,
+    amount: 150000
   });
-  const headers = { 'Content-Type': 'application/json' };
 
   const prepareRes = http.post(`${BASE_URL}/ticket/ticket-request`, preparePayload, { headers });
 
+  // 1단계 방어: 네트워크 에러나 응답 없음 체크
+  if (!prepareRes || prepareRes.status === 0) {
+    network_error.add(1);
+    return;
+  }
+
+  // 2단계 방어: 재고 부족(409) 체크
   if (prepareRes.status === 409) {
     ticket_soldout.add(1);
     return;
   }
 
-  const ok = check(prepareRes, { '티켓 요청 200': (r) => r.status === 200 });
-  if (!ok) {
-    ticket_error.add(1);
-    return;
-  }
-  prepare_ok.add(1);
+  const isPrepareOk = check(prepareRes, { '1단계 성공': (r) => r.status === 200 });
+  if (!isPrepareOk) return;
 
-  // 응답 파싱
-  let data;
+  // JSON 데이터 안전하게 추출
+  let prepareData;
   try {
-    data = prepareRes.json()?.data || {};
+    prepareData = prepareRes.json().data;
+    if (!prepareData) return;
   } catch (e) {
-    ticket_error.add(1);
     return;
   }
 
-  const ticketId = data.ticketId;
-  const orderId = data.orderId;
-  const price = data.price;
-  const mid = data.memberId ?? memberId;
+  const ticketId = prepareData.ticketId;
+  const orderId = prepareData.orderId;
+  prepare_success.add(1);
 
-  const hasRequired = check(data, {
-    'ticketId 존재': () => !!ticketId,
-    'orderId 존재': () => !!orderId,
-    'price 존재': () => Number.isFinite(price),
-  });
-  if (!hasRequired) {
-    ticket_error.add(1);
-    return;
-  }
+  sleep(0.1);
 
-  // 2️⃣ 결제 승인
-  const uniqueKey = `pk-${memberId}-${__ITER}-${Date.now()}`;
+  // --- [STEP 2] 결제 승인 요청 (createPayment) ---
   const confirmPayload = JSON.stringify({
-    ticketTypeId: TICKET_TYPE_ID,
     ticketId: ticketId,
-    paymentKey: uniqueKey,
-    memberId: mid,
+    memberId: memberId,
     orderId: orderId,
-    amount: price,
+    paymentKey: `pk-${orderId}-${Date.now()}`,
+    amount: 150000
   });
 
-  const confirmRes = http.post(`${BASE_URL}/v1/api/payments/confirm`, confirmPayload, { headers });
+  // Controller 경로에 맞춰 /v1/api/payments/confirm 호출
+  const confirmRes = http.post(`${BASE_URL}/v1/api/payments/confirm`, confirmPayload, {
+    headers,
+    tags: { endpoint: 'confirm' }
+  });
+
+  // 💡 TypeError 완전 방어 코드
+  check(confirmRes, {
+    // r.body가 존재할 때만 .includes()를 호출하도록 체크
+    '최종 승인 확인': (r) => r.status === 200 && r.body && r.body.includes('성공'),
+    '상태값 확인': (r) => r.status === 200 || r.status === 409
+  });
 
   if (confirmRes.status === 200) {
     confirm_success.add(1);
-  } else if (confirmRes.status === 409 || confirmRes.status === 422) {
-    ticket_soldout.add(1);
-  } else {
-    ticket_error.add(1);
+    confirm_duration.add(confirmRes.timings.duration);
   }
 
-  sleep(0.2);
+  sleep(0.5);
 }

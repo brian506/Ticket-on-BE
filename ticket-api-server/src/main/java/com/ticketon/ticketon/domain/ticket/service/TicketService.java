@@ -1,15 +1,11 @@
 package com.ticketon.ticketon.domain.ticket.service;
 
-import com.ticket.exception.custom.DataNotFoundException;
 import com.ticket.exception.custom.ExceededTicketQuantityException;
 import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
-import com.ticketon.ticketon.domain.payment.service.PaymentGateway;
-import com.ticketon.ticketon.domain.payment.service.PaymentService;
-import com.ticketon.ticketon.domain.ticket.dto.TicketPayload;
 import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
@@ -19,14 +15,12 @@ import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
-import com.ticketon.ticketon.domain.ticket.service.strategy.PessimisticLockTicketIssueService;
-import com.ticketon.ticketon.domain.ticket.service.strategy.RedisLockTicketIssueService;
 import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import de.huxhorn.sulky.ulid.ULID;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,6 +28,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TicketService {
 
     private final TicketRepository ticketRepository;
@@ -58,6 +53,7 @@ public class TicketService {
         // 상태 PENDING 지정
         Ticket ticket = Ticket.createTicket(ticketType,member,orderId);
         ticketRepository.save(ticket);
+        log.info("[Ticket] 티켓 요청 성공 {}", ticket.getOrderId());
         return TicketReadyResponse.toDto(ticket,orderId);
     }
 
@@ -76,6 +72,7 @@ public class TicketService {
         paymentRepository.save(payment);
         // 최종 승인된 티켓
         ticket.setTicketStatus(TicketStatus.CONFIRMED);
+        log.info("[Ticket] 티켓 최종 저장 성공 {}", payment.getOrderId());
     }
 
 

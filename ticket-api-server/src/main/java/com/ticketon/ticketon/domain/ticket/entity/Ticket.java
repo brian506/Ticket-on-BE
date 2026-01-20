@@ -1,7 +1,7 @@
 package com.ticketon.ticketon.domain.ticket.entity;
 
-import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticket.exception.custom.TicketAlreadyCancelledException;
+import com.ticketon.ticketon.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,7 +37,7 @@ public class Ticket {
     @Column(name = "price",nullable = false)
     private Integer price;
 
-    @Column(name ="orderId",nullable = false)
+    @Column(name ="order_id",nullable = false)
     private String orderId;
 
     @Column(name = "expired_at",nullable = false)

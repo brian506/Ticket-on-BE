@@ -7,9 +7,16 @@
 //import lombok.RequiredArgsConstructor;
 //
 //import lombok.extern.slf4j.Slf4j;
+//import org.apache.kafka.common.TopicPartition;
 //import org.springframework.beans.factory.annotation.Value;
+//import org.springframework.context.annotation.Bean;
 //import org.springframework.kafka.core.KafkaTemplate;
+//import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+//import org.springframework.kafka.listener.DefaultErrorHandler;
+//import org.springframework.kafka.support.serializer.DeserializationException;
 //import org.springframework.stereotype.Service;
+//import org.springframework.util.backoff.FixedBackOff;
+//import org.springframework.web.bind.MethodArgumentNotValidException;
 //
 //@Slf4j
 //@Service
@@ -27,5 +34,6 @@
 //        kafkaTemplate.send(topic, String.valueOf(message.getTicketTypeId()), message);
 //        // orderId 를 기준으로 같은 파티션으로 전달(중복 방지)
 //    }
+//
 //
 //}

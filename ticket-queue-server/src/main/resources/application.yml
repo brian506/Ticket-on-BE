@@ -1,11 +1,24 @@
 spring:
   profiles:
-    active: local
+    active: docker
   config:
     import: "optional:file:.env[.properties]"
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+
+server:
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 20
+      max-queue-capacity: 1000
+    max-connections: 10000
+    accept-count: 500
+    connection-timeout: 60000
+    keep-alive-timeout: 30000
+    max-http-header-size: 8192
+    max-keep-alive-requests: 100
 
 logging:
   level:

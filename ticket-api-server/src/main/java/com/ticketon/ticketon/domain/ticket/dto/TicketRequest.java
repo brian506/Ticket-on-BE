@@ -2,12 +2,12 @@ package com.ticketon.ticketon.domain.ticket.dto;
 
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import jakarta.validation.constraints.Max;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Value;
+import lombok.*;
 
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TicketRequest {
 
     private Long ticketTypeId;

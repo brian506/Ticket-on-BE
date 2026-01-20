@@ -6,6 +6,7 @@ import com.ticketon.ticketon.domain.payment.dto.OutboxEvent;
 import com.ticketon.ticketon.domain.payment.entity.OutboxMessage;
 import com.ticketon.ticketon.domain.payment.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,17 +15,17 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OutboxEventService {
     private final OutboxRepository outboxRepository;
     private final ObjectMapper objectMapper;
 
     // savePayment() 트랜잭션 이후에 Outbox INSERT 수행
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void savePaymentToOutbox(OutboxEvent event){
         try {
             String jsonPayload = objectMapper.writeValueAsString(event.message());
             OutboxMessage message = OutboxMessage.toEntityFromTicket(jsonPayload);
+            log.info("[아웃박스 엔티티]  아웃박스 엔티티 저장 {}",event.message().getOrderId());
             outboxRepository.save(message);
         } catch (JsonProcessingException e) {
             // 직렬화 실패는 심각한 시스템 오류이므로 RuntimeException 처리

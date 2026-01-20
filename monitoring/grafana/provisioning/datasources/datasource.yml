@@ -1,0 +1,19 @@
+apiVersion: 1
+
+datasources:
+  # 1. Prometheus 연결 설정
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus_uid
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true   # 기본 데이터소스로 설정
+    editable: true
+
+  # 2. Loki 연결 설정
+  - name: Loki
+    type: loki
+    uid: loki_uid
+    access: proxy
+    url: http://loki:3100
+    editable: true
