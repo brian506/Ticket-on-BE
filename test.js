@@ -6,7 +6,7 @@ import { Counter, Trend } from 'k6/metrics';
 // 로컬 터미널에서 실행하므로 localhost:8081로 강제 고정합니다.
 const BASE_URL = 'http://localhost:8081';
 const TICKET_TYPE_ID = 1; // SQL에 넣은 Standing A의 ID
-const EXPECTED_TICKETS = 500;
+const EXPECTED_TICKETS = 100;
 
 // ===== 2. 커스텀 메트릭 =====
 const prepare_success = new Counter('prepare_success');
@@ -23,15 +23,15 @@ export const options = {
         executor: 'constant-arrival-rate',
 
         // 1초에 100명씩만 들여보내겠다 (서버 한계의 80~90% 수준)
-        rate: 200,
+        rate: 100,
         timeUnit: '1s',
 
         // 총 30초 동안 테스트 (100명 * 30초 = 3000명 처리 예상)
-        duration: '40s',
+        duration: '20s',
 
         // 가상 유저는 필요하면 알아서 늘리도록 넉넉히 줌
-        preAllocatedVUs: 100,
-        maxVUs: 500,
+        preAllocatedVUs: 50,
+        maxVUs: 100,
       },
     },
   thresholds: {
@@ -44,7 +44,7 @@ export const options = {
 
 export default function () {
   // SQL 데이터에 맞게 1~10번 멤버 랜덤 선택
-  const memberId = Math.floor(Math.random() * 500) + 1;
+  const memberId = Math.floor(Math.random() * 100) + 1;
   const headers = { 'Content-Type': 'application/json' };
 
   // --- [STEP 1] 티켓 예매 요청 (purchaseTicket) ---

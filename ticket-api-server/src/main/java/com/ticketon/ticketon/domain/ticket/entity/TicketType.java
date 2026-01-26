@@ -46,9 +46,8 @@ public class TicketType {
     @Column(name = "issued_quantity", nullable = false)
     private Long issuedQuantity;
 
-//    // 발급 가능한 티켓 개수
-//    @Column(name = "available_quantity",nullable = false)
-//    private Long availableQuantity;
+    @Version
+    private Long version;
 
     // 해당 티켓 가격
     @Column(name = "price", nullable = false)
@@ -62,9 +61,6 @@ public class TicketType {
     public void increaseIssuedQuantity() {
         validateCanIssueTicket();
         this.issuedQuantity++;
-    }
-    public Long getAvailableQuantity(){
-        return this.maxQuantity - this.issuedQuantity;
     }
 
     public void decreaseTicketQuantity() {
@@ -83,13 +79,6 @@ public class TicketType {
         if (this.issuedQuantity < 1) {
             throw new InvalidTicketCancellationException(this.getName(), this.getPrice());
         }
-    }
-
-    public boolean decreaseStock(){
-        if (this.maxQuantity - this.issuedQuantity > 0){
-            return true;
-        }
-        return false;
     }
 
 }

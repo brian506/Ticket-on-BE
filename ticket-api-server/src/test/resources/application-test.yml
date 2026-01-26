@@ -1,8 +1,7 @@
 spring:
-
-
-  aop:
-    auto: false
+  config:
+    activate:
+      on-profile: test
 
   autoconfigure:
     exclude:
@@ -14,19 +13,6 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ticket_on?serverTimezone=Asia/Seoul
-    username: root
-    password: wind6298
-    hikari:
-      maximum-pool-size: 100
-      minimum-idle: 10
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      connection-timeout: 30000
-      validation-timeout: 5000
-      initialization-fail-timeout: 1
-      read-only: false
-      leak-detection-threshold: 0
 
   observability:
     enabled: false
@@ -34,18 +20,15 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
-      database-platform: org.hibernate.dialect.MySQLDialect
-      defer-datasource-initialization: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-        show_sql: false
-        format_sql: false
+    show-sql: true
 
   logging:
     level:
       root: INFO
-      io.opentelemetry: DEBUG
+
   kafka:
     consumer:
       enabled: false

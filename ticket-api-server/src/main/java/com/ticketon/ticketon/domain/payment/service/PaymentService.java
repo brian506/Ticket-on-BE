@@ -45,7 +45,7 @@ public class PaymentService {
     public void savePayment(PaymentConfirmRequest request,PaymentMessage message){
         Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(request.getTicketId()),"존재하지 않는 티켓입니다.");
         // PAID 로 상태변경
-        int updatedRows = ticketRepository.updateTicketStatus(ticket.getId());
+        Long updatedRows = ticketRepository.updateTicketStatus(ticket.getId());
         if(updatedRows == 0){
             throw new DataNotFoundException("존재하지 않거나 만료된 예약입니다.");
         }
