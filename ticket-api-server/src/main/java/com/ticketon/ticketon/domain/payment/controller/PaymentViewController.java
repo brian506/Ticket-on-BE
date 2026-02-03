@@ -44,7 +44,7 @@ public class PaymentViewController {
                                  @CurrentUser CustomUserDetails userDetails,Model model){
         TicketPurchaseRequest ticketPurchaseRequest = new TicketPurchaseRequest(ticketTypeId,quantity);
         TicketRequest ticketRequest = ticketService.requestTicket(ticketPurchaseRequest, userDetails.getMemberId());
-        TicketReadyResponse response = ticketService.purchaseTicket(ticketRequest);
+        TicketReadyResponse response = ticketService.purchaseTicket(ticketRequest,"orderId");
         String eventTitle = eventItemService.getTitleByTicketTypeId(ticketPurchaseRequest.getTicketTypeId());
         model.addAttribute("clientKey", clientKey);
         model.addAttribute("orderId", response.getOrderId());

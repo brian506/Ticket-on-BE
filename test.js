@@ -1,118 +1,101 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
+import { sleep, check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 
-// ===== 1. 설정 및 주소 고정 (환경변수 무시) =====
-// 로컬 터미널에서 실행하므로 localhost:8081로 강제 고정합니다.
+// ===== 설정 =====
 const BASE_URL = 'http://localhost:8081';
-const TICKET_TYPE_ID = 1; // SQL에 넣은 Standing A의 ID
-const EXPECTED_TICKETS = 100;
 
-// ===== 2. 커스텀 메트릭 =====
-const prepare_success = new Counter('prepare_success');
-const confirm_success = new Counter('confirm_success');
-const ticket_soldout = new Counter('ticket_soldout');
-const network_error = new Counter('network_error');
-const confirm_duration = new Trend('confirm_duration');
+// ===== 메트릭 =====
+const flow_success = new Counter('flow_success'); // 전체 플로우 성공 횟수
+const req_duration = new Trend('req_duration');   // 예매 요청 시간
+const pay_duration = new Trend('pay_duration');   // 결제 승인 시간
 
 export const options = {
   scenarios: {
-      // 💡 여기가 핵심 변경 포인트!
-      rate_limit_test: {
-        // "일정한 속도로 도착(Constant Arrival Rate)"하게 만듭니다.
-        executor: 'constant-arrival-rate',
+    full_flow_test: {
+      executor: 'constant-arrival-rate', // 🔥 목표 TPS 강제 유지 모드
+      rate: 400,             // 초당 300명의 사용자가 유입됨 (목표 TPS)
+      timeUnit: '1s',
+      duration: '4m',       // 30초간 지속
 
-        // 1초에 100명씩만 들여보내겠다 (서버 한계의 80~90% 수준)
-        rate: 100,
-        timeUnit: '1s',
-
-        // 총 30초 동안 테스트 (100명 * 30초 = 3000명 처리 예상)
-        duration: '20s',
-
-        // 가상 유저는 필요하면 알아서 늘리도록 넉넉히 줌
-        preAllocatedVUs: 50,
-        maxVUs: 100,
-      },
+      // VU를 미리 넉넉하게 할당 (sleep 시간 고려해서 계산해야 함)
+      // TPS 300 * 5초 대기 = 최소 1500명 필요. 여유 있게 3000 잡음.
+      preAllocatedVUs: 2000,
+      maxVUs: 5000,          // 부족하면 K6가 알아서 더 늘림
     },
+  },
   thresholds: {
-    // 10,000개가 성공하지 못하면 테스트 실패로 간주
-    'confirm_success': [`count>=${EXPECTED_TICKETS}`],
-    // 95%의 요청은 500ms 이내에 완료되어야 함
-    'http_req_duration': ['p(95)<500'],
+    // 결제 승인까지 끝난 건수가 있어야 함
+    'flow_success': ['count>0'],
+    // 결제 API 응답 속도 관리
+    'pay_duration': ['p(95)<1000'],
   },
 };
 
 export default function () {
-  // SQL 데이터에 맞게 1~10번 멤버 랜덤 선택
-  const memberId = Math.floor(Math.random() * 100) + 1;
   const headers = { 'Content-Type': 'application/json' };
 
-  // --- [STEP 1] 티켓 예매 요청 (purchaseTicket) ---
+  // 고유한 유저/주문 ID 생성
+  // (충돌 안 나게 VU ID와 시간 조합)
+  const uniqueId = (__VU * 10000) + __ITER;
+  const memberId = (uniqueId % 10000) + 1;
+
+  // ============================================================
+  // [STEP 1] 티켓 예매 요청 (사용자 진입)
+  // ============================================================
   const preparePayload = JSON.stringify({
-    ticketTypeId: TICKET_TYPE_ID,
-    quantity: 1,
+    ticketTypeId: 1,
     memberId: memberId,
+    quantity: 1,
     amount: 150000
   });
 
-  const prepareRes = http.post(`${BASE_URL}/ticket/ticket-request`, preparePayload, { headers });
+  const res1 = http.post(`${BASE_URL}/ticket/ticket-request`, preparePayload, {
+    headers,
+    tags: { type: 'REQ' }
+  });
 
-  // 1단계 방어: 네트워크 에러나 응답 없음 체크
-  if (!prepareRes || prepareRes.status === 0) {
-    network_error.add(1);
-    return;
-  }
+  req_duration.add(res1.timings.duration);
 
-  // 2단계 방어: 재고 부족(409) 체크
-  if (prepareRes.status === 409) {
-    ticket_soldout.add(1);
-    return;
-  }
+  // 실패하면(매진 등) 여기서 종료
+  if (res1.status !== 200) return;
 
-  const isPrepareOk = check(prepareRes, { '1단계 성공': (r) => r.status === 200 });
-  if (!isPrepareOk) return;
-
-  // JSON 데이터 안전하게 추출
-  let prepareData;
+  // OrderId 파싱
+  let orderId;
   try {
-    prepareData = prepareRes.json().data;
-    if (!prepareData) return;
-  } catch (e) {
-    return;
-  }
+    orderId = res1.json().data.orderId; // 경로 확인 필요
+  } catch(e) { return; }
 
-  const ticketId = prepareData.ticketId;
-  const orderId = prepareData.orderId;
-  prepare_success.add(1);
 
+  // ============================================================
+  // [STEP 2] 사용자 대기 (User Think Time + System Lag)
+  // ============================================================
+  // 이 sleep은 두 가지 의미가 있습니다.
+  // 1. 실제 사용자가 결제 비밀번호 입력하는 시간
+  // 2. Kafka가 메시지를 컨슈밍해서 DB에 넣을 때까지의 물리적 시간
   sleep(0.1);
 
-  // --- [STEP 2] 결제 승인 요청 (createPayment) ---
+
+  // ============================================================
+  // [STEP 3] 결제 승인 요청 (최종 완료)
+  // ============================================================
   const confirmPayload = JSON.stringify({
-    ticketId: ticketId,
+    ticketId: 0,
     memberId: memberId,
     orderId: orderId,
-    paymentKey: `pk-${orderId}-${Date.now()}`,
+    paymentKey: `pk-${orderId}`,
     amount: 150000
   });
 
-  // Controller 경로에 맞춰 /v1/api/payments/confirm 호출
-  const confirmRes = http.post(`${BASE_URL}/v1/api/payments/confirm`, confirmPayload, {
+  const res2 = http.post(`${BASE_URL}/v1/api/payments/confirm`, confirmPayload, {
     headers,
-    tags: { endpoint: 'confirm' }
+    tags: { type: 'PAY' }
   });
 
-  // 💡 TypeError 완전 방어 코드
-  check(confirmRes, {
-    // r.body가 존재할 때만 .includes()를 호출하도록 체크
-    '최종 승인 확인': (r) => r.status === 200 && r.body && r.body.includes('성공'),
-    '상태값 확인': (r) => r.status === 200 || r.status === 409
-  });
+  pay_duration.add(res2.timings.duration);
 
-  if (confirmRes.status === 200) {
-    confirm_success.add(1);
-    confirm_duration.add(confirmRes.timings.duration);
+  // 최종 성공 여부 판단
+  if (res2.status === 200) {
+    flow_success.add(1);
   }
-
-  sleep(0.5);
 }

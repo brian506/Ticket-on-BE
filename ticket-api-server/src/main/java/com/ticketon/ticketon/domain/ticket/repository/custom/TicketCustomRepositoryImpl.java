@@ -31,8 +31,11 @@ public class TicketCustomRepositoryImpl extends QuerydslRepositorySupport implem
     @Override
     public List<ExpiredTicket> findExpiredTickets(LocalDateTime now) {
         return select(Projections.constructor(ExpiredTicket.class,
+                ticket.id,
                 ticket.ticketType.id,
-                ticket.count()))
+                ticket.orderId,
+                ticket.count()
+        ))
                 .from(ticket)
                 .where(ticket.ticketStatus.eq(TicketStatus.PENDING),
                         ticket.expiredAt.lt(now))
@@ -42,10 +45,11 @@ public class TicketCustomRepositoryImpl extends QuerydslRepositorySupport implem
     }
 
     @Override
-    public void bulkUpdateStatusToExpired(LocalDateTime now) {
+    public void bulkUpdateStatusToExpiredByIds(List<Long> ticketIds, LocalDateTime now) {
         update(ticket)
                 .set(ticket.ticketStatus, TicketStatus.CANCELLED)
-                .where(ticket.ticketStatus.eq(TicketStatus.PENDING),
+                .where(ticket.id.in(ticketIds),
+                        ticket.ticketStatus.eq(TicketStatus.PENDING),
                         ticket.expiredAt.before(now))
                 .execute();
 

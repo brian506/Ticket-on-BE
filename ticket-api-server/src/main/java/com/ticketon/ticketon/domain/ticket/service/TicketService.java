@@ -1,11 +1,11 @@
 package com.ticketon.ticketon.domain.ticket.service;
 
-import com.ticket.exception.custom.ExceededTicketQuantityException;
-import com.ticketon.ticketon.domain.member.entity.Member;
-import com.ticketon.ticketon.domain.member.repository.MemberRepository;
+import com.ticketon.ticketon.domain.payment.dto.OutboxEvent;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
+import com.ticketon.ticketon.domain.payment.service.OutboxEventService;
+import com.ticketon.ticketon.domain.ticket.dto.TicketPayload;
 import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
@@ -13,18 +13,22 @@ import com.ticketon.ticketon.domain.ticket.entity.TicketStatus;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
+import com.ticketon.ticketon.domain.ticket.repository.TicketRedisRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
 import com.ticketon.ticketon.utils.OptionalUtil;
-import de.huxhorn.sulky.ulid.ULID;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,31 +40,43 @@ public class TicketService {
     private final TicketIssueStrategy ticketIssueStrategy;
     private final PaymentRepository paymentRepository;
 
+
     // 원자적 재고 감소 - 상태 PENDING
     @Transactional
-    public TicketReadyResponse purchaseTicket(TicketRequest ticketRequest){
-        Ticket ticket = ticketIssueStrategy.purchaseTicketByPessimisticLock(ticketRequest.getTicketTypeId(),ticketRequest.getMemberId());
+    public TicketReadyResponse purchaseTicket(TicketRequest ticketRequest, String orderId){
+        Ticket ticket = ticketIssueStrategy.purchaseTicketAtomic(ticketRequest.getTicketTypeId(),ticketRequest.getMemberId(), orderId);
         ticketRepository.save(ticket);
         log.info("[Ticket] 티켓 요청 성공 {}", ticket.getOrderId());
         return TicketReadyResponse.toDto(ticket,ticket.getOrderId());
     }
 
+
     // 티켓 최종 저장
     @Transactional
-    public void issueTicket(PaymentMessage message){
-        Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(message.getTicketId()),"존재하지 않는 티켓입니다.");
+    public void issueTicket(List<PaymentMessage> messages){
 
-        if(ticket.getTicketStatus() == TicketStatus.CONFIRMED){
-            return;
+        List<String> orderIds = messages.stream()
+                .map(PaymentMessage::getOrderId)
+                .toList();
+
+        Map<String, Ticket> ticketMap = ticketRepository.findAllByOrderIdIn(orderIds)
+                .stream()
+                .collect(Collectors.toMap(Ticket::getOrderId, Function.identity()));
+
+        List<Payment> payments = new ArrayList<>();
+
+        for(PaymentMessage message : messages) {
+            Ticket ticket = ticketMap.get(message.getOrderId());
+
+            if (ticket.getTicketStatus() == TicketStatus.PENDING) {
+                Payment payment = message.toEntity(message);
+                payments.add(payment);
+                // 최종 승인된 티켓
+                ticket.setTicketStatus(TicketStatus.CONFIRMED);
+            }
         }
-        if(ticket.getTicketStatus() != TicketStatus.PAID){
-            throw new IllegalStateException("결제되지 않은 티켓입니다.");
-        }
-        Payment payment = message.toEntity(message);
-        paymentRepository.save(payment);
-        // 최종 승인된 티켓
-        ticket.setTicketStatus(TicketStatus.CONFIRMED);
-        log.info("[Ticket] 티켓 최종 저장 성공 {}", payment.getOrderId());
+        paymentRepository.saveAll(payments);
+        log.info("[Ticket] 티켓 최종 저장 성공");
     }
 
 

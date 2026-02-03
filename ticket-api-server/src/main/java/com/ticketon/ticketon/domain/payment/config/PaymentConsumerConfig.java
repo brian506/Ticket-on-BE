@@ -2,6 +2,7 @@ package com.ticketon.ticketon.domain.payment.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.TopicPartition;
@@ -31,6 +32,7 @@ import java.util.Map;
 @Configuration
 @EnableKafka
 @Slf4j
+@RequiredArgsConstructor
 public class PaymentConsumerConfig {
 
     @Value("${kafka.consumer.payment-group.bootstrap-servers}")
@@ -39,6 +41,8 @@ public class PaymentConsumerConfig {
     @Value("${kafka.consumer.payment-group.group-id}")
     private String paymentGroupId;
 
+    ;
+
 
     @Bean("paymentConsumerConfigs")
     public Map<String, Object> consumerConfigs() {
@@ -46,9 +50,10 @@ public class PaymentConsumerConfig {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, paymentGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,100); // 한번에 가져올 최대 메시지 수
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG,500); // 한번에 가져올 최대 메시지 수
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG,"500");
         return props;
     }
 
@@ -59,11 +64,13 @@ public class PaymentConsumerConfig {
     }
 
     @Bean("paymentKafkaListenerContainerFactory")
-    public ConcurrentKafkaListenerContainerFactory<String,String> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String,String> kafkaListenerContainerFactory(KafkaTemplate<String, Object> kafkaTemplate) {
         ConcurrentKafkaListenerContainerFactory<String,String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConcurrency(3); // 3개의 컨슈머 스레드로 병렬처리
         factory.setConsumerFactory(consumerFactory());
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.setBatchListener(true);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.setCommonErrorHandler(defaultErrorHandler(kafkaTemplate));
         return factory;
     }
 

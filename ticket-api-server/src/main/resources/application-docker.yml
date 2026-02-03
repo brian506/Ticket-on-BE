@@ -9,11 +9,11 @@ spring:
       minimum-idle: 5
       idle-timeout: 600000
       max-lifetime: 1800000
-      connection-timeout: 3000         # 꼬리 줄이기(대기 짧게 실패)
+      connection-timeout: 9000         # 꼬리 줄이기(대기 짧게 실패)
       validation-timeout: 5000
       initialization-fail-timeout: 1
       read-only: false
-      leak-detection-threshold: 3000   # 테스트 중에만 누수 감지
+      leak-detection-threshold: 0
 
   sql:
     init:
@@ -23,11 +23,11 @@ spring:
 server:
   tomcat:
     threads:
-      max: 100
+      max: 400
       min-spare: 20
       max-queue-capacity: 1000
     max-connections: 1500
-    accept-count: 50                 # 과도 큐잉 방지
+    accept-count: 100                 # 과도 큐잉 방지
     connection-timeout: 60000
     keep-alive-timeout: 10000         # 피크 꼬리 절단 (필요시 5~10s)
     max-http-header-size: 8192
@@ -39,11 +39,11 @@ kafka:
       bootstrap.servers: kafka:9092
   topic-config:
     ticket:
-      name: ticket-confirm
-      partitions: 3
+      name: ticket-request
+      partitions: 5
       replicas: 1
     payment:
-      name: payment-topic
+      name: payment-confirm
       partitions: 3
       replicas: 1
     waiting:
@@ -53,13 +53,20 @@ kafka:
   producer:
     bootstrap-servers: kafka:9092
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
     retry: 3
     properties:
       max.block.ms: 5000
       linger.ms: 20
-    buffer-memory: 67108864
+      buffer-memory: 67108864
+      spring.json.add.type.headers: true
   consumer:
+    ticket-group:
+      bootstrap-servers: kafka:9092
+      group-id: ticket-group-v5
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
     payment-group:
       bootstrap-servers: kafka:9092
       group-id: payment-group
@@ -74,7 +81,7 @@ kafka:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
   listener:
     missing-topics-fatal: false
-    ack-mode: manual
+
 
 redis:
   reservation:
@@ -102,7 +109,6 @@ management:
       # 슬라이딩 윈도우 기반의 백분위수도 보고 싶다면 추가합니다.
       percentiles:
         http.server.requests: 0.5, 0.9, 0.95, 0.99
-
 
 
 stomp:

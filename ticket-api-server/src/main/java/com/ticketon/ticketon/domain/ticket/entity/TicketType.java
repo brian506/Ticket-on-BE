@@ -46,8 +46,8 @@ public class TicketType {
     @Column(name = "issued_quantity", nullable = false)
     private Long issuedQuantity;
 
-    @Version
-    private Long version;
+//    @Version
+//    private Long version;
 
     // 해당 티켓 가격
     @Column(name = "price", nullable = false)

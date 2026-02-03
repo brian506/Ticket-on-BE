@@ -8,5 +8,5 @@ import java.util.List;
 public interface TicketCustomRepository {
     Long updateTicketStatus(Long ticketId);
     List<ExpiredTicket> findExpiredTickets(LocalDateTime now);
-    void bulkUpdateStatusToExpired(LocalDateTime now);
+    void bulkUpdateStatusToExpiredByIds(List<Long> ticketIds, LocalDateTime now);
 }

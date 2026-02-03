@@ -6,7 +6,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
       database-platform: org.hibernate.dialect.MySQLDialect
     defer-datasource-initialization: true
     properties:
@@ -18,12 +18,12 @@ spring:
 
 logging:
   level:
-    root: INFO
-    io.opentelemetry: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-    org.springframework.orm.jpa: DEBUG
-    org.springframework.transaction: debug
+    root: ERROR
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: INFO
+    org.springframework.orm.jpa: INFO
+    org.springframework.transaction: INFO
+
 
 #snail-catch:
 #  enabled: false

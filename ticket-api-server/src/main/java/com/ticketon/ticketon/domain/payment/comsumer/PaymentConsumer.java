@@ -12,6 +12,9 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Profile("!test")
 @Slf4j
@@ -25,17 +28,23 @@ public class PaymentConsumer {
 
     // 예약,결제 정보 저장
     @KafkaListener(
-            topics = "${kafka.topic-config.ticket.name}",
+            topics = "${kafka.topic-config.payment.name}",
             groupId = "${kafka.consumer.payment-group.group-id}",
             containerFactory = "paymentKafkaListenerContainerFactory")
-    public void consumePayment(String message, Acknowledgment ack) {
+    public void consumePayment(List<String> message, Acknowledgment ack) {
         try {
-            // Debezium 이 보낸 전체 JSON 문자열을 JsonNode 로 파싱
-            JsonNode rootNode = objectMapper.readTree(message);
-            // payload 에 있는 실제 메시지(PaymentMessage) 추출
-            JsonNode payload = rootNode.get("payload");
-            PaymentMessage payment = objectMapper.treeToValue(payload, PaymentMessage.class);
-            ticketService.issueTicket(payment);
+            PaymentMessage payment;
+            ArrayList<PaymentMessage> paymentMessages = new ArrayList<>();
+            for(String jsonMessage : message) {
+
+                // Debezium 이 보낸 전체 JSON 문자열을 JsonNode 로 파싱
+                JsonNode rootNode = objectMapper.readTree(jsonMessage);
+                // payload 에 있는 실제 메시지(PaymentMessage) 추출
+                JsonNode payload = rootNode.get("payload");
+                payment = objectMapper.treeToValue(payload, PaymentMessage.class);
+                paymentMessages.add(payment);
+            }
+            ticketService.issueTicket(paymentMessages);
             ack.acknowledge(); // 작업 성공시 브로커에게 완료 메시지 전송
         } catch (Exception e) {
             log.error("[kafka 처리] 티켓 최종 발급 처리 실패. payload {}", message);

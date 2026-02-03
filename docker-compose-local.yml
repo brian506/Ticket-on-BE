@@ -16,6 +16,8 @@ services:
       - --binlog-row-image=FULL
       - --gtid-mode=ON
       - --enforce-gtid-consistency=ON
+      - --innodb_flush_log_at_trx_commit=2
+      - --sync_binlog=0
     networks:
       - monitoring
 
@@ -39,8 +41,9 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_MS: 600000
     networks:
       - monitoring
 
@@ -91,6 +94,7 @@ services:
     image: danielqsj/kafka-exporter:latest
     container_name: kafka-exporter
     command: ["--kafka.server=kafka:9092"]
+    restart: always
     ports:
       - "9308:9308"
     networks:
@@ -156,6 +160,16 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+
+  reservation-redis:
+    image: redis:7.0.11
+    container_name: reservation-redis
+    command: [ "redis-server", "--port", "6380" ]
+    ports:
+      - "6380:6380"
+    restart: always
+    networks:
+      - monitoring
 
 networks:
   monitoring:

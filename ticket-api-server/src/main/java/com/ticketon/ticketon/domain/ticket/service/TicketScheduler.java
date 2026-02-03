@@ -5,29 +5,48 @@ import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.ListUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TicketScheduler {
 
     private final TicketRepository ticketRepository;
-    private final TicketTypeRepository ticketTypeRepository;
+    private final StringRedisTemplate redisTemplate;
 
-
-    @Scheduled(cron = "0 0 0 0 1 *")
-    @Transactional
-    public void removePendingTickets() {
-        List<ExpiredTicket> tickets = ticketRepository.findExpiredTickets(LocalDateTime.now());
-        ticketTypeRepository.decreaseIssuedTickets(tickets.getFirst().ticketTypeId(), ticketRepository.count());
-
-        ticketRepository.bulkUpdateStatusToExpired(LocalDateTime.now());
-    }
+//
+//    @Scheduled(fixedRate = 60000)
+//    @Transactional
+//    public void removePendingTickets() {
+//
+//        LocalDateTime now = LocalDateTime.now();
+//        List<ExpiredTicket> tickets = ticketRepository.findExpiredTickets(now);
+//        if(tickets.isEmpty()) return;
+//
+//        List<Long> cancelTicket = new ArrayList<>();
+//
+//        for(ExpiredTicket ticket : tickets) {
+//            // 결제 성공건은 재고 감소에서 pass
+//            boolean isPaid = redisTemplate.hasKey("payment:success:" + ticket.orderId());
+//            if(isPaid) continue;
+//
+//            String stockKey = "issued_quantity:" + ticket.ticketTypeId();
+//            redisTemplate.opsForValue().increment(stockKey, 1);
+//            cancelTicket.add(ticket.ticketId());
+//        }
+//        ticketRepository.bulkUpdateStatusToExpiredByIds(cancelTicket,now);
+//
+//        log.info("결제 미완료건 재고 복구 완료 : {}건,", tickets.size());
+//    }
 }

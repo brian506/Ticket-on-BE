@@ -25,7 +25,7 @@
 
     "transforms.outbox.table.expand.json.payload": "true",
     "transforms.outbox.route.by.field": "topic",
-    "transforms.outbox.route.topic.replacement": "ticket-confirm",
+    "transforms.outbox.route.topic.replacement": "payment-confirm",
     "transforms.outbox.route.key.field": "outbox_message_id",
 
     "topic.creation.default.partitions": "3",

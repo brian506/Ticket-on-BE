@@ -10,6 +10,7 @@ import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketTypeStatus;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.integration.E2ETest;
+import de.huxhorn.sulky.ulid.ULID;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,6 +45,7 @@ public class TicketIssueStrategyTest extends E2ETest {
     private EntityManager entityManager;
 
     private static int THREAD_COUNT = 32;
+    private static final String orderId = new ULID().nextULID();
 
     @BeforeEach
     void setUp() {
@@ -90,7 +92,7 @@ public class TicketIssueStrategyTest extends E2ETest {
             Long memberId = members.get(i).getId();
             executorService.submit(() -> {
                 try {
-                    ticketIssueStrategy.purchaseTicketBySynchronize(ticketType.getId(), memberId);
+                    ticketIssueStrategy.purchaseTicketBySynchronize(ticketType.getId(), memberId, orderId);
                     successCount.incrementAndGet();
                 }
                 catch (Exception e) {
@@ -130,7 +132,7 @@ public class TicketIssueStrategyTest extends E2ETest {
             Long memberId = members.get(i).getId();
             executorService.submit(() -> {
                 try {
-                    ticketIssueStrategy.purchaseTicketByOptimisticLock(ticketType.getId(), memberId);
+                    ticketIssueStrategy.purchaseTicketByOptimisticLock(ticketType.getId(), memberId, orderId);
                     successCount.incrementAndGet();
                 }
                 catch (Exception e) {
@@ -169,7 +171,7 @@ public class TicketIssueStrategyTest extends E2ETest {
             Long memberId = members.get(i).getId();
             executorService.submit(() -> {
                 try {
-                    ticketIssueStrategy.purchaseTicketByPessimisticLock(ticketType.getId(), memberId);
+                    ticketIssueStrategy.purchaseTicketByPessimisticLock(ticketType.getId(), memberId, orderId);
                     successCount.incrementAndGet();
                 }
                 catch (Exception e) {
@@ -207,7 +209,7 @@ public class TicketIssueStrategyTest extends E2ETest {
             Long memberId = members.get(i).getId();
             executorService.submit(() -> {
                 try {
-                    ticketIssueStrategy.purchaseTicketAtomic(ticketType.getId(), memberId);
+                    ticketIssueStrategy.purchaseTicketAtomic(ticketType.getId(), memberId, orderId);
                     successCount.incrementAndGet();
                 }
                 catch (ExceededTicketQuantityException e) {

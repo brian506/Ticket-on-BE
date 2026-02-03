@@ -27,7 +27,7 @@ public class OutboxMessage {
 
     public static OutboxMessage toEntityFromTicket(String payload){
         return OutboxMessage.builder()
-                .topic("ticket-confirm")
+                .topic("payment-confirm")
                 .payload(payload)
                 .build();
     }

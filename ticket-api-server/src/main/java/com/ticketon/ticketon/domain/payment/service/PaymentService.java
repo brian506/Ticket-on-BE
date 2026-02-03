@@ -8,24 +8,25 @@ import com.ticketon.ticketon.domain.payment.entity.OutboxMessage;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.repository.OutboxRepository;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
+import com.ticketon.ticketon.domain.ticket.dto.TicketPayload;
 import com.ticketon.ticketon.domain.ticket.entity.Ticket;
+import com.ticketon.ticketon.domain.ticket.entity.TicketStatus;
+import com.ticketon.ticketon.domain.ticket.repository.TicketRedisRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
+import com.ticketon.ticketon.domain.ticket.service.TicketService;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import de.huxhorn.sulky.ulid.ULID;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import javax.swing.text.html.Option;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -36,23 +37,7 @@ public class PaymentService {
 
     private final PaymentGateway paymentGateway;
     private final PaymentRepository paymentRepository;
-    private final TicketRepository ticketRepository;
-    private final ApplicationEventPublisher eventPublisher;
-    private final OutboxEventService outboxEventService;
 
-
-    @Transactional
-    public void savePayment(PaymentConfirmRequest request,PaymentMessage message){
-        Ticket ticket = OptionalUtil.getOrElseThrow(ticketRepository.findById(request.getTicketId()),"존재하지 않는 티켓입니다.");
-        // PAID 로 상태변경
-        Long updatedRows = ticketRepository.updateTicketStatus(ticket.getId());
-        if(updatedRows == 0){
-            throw new DataNotFoundException("존재하지 않거나 만료된 예약입니다.");
-        }
-        message.setExpiredAt(ticket.getExpiredAt());
-        log.info("[Payment] 결제 저장 성공 {}", message.getOrderId());
-        outboxEventService.savePaymentToOutbox(new OutboxEvent(message));
-    }
 
     // 결제 취소 요청
     public void cancelPayment(PaymentCancelRequest paymentCancelRequest) {
@@ -66,6 +51,7 @@ public class PaymentService {
         Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findByTicketId(ticketId), "존재하지 않는 결제 정보입니다.");
         return PaymentResponse.toDto(payment);
     }
+
 
 
 }

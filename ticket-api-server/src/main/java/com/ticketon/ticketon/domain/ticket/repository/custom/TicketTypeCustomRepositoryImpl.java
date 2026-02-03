@@ -16,6 +16,7 @@ public class TicketTypeCustomRepositoryImpl extends QuerydslRepositorySupport im
         super(TicketType.class);
     }
 
+    // 비관락
     @Override
     public Optional<TicketType> findByIdForUpdate(Long ticketTypeId) {
         return Optional.ofNullable(

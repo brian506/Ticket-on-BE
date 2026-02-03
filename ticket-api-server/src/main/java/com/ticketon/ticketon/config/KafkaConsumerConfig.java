@@ -6,6 +6,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
@@ -32,11 +33,18 @@ public abstract class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(props,new StringDeserializer(),deserializer);
         }
 
-    protected <T> ConcurrentKafkaListenerContainerFactory<String, T> kafkaListenerContainerFactory(ConsumerFactory<String,T> consumerFactory,int concurrency) {
+    protected <T> ConcurrentKafkaListenerContainerFactory<String, T> kafkaListenerContainerFactory(
+            ConsumerFactory<String,T> consumerFactory,
+            int concurrency,
+            ContainerProperties.AckMode ackMode,
+            boolean batchListener,
+            CommonErrorHandler errorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, T> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConcurrency(concurrency);
         factory.setConsumerFactory(consumerFactory);
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        factory.getContainerProperties().setAckMode(ackMode);
+        factory.setBatchListener(batchListener);
+        factory.setCommonErrorHandler(errorHandler);
         return factory;
     }
 

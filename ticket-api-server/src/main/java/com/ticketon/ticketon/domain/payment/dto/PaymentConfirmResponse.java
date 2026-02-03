@@ -25,16 +25,16 @@ public class PaymentConfirmResponse {
     private OffsetDateTime requestedAt;
     private OffsetDateTime approvedAt;
 
-    public PaymentMessage fromResponse(PaymentConfirmResponse paymentResponse,PaymentConfirmRequest request) {
+    public PaymentMessage fromResponse(PaymentConfirmRequest request) {
         return PaymentMessage.builder()
                 .ticketId(request.getTicketId())
                 .ticketTypeId(request.getTicketTypeId())
-                .paymentKey(paymentResponse.getPaymentKey())
+                .paymentKey(this.paymentKey)
                 .memberId(request.getMemberId())
-                .orderId(paymentResponse.getOrderId())
-                .amount(paymentResponse.getAmount())
-                .requestedAt(LocalDateTime.from(paymentResponse.getRequestedAt()))
-                .approvedAt(paymentResponse.getApprovedAt().toLocalDateTime())
+                .orderId(request.getOrderId())
+                .amount(this.amount)
+                .requestedAt(LocalDateTime.from(this.requestedAt))
+                .approvedAt(LocalDateTime.from(this.approvedAt))
                 .build();
     }
 }
