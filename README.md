@@ -40,7 +40,7 @@ Kafka 기반의 이벤트 처리 방식을 도입해 단일 대기열 서버에�
 
 ### 예약-결제 아키텍처
 
-<img src="[https://github.com/user-attachments/assets/521fa4c7-06f8-4a95-9820-6ab552895b55](https://github.com/user-attachments/assets/7423c682-161d-48dc-8b0d-7e69af1eda92)" width="600"/>
+<img src="https://github.com/user-attachments/assets/7423c682-161d-48dc-8b0d-7e69af1eda92" width="600"/>
 
 ### 실행 방법
 
