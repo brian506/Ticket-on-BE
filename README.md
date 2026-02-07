@@ -36,11 +36,11 @@ Kafka 기반의 이벤트 처리 방식을 도입해 단일 대기열 서버에�
 
 ### 모니터링 아키텍처
 
-<img src="https://github.com/user-attachments/assets/043e352d-aa8e-493e-936c-1e2d672d1c9e" width="600"/>
+<img src="https://github.com/user-attachments/assets/5edc7e60-501b-40ac-87df-99cbb5e6f3d4" width="600"/>
 
 ### 예약-결제 아키텍처
 
-<img src="https://github.com/user-attachments/assets/17696fc6-6a4c-45c9-b62a-c8185a869690" width="600"/>
+<img src="https://github.com/user-attachments/assets/521fa4c7-06f8-4a95-9820-6ab552895b55" width="600"/>
 
 ### 실행 방법
 
