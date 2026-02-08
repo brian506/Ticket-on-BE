@@ -50,7 +50,8 @@ public class TicketCustomRepositoryImpl extends QuerydslRepositorySupport implem
                 .set(ticket.ticketStatus, TicketStatus.CANCELLED)
                 .where(ticket.id.in(ticketIds),
                         ticket.ticketStatus.eq(TicketStatus.PENDING),
-                        ticket.expiredAt.before(now))
+                        ticket.expiredAt.before(now)
+                )
                 .execute();
 
         getEntityManager().clear();

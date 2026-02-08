@@ -13,14 +13,13 @@ import com.ticketon.ticketon.domain.ticket.entity.Ticket;
 import com.ticketon.ticketon.domain.ticket.entity.TicketStatus;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRedisRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
-import com.ticketon.ticketon.domain.ticket.service.TicketService;
 import com.ticketon.ticketon.utils.OptionalUtil;
 import de.huxhorn.sulky.ulid.ULID;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -37,6 +36,23 @@ public class PaymentService {
 
     private final PaymentGateway paymentGateway;
     private final PaymentRepository paymentRepository;
+    private final TicketRepository ticketRepository;
+    private final TicketRedisRepository redisRepository;
+    private final OutboxEventService outboxEventService;
+
+    @Transactional
+    public void confirmPayment(PaymentMessage message) {
+        Ticket ticket = ticketRepository.findByOrderId(message.getOrderId()).orElseThrow();
+        ticket.setTicketStatus(TicketStatus.PAID);
+        outboxEventService.savePaymentToOutbox(new OutboxEvent(message));
+    }
+
+
+    public void savePayment(PaymentMessage message) {
+        TicketPayload ticketPayload = redisRepository.get(message.getOrderId());
+        if(ticketPayload == null) return;
+        confirmPayment(message);
+    }
 
 
     // 결제 취소 요청

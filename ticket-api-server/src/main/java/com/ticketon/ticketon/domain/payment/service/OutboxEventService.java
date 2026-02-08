@@ -21,6 +21,7 @@ public class OutboxEventService {
     private final ObjectMapper objectMapper;
 
     // savePayment() 트랜잭션 이후에 Outbox INSERT 수행
+    @Transactional
     public void savePaymentToOutbox(OutboxEvent event){
         try {
             String jsonPayload = objectMapper.writeValueAsString(event.message());

@@ -29,7 +29,7 @@ public class TicketController {
 //    @PostMapping("/ticket-request")
 //    public ResponseEntity<?> requestTicket(@RequestBody TicketRequest request){
 //        String orderId = new ULID().nextULID();
-//        TicketReadyResponse readyResponse = redisLockService.purchaseTicket(request);
+//        TicketReadyResponse readyResponse = ticketService.purchaseTicket(request,orderId);
 //        SuccessResponse response = new SuccessResponse<>(true,"티켓 결제 요청 성공",readyResponse);
 //        return new ResponseEntity<>(response,HttpStatus.OK);
 //    }

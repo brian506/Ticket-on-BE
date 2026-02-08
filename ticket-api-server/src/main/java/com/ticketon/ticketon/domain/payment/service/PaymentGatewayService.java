@@ -20,28 +20,27 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class PaymentGatewayService {
 
-    private final PaymentService paymentService;
+
     private final TicketRedisRepository ticketRedisRepository;
     private final OutboxEventService outboxEventService;
-    private final StringRedisTemplate redisTemplate;
+    private final PaymentService paymentService;
 
 
     //todo pg 사 호출 - 성공,취소 예외 처리
     public PaymentMessage confirmPayment(PaymentConfirmRequest paymentConfirmRequest) {
-        // 부하테스트용 ( pg 호출 x )
-        PaymentConfirmResponse response = new PaymentConfirmResponse(paymentConfirmRequest.getOrderId(), 10000,"test-key", OffsetDateTime.now(),OffsetDateTime.now());
-//        PaymentConfirmResponse response = paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
-        PaymentMessage message =  response.fromResponse(paymentConfirmRequest);
-        // 재고 결제 완료 상태 저장
-        redisTemplate.opsForValue().set(
-                "payment:success:" + paymentConfirmRequest.getOrderId(),
-                "true",
-                10, TimeUnit.MINUTES
-        );
-        TicketPayload ticketPayload = ticketRedisRepository.get(message.getOrderId());
-        if(ticketPayload != null) {
-            outboxEventService.savePaymentToOutbox(new OutboxEvent(message));
+        TicketPayload ticketPayload = ticketRedisRepository.get(paymentConfirmRequest.getOrderId());
+        if (ticketPayload == null) {
+            throw new DataNotFoundException("시간이 지나 만료된 요청입니다. 결제를 진행할 수 없습니다.");
         }
+        // 부하테스트용 ( pg 호출 x )
+        PaymentConfirmResponse response = new PaymentConfirmResponse(paymentConfirmRequest.getOrderId(), 10000, "test-key", OffsetDateTime.now(), OffsetDateTime.now());
+//        PaymentConfirmResponse response = paymentGateway.requestPaymentConfirm(paymentConfirmRequest);
+        PaymentMessage message = response.fromResponse(paymentConfirmRequest);
+        // 재고 결제 완료 상태 저장
+        ticketRedisRepository.savePaidTicket(paymentConfirmRequest.getOrderId());
+        outboxEventService.savePaymentToOutbox(new OutboxEvent(message));
+//        paymentService.savePayment(message);
+
         return message;
     }
 }

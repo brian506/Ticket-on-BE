@@ -1,14 +1,10 @@
 package com.ticketon.ticketon.domain.ticket.service.strategy;
 
-import com.ticketon.ticketon.domain.member.entity.Member;
 import com.ticketon.ticketon.domain.ticket.dto.TicketPayload;
 import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
-import com.ticketon.ticketon.domain.ticket.entity.Ticket;
-import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.infra.TicketProducer;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRedisRepository;
-import com.ticketon.ticketon.domain.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -16,14 +12,10 @@ import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 @RequiredArgsConstructor
@@ -37,6 +29,7 @@ public class RedisLockService {
     private final RedisScript<Long> decreaseStockScript;
     private final TicketProducer ticketProducer;
     private final List<Long> soldOutTicketIds = new ArrayList<>();
+    private final static String KEY_PREFIX = "issued_quantity:";
 
     public TicketReadyResponse purchaseTicket(TicketRequest request, String orderId) {
         String lockKey = "LOCK:TICKET:" + request.getTicketTypeId();
@@ -68,9 +61,7 @@ public class RedisLockService {
             return false;
         }
 
-        String stockKey = "issued_quantity:" + ticketTypeId;
-
-
+        String stockKey = KEY_PREFIX + ticketTypeId;
         Long result = redisTemplate.execute(decreaseStockScript, List.of(stockKey), "1");
 
         if (result == -1L) {
@@ -80,7 +71,7 @@ public class RedisLockService {
             soldOutTicketIds.add(ticketTypeId);
             return false;
         }
-        redisRepository.save(TicketPayload.toDto(request, orderId));
+        redisRepository.savePendingTicket(TicketPayload.toDto(request, orderId));
 
         try {
             ticketProducer.sendNewTicket(request, orderId);

@@ -38,7 +38,7 @@ public class TicketScheduler {
 //
 //        for(ExpiredTicket ticket : tickets) {
 //            // 결제 성공건은 재고 감소에서 pass
-//            boolean isPaid = redisTemplate.hasKey("payment:success:" + ticket.orderId());
+//            boolean isPaid = redisTemplate.hasKey("payment_success:" + ticket.orderId());
 //            if(isPaid) continue;
 //
 //            String stockKey = "issued_quantity:" + ticket.ticketTypeId();
