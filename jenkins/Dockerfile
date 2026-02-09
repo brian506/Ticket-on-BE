@@ -16,7 +16,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # 3. 환경 변수 설정 (젠킨스가 JDK 21을 기본으로 인식하게 함)
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
 ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 USER jenkins
