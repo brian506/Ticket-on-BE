@@ -1,179 +1,214 @@
-version: '3.7'
+version: '3.8'
 
 services:
-  kafka-exporter:
-    image: danielqsj/kafka-exporter:latest
-    container_name: kafka-exporter
+  mysql:
+    image: mysql:8.0
+    container_name: ticket-mysql
+    restart: always
     ports:
-      - "9308:9308"
+      - "3308:3306"
     environment:
-      KAFKA_URI: kafka:9092
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      TZ: Asia/Seoul
+    command:
+      - --server-id=1
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --binlog-row-image=FULL
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
+      - --innodb_flush_log_at_trx_commit=2
+      - --sync_binlog=0
+    volumes:
+      - mysql-data:/var/lib/mysql
     networks:
-      - monitoring
+      - ticket-network
+
+  reservation-redis:
+    image: redis:7.0.11
+    container_name: reservation-redis
+    restart: always
+    ports:
+      - "6380:6380"
+    command: [ "redis-server", "--port", "6380", "--appendonly", "yes" ] # AOF 활성화
+    volumes:
+      - redis-data:/data
+    networks:
+      - ticket-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: zookeeper
+    restart: always
     ports:
       - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
     networks:
-      - monitoring
+      - ticket-network
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: kafka
+    restart: always
     ports:
       - "9092:9092"
-    restart: always
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # 내부 통신용 Listener
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_MS: 600000 # 10분
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
     networks:
-      - monitoring
+      - ticket-network
+
+  kafka-connect:
+    image: debezium/connect:2.6
+    container_name: kafka-connect
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: "kafka:9092"
+      GROUP_ID: "connect-cluster"
+      CONFIG_STORAGE_TOPIC: "connect_configs"
+      OFFSET_STORAGE_TOPIC: "connect_offsets"
+      STATUS_STORAGE_TOPIC: "connect_status"
+      CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      STATUS_STORAGE_REPLICATION_FACTOR: "1"
+      KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_PLUGIN_PATH: "/kafka/connect"
+    depends_on:
+      - kafka
+      - mysql
+    networks:
+      - ticket-network
+
 
   api-server-1:
-    image: minseok1768/ticket-api-server:latest
-    container_name: reservation-server-1
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    env_file:
-      - .env
+    image: ticket-api-server:latest
+    container_name: api-server-1
+    restart: always
     ports:
       - "8081:8080"
-    depends_on:
-      - reservation-redis
-    restart: always
-    networks:
-      - monitoring
-    volumes:
-      - ./wait-for-it.sh:/wait-for-it.sh
-
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    ports:
-      - "9100:9100"
-    networks:
-      - monitoring
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($|/)"'
-
-  influxdb:
-    image: influxdb:1.8
-    container_name: influxdb
-    ports:
-      - "8086:8086"
-    volumes:
-      - influxdb-storage:/var/lib/influxdb
-    networks:
-      - monitoring
-
-  grafana:
-    image: grafana/grafana
-    container_name: grafana
-    ports:
-      - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on:
-      - prometheus
-      - influxdb
-    networks:
-      - monitoring
+      SPRING_PROFILES_ACTIVE: docker # 배포용 프로필로 변경 권장
+      TZ: Asia/Seoul
+    env_file:
+      - .env
     volumes:
-      - grafana-storage:/var/lib/grafana
+      - ./logs:/var/log/ticketon # 호스트에 로그 파일 저장
+    depends_on:
+      - mysql
+      - kafka
+      - reservation-redis
+    networks:
+      - ticket-network
 
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka-exporter
+    restart: always
+    command: ["--kafka.server=kafka:9092"]
+    ports:
+      - "9308:9308"
+    networks:
+      - ticket-network
 
-
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: always
+    command: [
+      "run",
+      "--server.http.listen-addr=0.0.0.0:12345",
+      "--storage.path=/var/lib/alloy/data",
+      "/etc/alloy/config.alloy"
+    ]
+    volumes:
+      - ./monitoring/alloy/config.alloy:/etc/alloy/config.alloy
+      - ./logs:/var/log/ticketon:ro # API 서버 로그 읽기용
+      - alloy-data:/var/lib/alloy/data
+    ports:
+      - "12345:12345"
+    networks:
+      - ticket-network
 
   prometheus:
     image: prom/prometheus
     container_name: prometheus
+    restart: always
     ports:
       - "9090:9090"
-    volumes:
-      - ./monitoring-config/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.retention.time=4d'
-      - '--log.level=warn'
-    networks:
-      - monitoring
-
-
-
-      redis-exporter:
-    image: oliver006/redis_exporter:v1.60.0
-    container_name: redis-exporter
-    ports:
-      - "9121:9121"
-    environment:
-      - REDIS_ADDR=redis://wating-line-redis:6379
-    networks:
-      - monitoring
-    depends_on:
-      - wating-line-redis
-
-
-  wating-line-redis:
-    image: redis:7.0.11
-    container_name: wating-line-redis
-    ports:
-      - "6379:6379"
-    restart: always
-    networks:
-      - monitoring
-
-  reservation-redis:
-    image: redis:7.0.11
-    container_name: reservation-redis
-    command: ["redis-server", "--port", "6380"]
-    ports:
-      - "6380:6380"
-    restart: always
-    networks:
-      - monitoring
-
-
-
-  queue-server-1:
-    image: minseok1768/ticket-queue-server:latest
-    container_name: queue-server-1
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
-    env_file:
-      - .env
-    ports:
-      - "8082:8080"
-    depends_on:
-      - reservation-redis
-      - wating-line-redis
-    restart: always
-    networks:
-      - monitoring
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-remote-write-receiver"
+      - "--storage.tsdb.retention.time=15d"
     volumes:
-      - ./wait-for-it.sh:/wait-for-it.sh
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - ticket-network
 
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: always
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml
+      - loki-data:/loki
+    networks:
+      - ticket-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin} # .env에서 관리 권장
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - ticket-network
+
+# ----------------------------------------
+# Networks & Volumes
+# ----------------------------------------
 networks:
-  monitoring:
+  ticket-network:
     driver: bridge
 
 volumes:
-  grafana-storage:
-  influxdb-storage:
-
+  mysql-data:
+  redis-data:
+  zookeeper-data:
+  zookeeper-log:
+  kafka-data:
+  prometheus-data:
+  loki-data:
+  grafana-data:
+  alloy-data:

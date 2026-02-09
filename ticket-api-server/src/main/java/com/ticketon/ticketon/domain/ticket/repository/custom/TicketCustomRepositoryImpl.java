@@ -39,9 +39,7 @@ public class TicketCustomRepositoryImpl extends QuerydslRepositorySupport implem
                 .from(ticket)
                 .where(ticket.ticketStatus.eq(TicketStatus.PENDING),
                         ticket.expiredAt.lt(now))
-                .groupBy(ticket.ticketType.id)
                 .fetch();
-
     }
 
     @Override

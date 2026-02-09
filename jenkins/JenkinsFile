@@ -1,0 +1,88 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HUB_USER = 'brianchoi506'
+        APP_NAME = 'ticket-api-server'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+
+        // Jenkins Credentials ID
+        DOCKER_HUB_PASS = credentials('docker-hub')
+        EC2_HOST = 'ubuntu@3.26.171.218'
+    }
+
+    stages {
+        stage('Build Jar') {
+            steps {
+                echo '=== Gradle Build ==='
+                sh 'chmod +x ./gradlew || true'
+                // 테스트 제외하고 빌드
+                sh './gradlew clean build -x test'
+            }
+        }
+
+        stage('Build & Push Docker Image') {
+            steps {
+                echo '=== Docker Build & Push ==='
+                script {
+                    // 도커 로그인
+                    sh "echo $DOCKER_HUB_PASS | docker login -u $DOCKER_HUB_USER --password-stdin"
+
+                    // 이미지 빌드 (태그: 빌드번호 & latest)
+                    sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG ."
+                    sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:latest ."
+
+                    // 푸시
+                    sh "docker push $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG"
+                    sh "docker push $DOCKER_HUB_USER/$APP_NAME:latest"
+                }
+            }
+        }
+
+        stage('Deploy to EC2') {
+            steps {
+                echo '=== Deploy on EC2 ==='
+
+                withCredentials([
+                    file(credentialsId: 'env', variable: 'ENV_FILE'), // Secret file ID 확인
+                    sshUserPrivateKey(credentialsId: 'ssh-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')
+                ]) {
+                    sh '''#!/bin/bash
+                    set -euo pipefail
+                    HOST=$(echo "$EC2_HOST" | cut -d'@' -f2)
+                    USER=$SSH_USER
+                    REMOTE_DIR="/home/ubuntu/ticket-app" # 경로 변경 추천
+
+                    echo "[1/4] EC2 디렉토리 준비"
+                    ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST" "mkdir -p $REMOTE_DIR"
+
+                    echo "[2/4] 파일 전송 (monitoring 폴더 포함!)"
+                    # 1. .env 파일 (이름을 .env로 변경해서 전송)
+                    scp -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$ENV_FILE" "$USER@$HOST:$REMOTE_DIR/.env"
+
+                    # 2. docker-compose.yml
+                    scp -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no docker-compose.yml "$USER@$HOST:$REMOTE_DIR/"
+
+                    # 3. ⭐ 모니터링 폴더 통째로 전송 (-r 옵션) ⭐
+                    scp -r -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no ./monitoring "$USER@$HOST:$REMOTE_DIR/"
+
+                    echo "[3/4] Docker Compose 실행"
+                    ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST" "
+                        export PATH=\$PATH:/usr/local/bin:/usr/libexec/docker/cli-plugins
+                        cd $REMOTE_DIR
+
+                        # 최신 이미지 당겨오기
+                        docker compose pull api-server-1
+
+                        # 컨테이너 갱신 (모니터링이나 DB는 건드리지 않고 API 서버만)
+                        docker compose up -d --remove-orphans
+
+                        # 공간 확보
+                        docker image prune -af || true
+                    "
+                    '''
+                }
+            }
+        }
+    }
+}

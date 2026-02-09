@@ -25,7 +25,7 @@ public class TicketScheduler {
     private final TicketRepository ticketRepository;
     private final StringRedisTemplate redisTemplate;
 
-//
+
 //    @Scheduled(fixedRate = 60000)
 //    @Transactional
 //    public void removePendingTickets() {
