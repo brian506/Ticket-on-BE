@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: jenkins
+    user: root
     ports:
       - "9000:8080"
       - "50000:50000"
