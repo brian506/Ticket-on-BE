@@ -5,19 +5,24 @@ pipeline {
         DOCKER_HUB_USER = 'brianchoi506'
         APP_NAME = 'ticket-api-server'
         IMAGE_TAG = "${BUILD_NUMBER}"
-
-        // Jenkins Credentials ID
         DOCKER_HUB_PASS = credentials('docker-hub')
+
+        // Credentials ID (Github 토큰 설정이 완료되었다고 가정)
+        // EC2 접속 정보
         EC2_HOST = 'ubuntu@3.26.171.218'
     }
 
     stages {
+        // 1. 소스 코드 체크아웃 확인 (자동 수행되지만 로그 확인 필수)
+
         stage('Build Jar') {
             steps {
                 echo '=== Gradle Build ==='
-                sh 'chmod +x ./gradlew || true'
-                // 테스트 제외하고 빌드
-                sh './gradlew clean build -x test'
+                // ⭐ 중요: Gradle도 하위 폴더에서 실행해야 함
+                dir('ticket-api-server') {
+                    sh 'chmod +x ./gradlew || true'
+                    sh './gradlew clean build -x test'
+                }
             }
         }
 
@@ -28,11 +33,14 @@ pipeline {
                     // 도커 로그인
                     sh "echo $DOCKER_HUB_PASS | docker login -u $DOCKER_HUB_USER --password-stdin"
 
+                    // ⭐ 중요: Docker 빌드도 같은 하위 폴더에서 실행
                     dir('ticket-api-server') {
-                    sh 'ls -al'
+                        // 디버깅용: 진짜 파일이 있는지 눈으로 확인
+                        sh 'ls -al'
 
-                    sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG ."
-                    sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:latest ."
+                        // Dockerfile이 있는 현재 위치(.)를 컨텍스트로 빌드
+                        sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG ."
+                        sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:latest ."
                     }
 
                     // 푸시
