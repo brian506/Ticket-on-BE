@@ -28,9 +28,12 @@ pipeline {
                     // 도커 로그인
                     sh "echo $DOCKER_HUB_PASS | docker login -u $DOCKER_HUB_USER --password-stdin"
 
-                    // 이미지 빌드 (태그: 빌드번호 & latest)
+                    dir('ticket-api-server') {
+                    sh 'ls -al'
+
                     sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG ."
                     sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:latest ."
+                    }
 
                     // 푸시
                     sh "docker push $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG"
