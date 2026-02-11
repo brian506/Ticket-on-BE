@@ -16,6 +16,7 @@ pipeline {
         stage('CleanUp') {
                     steps {
                         cleanWs() // 작업 공간을 깨끗이 비우고 시작
+                        checkout scm
                     }
                 }
 
