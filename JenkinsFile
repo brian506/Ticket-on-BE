@@ -37,7 +37,7 @@ pipeline {
                     sh "echo $DOCKER_HUB_PASS | docker login -u $DOCKER_HUB_USER --password-stdin"
                     sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG ./ticket-api-server"
                     // 푸시
-                    docker push $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG
+                    sh "docker push $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG"
                 }
             }
         }
