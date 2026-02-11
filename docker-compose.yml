@@ -100,7 +100,7 @@ services:
 
 
   api-server-1:
-    image: ticket-api-server:latest
+    image: brianchoi506/ticket-api-server:latest
     container_name: api-server-1
     restart: always
     ports:
