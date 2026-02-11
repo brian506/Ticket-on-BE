@@ -75,10 +75,10 @@ pipeline {
                         cd $REMOTE_DIR
 
                         # 최신 이미지 당겨오기
-                        docker compose pull api-server-1
+                        docker-compose pull api-server-1
 
                         # 컨테이너 갱신 (모니터링이나 DB는 건드리지 않고 API 서버만)
-                        docker compose up -d --remove-orphans
+                        docker-compose up -d --remove-orphans
 
                         # 공간 확보
                         docker image prune -af || true
