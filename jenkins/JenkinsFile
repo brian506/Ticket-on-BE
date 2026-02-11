@@ -18,10 +18,8 @@ pipeline {
         stage('Build Jar') {
             steps {
                 echo '=== Gradle Build ==='
-                // ⭐ 중요: Gradle도 하위 폴더에서 실행해야 함
-                dir('ticket-api-server') {
-                    sh 'chmod +x ./gradlew || true'
-                    sh './gradlew clean build -x test'
+                   sh 'chmod +x ./gradlew || true'
+                   sh './gradlew clean build -x test'
                 }
             }
         }
@@ -33,15 +31,11 @@ pipeline {
                     // 도커 로그인
                     sh "echo $DOCKER_HUB_PASS | docker login -u $DOCKER_HUB_USER --password-stdin"
 
-                    // ⭐ 중요: Docker 빌드도 같은 하위 폴더에서 실행
-                    dir('ticket-api-server') {
-                        // 디버깅용: 진짜 파일이 있는지 눈으로 확인
-                        sh 'ls -al'
 
-                        // Dockerfile이 있는 현재 위치(.)를 컨텍스트로 빌드
+
                         sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG ."
                         sh "docker build --platform linux/amd64 -t $DOCKER_HUB_USER/$APP_NAME:latest ."
-                    }
+
 
                     // 푸시
                     sh "docker push $DOCKER_HUB_USER/$APP_NAME:$IMAGE_TAG"
