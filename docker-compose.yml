@@ -159,7 +159,6 @@ services:
       - "--web.enable-remote-write-receiver"
       - "--storage.tsdb.retention.time=15d"
     volumes:
-      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     networks:
       - ticket-network
