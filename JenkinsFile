@@ -12,12 +12,6 @@ pipeline {
     }
 
     stages {
-        stage('CleanUp') {
-                    steps {
-                        cleanWs() // 작업 공간을 깨끗이 비우고 시작
-                        checkout scm
-                    }
-                }
 
         stage('Build Jar') {
             steps {
@@ -87,4 +81,19 @@ pipeline {
             }
         }
     }
+
+    post {
+            always {
+                echo '=== Pipeline Finished ==='
+                cleanWs()
+            }
+
+            success {
+                echo '✅ 배포 성공!'
+            }
+
+            failure {
+                echo '❌ 배포 실패!'
+            }
+        }
 }
