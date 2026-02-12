@@ -71,6 +71,7 @@ pipeline {
                         docker compose pull api-server-1
 
                         # 컨테이너 갱신 (모니터링이나 DB는 건드리지 않고 API 서버만)
+                        docker compose down || true
                         docker compose up -d --remove-orphans
 
                         # 공간 확보
