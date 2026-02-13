@@ -11,27 +11,30 @@ const pay_duration = new Trend('pay_duration');
 
 export const options = {
   scenarios: {
-    stress_test: {
-      executor: 'ramping-arrival-rate', // 점진적 부하 증가
-      startRate: 50,
+    breaking_point_test: {
+      executor: 'ramping-arrival-rate',
+      startRate: 100, // 시작부터 100 TPS로 강하게 시작
       timeUnit: '1s',
-      preAllocatedVUs: 500,  // 미리 대기시킬 유저 수 (늘림)
-      maxVUs: 3000,          // 최대 동원할 유저 수 (부족하지 않게)
+
+      // ⭐ VU 부족해서 테스트 멈추지 않게 넉넉히 설정
+      preAllocatedVUs: 1000,
+      maxVUs: 4000,
+
       stages: [
-        { target: 100, duration: '1m' }, // 1분 동안 100 TPS까지 도달
-        { target: 200, duration: '2m' }, // 2분 동안 200 TPS까지 유지/증가
-        { target: 300, duration: '2m' }, // 300 TPS 도전 (여기서 에러 나는지 확인)
-        { target: 400, duration: '1m' }, // 400 TPS (서버가 버틴다면)
+        { target: 200, duration: '1m' }, // 1분 동안 200까지 도달 (워밍업)
+        { target: 300, duration: '1m' }, // 300 TPS 구간
+        { target: 400, duration: '2m' }, // ⭐ 마의 400 TPS 구간 (여기서 터질 확률 높음)
+        { target: 500, duration: '1m' }, // 혹시 버티면 500까지 (확인사살)
         { target: 0, duration: '30s' },  // 쿨다운
       ],
     },
   },
   thresholds: {
     'flow_success': ['count>0'],
-    'pay_duration': ['p(95)<2000'], // 부하가 심하면 2초까지도 허용해봄
+    // 2초 넘어가면 사실상 실패로 간주
+    'pay_duration': ['p(95)<2000'],
   },
 };
-
 export default function () {
   const headers = { 'Content-Type': 'application/json' };
 
