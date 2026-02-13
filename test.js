@@ -3,7 +3,7 @@ import { sleep, check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 
 
-const BASE_URL = 'http://localhost:8081';
+const BASE_URL = 'http://3.26.171.218:8081';
 
 const flow_success = new Counter('flow_success');
 const req_duration = new Trend('req_duration');
@@ -13,9 +13,9 @@ export const options = {
   scenarios: {
     full_flow_test: {
       executor: 'constant-arrival-rate',
-      rate: 500,
+      rate: 100,
       timeUnit: '1s',
-      duration: '4m',
+      duration: '10s',
       preAllocatedVUs: 1000,
       maxVUs: 5000,
     },

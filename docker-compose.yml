@@ -108,6 +108,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker # 배포용 프로필로 변경 권장
       TZ: Asia/Seoul
+      LOGGING_FILE_NAME: /var/log/ticketon/application.log
     env_file:
       - .env
     volumes:
