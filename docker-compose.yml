@@ -24,7 +24,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - ticket-network
+      - ticketon-network
 
   reservation-redis:
     image: redis:7.0.11
@@ -36,7 +36,7 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - ticket-network
+      - ticketon-network
 
   kafka:
     image: bitnami/kafka:4.0
@@ -60,7 +60,7 @@ services:
     volumes:
       - kafka-data:/bitnami/kafka
     networks:
-      - ticket-network
+      - ticketon-network
 
   kafka-connect:
     image: debezium/connect:2.6
@@ -84,7 +84,7 @@ services:
       - kafka
       - mysql
     networks:
-      - ticket-network
+      - ticketon-network
 
 
   api-server-1:
@@ -106,7 +106,7 @@ services:
       - kafka
       - reservation-redis
     networks:
-      - ticket-network
+      - ticketon-network
 
   alloy:
     image: grafana/alloy:latest
@@ -125,7 +125,7 @@ services:
     ports:
       - "12345:12345"
     networks:
-      - ticket-network
+      - ticketon-network
 
   prometheus:
     image: prom/prometheus
@@ -140,7 +140,7 @@ services:
     volumes:
       - prometheus-data:/prometheus
     networks:
-      - ticket-network
+      - ticketon-network
 
   loki:
     image: grafana/loki:latest
@@ -153,7 +153,7 @@ services:
       - ./monitoring/loki/loki-config.yml:/etc/loki/loki-config.yml
       - loki-data:/loki
     networks:
-      - ticket-network
+      - ticketon-network
 
   grafana:
     image: grafana/grafana:latest
@@ -168,10 +168,10 @@ services:
       - prometheus
       - loki
     networks:
-      - ticket-network
+      - ticketon-network
 
 networks:
-  ticket-network:
+  ticketon-network:
     driver: bridge
 
 volumes:
