@@ -13,7 +13,7 @@ export const options = {
   scenarios: {
     full_flow_test: {
       executor: 'constant-arrival-rate',
-      rate: 100,
+      rate: 500,
       timeUnit: '1s',
       duration: '10s',
       preAllocatedVUs: 1000,
