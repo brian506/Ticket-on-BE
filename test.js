@@ -23,8 +23,8 @@ export const options = {
       stages: [
         { target: 200, duration: '1m' }, // 1분 동안 200까지 도달 (워밍업)
         { target: 300, duration: '1m' }, // 300 TPS 구간
-        { target: 400, duration: '2m' }, // ⭐ 마의 400 TPS 구간 (여기서 터질 확률 높음)
-        { target: 500, duration: '1m' }, // 혹시 버티면 500까지 (확인사살)
+        { target: 500, duration: '2m' }, // ⭐ 마의 400 TPS 구간 (여기서 터질 확률 높음)
+        { target: 600, duration: '1m' }, // 혹시 버티면 500까지 (확인사살)
         { target: 0, duration: '30s' },  // 쿨다운
       ],
     },

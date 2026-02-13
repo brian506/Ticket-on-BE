@@ -113,6 +113,8 @@ services:
     image: grafana/alloy:latest
     container_name: alloy
     restart: always
+    depends_on:
+      - kafka
     command: [
       "run",
       "--server.http.listen-addr=0.0.0.0:12345",
