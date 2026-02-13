@@ -11,18 +11,24 @@ const pay_duration = new Trend('pay_duration');
 
 export const options = {
   scenarios: {
-    full_flow_test: {
-      executor: 'constant-arrival-rate',
-      rate: 500,
+    stress_test: {
+      executor: 'ramping-arrival-rate', // 점진적 부하 증가
+      startRate: 50,
       timeUnit: '1s',
-      duration: '10s',
-      preAllocatedVUs: 1000,
-      maxVUs: 5000,
+      preAllocatedVUs: 500,  // 미리 대기시킬 유저 수 (늘림)
+      maxVUs: 3000,          // 최대 동원할 유저 수 (부족하지 않게)
+      stages: [
+        { target: 100, duration: '1m' }, // 1분 동안 100 TPS까지 도달
+        { target: 200, duration: '2m' }, // 2분 동안 200 TPS까지 유지/증가
+        { target: 300, duration: '2m' }, // 300 TPS 도전 (여기서 에러 나는지 확인)
+        { target: 400, duration: '1m' }, // 400 TPS (서버가 버틴다면)
+        { target: 0, duration: '30s' },  // 쿨다운
+      ],
     },
   },
   thresholds: {
     'flow_success': ['count>0'],
-    'pay_duration': ['p(95)<1000'],
+    'pay_duration': ['p(95)<2000'], // 부하가 심하면 2초까지도 허용해봄
   },
 };
 
