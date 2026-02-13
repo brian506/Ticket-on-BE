@@ -63,6 +63,17 @@ services:
     networks:
       - ticket-network
 
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka-exporter
+    depends_on:
+      - kafka
+    command: [ "--kafka.server=kafka:9092" ]
+    ports:
+      - "9308:9308"
+    networks:
+      - ticket-network
+
   kafka-connect:
     image: debezium/connect:2.6
     container_name: kafka-connect

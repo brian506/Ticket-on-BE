@@ -16,15 +16,14 @@ prometheus.scrape "ticketon" {
 }
 
 // Kafka 매트릭 수집 설정
-prometheus.exporter.kafka "ticket_kafka" {
-    kafka_uris = ["kafka:9092"]
-    kafka_version = "3.7.0"
-}
 prometheus.scrape "kafka_metrics" {
-    targets = prometheus.exporter.kafka.ticket_kafka.targets
-    forward_to = [prometheus.remote_write.default.receiver]
+  targets = [
+    { "__address__" = "kafka-exporter:9308" },
+  ]
+  metrics_path = "/metrics"
+  scrape_interval = "15s"
+  forward_to = [prometheus.remote_write.default.receiver]
 }
-
 
 prometheus.remote_write "default" {
   endpoint {

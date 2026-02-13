@@ -64,7 +64,7 @@ export default function () {
     orderId = res1.json().data.orderId;
   } catch(e) { return; }
 
-  sleep(1);
+  sleep(0.1);
 
   const confirmPayload = JSON.stringify({
     ticketId: 0,
