@@ -39,7 +39,7 @@ services:
       - ticket-network
 
   kafka:
-    image: bitnami/kafka:3.9.0
+    image: bitnami/kafka:3.6
     container_name: kafka
     restart: always
     ports:
