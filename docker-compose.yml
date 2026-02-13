@@ -66,6 +66,7 @@ services:
   kafka-exporter:
     image: danielqsj/kafka-exporter:latest
     container_name: kafka-exporter
+    restart: always
     depends_on:
       - kafka
     command: [ "--kafka.server=kafka:9092" ]
