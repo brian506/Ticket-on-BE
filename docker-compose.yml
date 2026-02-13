@@ -59,7 +59,7 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_LOG_RETENTION_MS: 600000
     volumes:
-      - kafka-data:/bitnami/kafka
+      - kafka-data:/var/lib/kafka/data
     networks:
       - ticket-network
 
