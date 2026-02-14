@@ -49,6 +49,7 @@ pipeline {
                     HOST=$(echo "$EC2_HOST" | cut -d'@' -f2)
                     USER=$SSH_USER
                     REMOTE_DIR="/home/ubuntu/ticket-app"
+                    sudo rm -f $REMOTE_DIR/register-debezium.json
 
                     echo "[1/4] EC2 디렉토리 준비"
                     ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$USER@$HOST" "mkdir -p $REMOTE_DIR"
