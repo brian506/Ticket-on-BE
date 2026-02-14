@@ -79,7 +79,7 @@ public class Ticket {
                 .price(ticketType.getPrice())
                 .orderId(orderId)
                 .ticketStatus(TicketStatus.PENDING)
-                .expiredAt(LocalDateTime.now().plusMinutes(5))
+                .expiredAt(LocalDateTime.now().plusMinutes(1))
                 .build();
 
     }

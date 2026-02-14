@@ -27,26 +27,26 @@ public class TicketScheduler {
 
 
 //    @Scheduled(fixedRate = 60000)
-//    @Transactional
-//    public void removePendingTickets() {
-//
-//        LocalDateTime now = LocalDateTime.now();
-//        List<ExpiredTicket> tickets = ticketRepository.findExpiredTickets(now);
-//        if(tickets.isEmpty()) return;
-//
-//        List<Long> cancelTicket = new ArrayList<>();
-//
-//        for(ExpiredTicket ticket : tickets) {
-//            // 결제 성공건은 재고 감소에서 pass
-//            boolean isPaid = redisTemplate.hasKey("payment_success:" + ticket.orderId());
-//            if(isPaid) continue;
-//
-//            String stockKey = "issued_quantity:" + ticket.ticketTypeId();
-//            redisTemplate.opsForValue().increment(stockKey, 1);
-//            cancelTicket.add(ticket.ticketId());
-//        }
-//        ticketRepository.bulkUpdateStatusToExpiredByIds(cancelTicket,now);
-//
-//        log.info("결제 미완료건 재고 복구 완료 : {}건,", tickets.size());
-//    }
+    @Transactional
+    public void removePendingTickets() {
+
+        LocalDateTime now = LocalDateTime.now();
+        List<ExpiredTicket> tickets = ticketRepository.findExpiredTickets(now);
+        if(tickets.isEmpty()) return;
+
+        List<Long> cancelTicket = new ArrayList<>();
+
+        for(ExpiredTicket ticket : tickets) {
+            // 결제 성공건은 재고 감소에서 pass
+            boolean isPaid = redisTemplate.hasKey("payment_success:" + ticket.orderId());
+            if(isPaid) continue;
+
+            String stockKey = "issued_quantity:" + ticket.ticketTypeId();
+            redisTemplate.opsForValue().increment(stockKey, 1);
+            cancelTicket.add(ticket.ticketId());
+        }
+        ticketRepository.bulkUpdateStatusToExpiredByIds(cancelTicket,now);
+
+        log.info("결제 미완료건 재고 복구 완료 : {}건,", tickets.size());
+    }
 }

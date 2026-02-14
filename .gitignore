@@ -36,3 +36,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### debezium ###
+register-debezium.json
+register-debezium.json.template

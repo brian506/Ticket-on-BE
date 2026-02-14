@@ -3,6 +3,7 @@ package com.ticketon.ticketon.domain.ticket.controller;
 import com.ticket.dto.SuccessResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
+import com.ticketon.ticketon.domain.ticket.service.TicketScheduler;
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
 import com.ticketon.ticketon.domain.ticket.service.strategy.RedisLockService;
 import com.ticketon.ticketon.global.constants.Urls;
@@ -25,6 +26,7 @@ public class TicketController {
 
     private final TicketService ticketService;
     private final RedisLockService redisLockService;
+    private final TicketScheduler ticketScheduler;
 
 //    @PostMapping("/ticket-request")
 //    public ResponseEntity<?> requestTicket(@RequestBody TicketRequest request){
@@ -45,7 +47,12 @@ public class TicketController {
             data.put("orderId", orderId);
             response = new SuccessResponse<>(true,"티켓 요청 성공",data);
         }
-
         return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @PostMapping("/remove")
+    public String removeTicket() {
+        ticketScheduler.removePendingTickets();
+        return "스케줄러 실행";
     }
 }
