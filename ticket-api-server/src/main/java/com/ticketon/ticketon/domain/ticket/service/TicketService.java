@@ -5,6 +5,7 @@ import com.ticketon.ticketon.domain.payment.dto.PaymentMessage;
 import com.ticketon.ticketon.domain.payment.entity.Payment;
 import com.ticketon.ticketon.domain.payment.repository.PaymentRepository;
 import com.ticketon.ticketon.domain.payment.service.OutboxEventService;
+import com.ticketon.ticketon.domain.ticket.dto.ExpiredTicket;
 import com.ticketon.ticketon.domain.ticket.dto.TicketPayload;
 import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +79,15 @@ public class TicketService {
         }
         paymentRepository.saveAll(payments);
         log.info("[Ticket] 티켓 최종 저장 성공");
+    }
+
+    @Transactional
+    public void updateExpiredTickets(List<Long> cancelTicketId, LocalDateTime now) {
+        ticketRepository.bulkUpdateStatusToExpiredByIds(cancelTicketId,now);
+    }
+
+    public List<ExpiredTicket> findExpiredTickets(LocalDateTime now) {
+        return ticketRepository.findExpiredTickets(now);
     }
 
 

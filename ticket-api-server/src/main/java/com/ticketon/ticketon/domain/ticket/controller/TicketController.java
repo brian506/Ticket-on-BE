@@ -1,12 +1,10 @@
 package com.ticketon.ticketon.domain.ticket.controller;
 
 import com.ticket.dto.SuccessResponse;
-import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
 import com.ticketon.ticketon.domain.ticket.service.TicketScheduler;
 import com.ticketon.ticketon.domain.ticket.service.TicketService;
-import com.ticketon.ticketon.domain.ticket.service.strategy.RedisLockService;
-import com.ticketon.ticketon.global.constants.Urls;
+import com.ticketon.ticketon.domain.ticket.service.strategy.RedisService;
 import de.huxhorn.sulky.ulid.ULID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +23,7 @@ import java.util.Map;
 public class TicketController {
 
     private final TicketService ticketService;
-    private final RedisLockService redisLockService;
+    private final RedisService redisService;
     private final TicketScheduler ticketScheduler;
 
 //    @PostMapping("/ticket-request")
@@ -40,7 +38,7 @@ public class TicketController {
     public ResponseEntity<?> requestTicket(@RequestBody TicketRequest request) {
         String orderId = new ULID().nextULID();
         SuccessResponse response;
-        if(!redisLockService.purchaseTicketLua(request, orderId)){
+        if(!redisService.purchaseTicketLua(request, orderId)){
              response = new SuccessResponse<>(false,"티켓 재고 부족",null);
         } else {
             Map<String, String> data = new HashMap<>();

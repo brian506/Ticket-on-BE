@@ -22,16 +22,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TicketScheduler {
 
-    private final TicketRepository ticketRepository;
     private final StringRedisTemplate redisTemplate;
+    private final TicketService ticketService;
 
 
 //    @Scheduled(fixedRate = 60000)
-    @Transactional
     public void removePendingTickets() {
 
         LocalDateTime now = LocalDateTime.now();
-        List<ExpiredTicket> tickets = ticketRepository.findExpiredTickets(now);
+        List<ExpiredTicket> tickets = ticketService.findExpiredTickets(now);
         if(tickets.isEmpty()) return;
 
         List<Long> cancelTicket = new ArrayList<>();
@@ -45,7 +44,7 @@ public class TicketScheduler {
             redisTemplate.opsForValue().increment(stockKey, 1);
             cancelTicket.add(ticket.ticketId());
         }
-        ticketRepository.bulkUpdateStatusToExpiredByIds(cancelTicket,now);
+        ticketService.updateExpiredTickets(cancelTicket,now);
 
         log.info("결제 미완료건 재고 복구 완료 : {}건,", tickets.size());
     }

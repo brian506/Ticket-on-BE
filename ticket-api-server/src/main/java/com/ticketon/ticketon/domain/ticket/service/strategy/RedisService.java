@@ -1,5 +1,6 @@
 package com.ticketon.ticketon.domain.ticket.service.strategy;
 
+import com.ticketon.ticketon.domain.ticket.dto.ExpiredTicket;
 import com.ticketon.ticketon.domain.ticket.dto.TicketPayload;
 import com.ticketon.ticketon.domain.ticket.dto.TicketReadyResponse;
 import com.ticketon.ticketon.domain.ticket.dto.TicketRequest;
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class RedisLockService {
+public class RedisService {
 
     private final TicketRedisRepository redisRepository;
     private final TicketIssueStrategy ticketIssueStrategy;
@@ -83,5 +84,6 @@ public class RedisLockService {
         }
         return true;
     }
+
 
 }
