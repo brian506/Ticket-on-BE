@@ -80,9 +80,9 @@ pipeline {
 
                         echo 'Debezium 커넥터 등록/업데이트 중...'
                         # 커넥터 존재 여부 확인 (HTTP 상태 코드 확인)
-                        HTTP_CODE=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8083/connectors/ticket-mysql-connector)
+                        HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8083/connectors/ticket-mysql-connector)
 
-                        if [ \"\$HTTP_CODE\" -eq 200 ]; then
+                        if [ "HTTP_CODE" -eq 200 ]; then
                             echo '기존 커넥터가 존재하여 설정을 업데이트합니다(PUT).'
                             curl -i -X PUT -H 'Content-Type: application/json' \
                                  -d @register-debezium.json \
