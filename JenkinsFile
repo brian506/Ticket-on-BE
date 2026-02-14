@@ -59,8 +59,11 @@ pipeline {
                     # 2. docker-compose.yml
                     scp -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no docker-compose.yml "$USER@$HOST:$REMOTE_DIR/"
 
-                    # 3. ⭐ 모니터링 폴더 통째로 전송 (-r 옵션) ⭐
+                    # 3. 모니터링 폴더 통째로 전송
                     scp -r -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no ./monitoring "$USER@$HOST:$REMOTE_DIR/"
+
+                    # 4. Debezium 설정 파일 전송 추가
+                    scp -i "$SSH_KEY" -o StrictHostKeyChecking=no ./register-debezium.json "$USER@$HOST:$REMOTE_DIR/"
 
                     echo "[3/4] Docker Compose 실행"
                     ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST" "
@@ -73,6 +76,32 @@ pipeline {
                         # 컨테이너 갱신 (모니터링이나 DB는 건드리지 않고 API 서버만)
                         docker compose down || true
                         docker compose up -d --remove-orphans
+
+                        # [4/4] Debezium 커넥터 자동 등록 로직
+                        echo '대기 중: Kafka Connect가 시작될 때까지 기다립니다 (최대 60초)...'
+                        for i in {1..12}; do
+                          if curl -s http://localhost:8083/connectors > /dev/null; then
+                            echo 'Kafka Connect 준비 완료!'
+                            break
+                          fi
+                          echo '연결 시도 중...'
+                          sleep 5
+                        done
+
+                        # 멱등성 등록 (이미 있으면 PUT으로 설정 업데이트, 없으면 POST로 신규 생성)
+                        STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8083/connectors/\$CONNECTOR_NAME)
+
+                        if [ \"\$STATUS\" -eq 200 ]; then
+                          echo '기존 커넥터가 발견되어 설정을 업데이트합니다.'
+                          curl -i -X PUT -H 'Content-Type: application/json' \
+                            -d @register-debezium.json \
+                            http://localhost:8083/connectors/\$CONNECTOR_NAME/config
+                        else
+                          echo '신규 커넥터를 등록합니다.'
+                          curl -i -X POST -H 'Content-Type: application/json' \
+                            -d @register-debezium.json \
+                            http://localhost:8083/connectors
+                        fi
 
                         # 공간 확보
                         docker image prune -af || true

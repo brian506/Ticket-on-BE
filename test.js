@@ -27,9 +27,7 @@ export const options = {
       maxVUs: 5000,
 
       stages: [
-        { target: 200, duration: '1m' }, // 워밍업
         { target: 300, duration: '1m' }, // 300 TPS
-        { target: 400, duration: '2m' }, // 400 TPS (집중 모니터링 구간)
         { target: 500, duration: '1m' }, // 500 TPS (한계 돌파 시도)
         { target: 0, duration: '30s' },  // 쿨다운
       ],
