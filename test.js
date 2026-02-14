@@ -71,7 +71,6 @@ export default function () {
   sleep(1);
 
   const confirmPayload = JSON.stringify({
-    ticketId: 0,
     memberId: memberId,
     orderId: orderId,
     paymentKey: `pk-${orderId}`,

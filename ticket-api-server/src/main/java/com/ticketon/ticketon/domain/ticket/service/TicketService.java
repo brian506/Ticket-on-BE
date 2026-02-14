@@ -58,7 +58,7 @@ public class TicketService {
         List<String> orderIds = messages.stream()
                 .map(PaymentMessage::getOrderId)
                 .toList();
-
+        // orderId 인덱스
         Map<String, Ticket> ticketMap = ticketRepository.findAllByOrderIdIn(orderIds)
                 .stream()
                 .collect(Collectors.toMap(Ticket::getOrderId, Function.identity()));
@@ -69,7 +69,7 @@ public class TicketService {
             Ticket ticket = ticketMap.get(message.getOrderId());
 
             if (ticket.getTicketStatus() == TicketStatus.PENDING) {
-                Payment payment = message.toEntity(message);
+                Payment payment = message.toEntity(message, ticket);
                 payments.add(payment);
                 // 최종 승인된 티켓
                 ticket.setTicketStatus(TicketStatus.CONFIRMED);

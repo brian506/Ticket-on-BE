@@ -27,8 +27,6 @@ public class PaymentConfirmResponse {
 
     public PaymentMessage fromResponse(PaymentConfirmRequest request) {
         return PaymentMessage.builder()
-                .ticketId(request.getTicketId())
-                .ticketTypeId(request.getTicketTypeId())
                 .paymentKey(this.paymentKey)
                 .memberId(request.getMemberId())
                 .orderId(request.getOrderId())

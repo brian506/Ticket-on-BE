@@ -14,20 +14,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PaymentMessage {
 
-    private Long ticketId;
-    private Long ticketTypeId;
+
     private String paymentKey;
     private Long memberId;
     private String orderId;
     private Integer amount;
     private LocalDateTime requestedAt;
     private LocalDateTime approvedAt;
-    private LocalDateTime canceledAt;
 
-    public Payment toEntity(PaymentMessage message){
+
+    public Payment toEntity(PaymentMessage message, Ticket ticket){
         return Payment.builder()
-                .ticketId(message.getTicketId())
-                .ticketTypeId(message.ticketTypeId)
+                .ticketId(ticket.getId())
+                .ticketTypeId(ticket.getTicketTypeId())
                 .orderId(message.getOrderId())
                 .memberId(message.getMemberId())
                 .amount(message.getAmount())
@@ -35,7 +34,6 @@ public class PaymentMessage {
                 .paymentStatus(PaymentStatus.SUCCESS)
                 .requestedAt(message.requestedAt)
                 .approvedAt(message.approvedAt)
-                .canceledAt(message.getCanceledAt())
                 .build();
     }
 
