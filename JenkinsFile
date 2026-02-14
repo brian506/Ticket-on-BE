@@ -96,7 +96,7 @@ pipeline {
                                 fi
 
                                 docker image prune -af || true
-        EOF
+EOF
                             '''
                         }
                     }
