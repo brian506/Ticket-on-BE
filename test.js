@@ -43,8 +43,7 @@ export const options = {
 export default function () {
   const headers = { 'Content-Type': 'application/json' };
 
-  const uniqueId = Date.now() + (__VU * 100000) + __ITER;
-  const memberId = uniqueId;
+  const memberId = Math.floor(Math.random() * 1000) + 1;
 
   const preparePayload = JSON.stringify({
     ticketTypeId: 1,
