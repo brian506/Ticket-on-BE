@@ -48,12 +48,12 @@ pipeline {
                     set -euo pipefail
                     HOST=$(echo "$EC2_HOST" | cut -d'@' -f2)
                     USER=$SSH_USER
-                    REMOTE_DIR="/home/ubuntu/ticket-app" # 경로 변경 추천
+                    REMOTE_DIR="/home/ubuntu/ticket-app"
 
                     echo "[1/4] EC2 디렉토리 준비"
                     ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST" "mkdir -p $REMOTE_DIR"
 
-                    echo "[2/4] 파일 전송
+                    echo "[2/4] 파일 전송"
                     # 1. .env 파일 (이름을 .env로 변경해서 전송)
                     scp -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$ENV_FILE" "$USER@$HOST:$REMOTE_DIR/.env"
 
