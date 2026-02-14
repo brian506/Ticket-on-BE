@@ -51,34 +51,49 @@ pipeline {
                     REMOTE_DIR="/home/ubuntu/ticket-app"
 
                     echo "[1/4] EC2 디렉토리 준비"
-                    ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST" "mkdir -p $REMOTE_DIR"
+                    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$USER@$HOST" "mkdir -p $REMOTE_DIR"
 
                     echo "[2/4] 파일 전송"
-                    # 1. .env 파일 (이름을 .env로 변경해서 전송)
-                    scp -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$ENV_FILE" "$USER@$HOST:$REMOTE_DIR/.env"
-
-                    # 2. docker-compose.yml
-                    scp -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no docker-compose.yml "$USER@$HOST:$REMOTE_DIR/"
-
-                    # 3. 모니터링 폴더 통째로 전송
-                    scp -r -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no ./monitoring "$USER@$HOST:$REMOTE_DIR/"
-
-                    # 4. Debezium 설정 파일 전송
+                    scp -i "$SSH_KEY" -o StrictHostKeyChecking=no "$ENV_FILE" "$USER@$HOST:$REMOTE_DIR/.env"
+                    scp -i "$SSH_KEY" -o StrictHostKeyChecking=no docker-compose.yml "$USER@$HOST:$REMOTE_DIR/"
+                    scp -r -i "$SSH_KEY" -o StrictHostKeyChecking=no ./monitoring "$USER@$HOST:$REMOTE_DIR/"
                     scp -i "$SSH_KEY" -o StrictHostKeyChecking=no "$DEBEZIUM_JSON" "$USER@$HOST:$REMOTE_DIR/register-debezium.json"
 
-                    echo "[3/4] Docker Compose 실행"
-                    ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST" "
-                        export PATH=\$PATH:/usr/local/bin:/usr/libexec/docker/cli-plugins
+                    echo "[3/4] 원격 서버 작업 시작"
+                    ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$USER@$HOST" "
+                        set -e
                         cd $REMOTE_DIR
+                        export PATH=\$PATH:/usr/local/bin:/usr/libexec/docker/cli-plugins
 
-                        # 최신 이미지 당겨오기
+                        echo 'API 서버 갱신 중...'
                         docker compose pull api-server-1
-
-                        # 컨테이너 갱신 (모니터링이나 DB는 건드리지 않고 API 서버만)
-                        docker compose down || true
                         docker compose up -d --remove-orphans
 
-                        # 공간 확보
+                        echo 'Kafka Connect 준비 대기 (최대 100초)...'
+                        for i in {1..20}; do
+                            if curl -s http://localhost:8083/connectors > /dev/null; then
+                                echo 'Kafka Connect API 준비 완료!'
+                                break
+                            fi
+                            sleep 5
+                        done
+
+                        echo 'Debezium 커넥터 등록/업데이트 중...'
+                        # 커넥터 존재 여부 확인 (HTTP 상태 코드 확인)
+                        HTTP_CODE=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8083/connectors/ticket-mysql-connector)
+
+                        if [ \"\$HTTP_CODE\" -eq 200 ]; then
+                            echo '기존 커넥터가 존재하여 설정을 업데이트합니다(PUT).'
+                            curl -i -X PUT -H 'Content-Type: application/json' \
+                                 -d @register-debezium.json \
+                                 http://localhost:8083/connectors/ticket-mysql-connector/config
+                        else
+                            echo '신규 커넥터를 등록합니다(POST).'
+                            curl -i -X POST -H 'Content-Type: application/json' \
+                                 -d @register-debezium.json \
+                                 http://localhost:8083/connectors
+                        fi
+
                         docker image prune -af || true
                     "
                     '''
