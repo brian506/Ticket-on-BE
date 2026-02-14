@@ -33,8 +33,7 @@ public class TicketCustomRepositoryImpl extends QuerydslRepositorySupport implem
         return select(Projections.constructor(ExpiredTicket.class,
                 ticket.id,
                 ticket.ticketType.id,
-                ticket.orderId,
-                ticket.count()
+                ticket.orderId
         ))
                 .from(ticket)
                 .where(ticket.ticketStatus.eq(TicketStatus.PENDING),
