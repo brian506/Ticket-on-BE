@@ -5,41 +5,48 @@ import { Counter, Trend } from 'k6/metrics';
 
 const BASE_URL = 'http://3.26.171.218:8081';
 
-const flow_success = new Counter('flow_success');
+
 const req_duration = new Trend('req_duration');
-const pay_duration = new Trend('pay_duration');
+
+const pay_success_trend = new Trend('pay_success_duration'); // 성공(재고 차감) 시간
+const pay_success_count = new Counter('pay_success_count');  // 성공 횟수
+
+const pay_soldout_trend = new Trend('pay_soldout_duration'); // 재고 없음 시간
+const pay_soldout_count = new Counter('pay_soldout_count');  // 재고 없음 횟수
+
+const pay_error_count = new Counter('pay_error_count');      // 그 외 에러 횟수
 
 export const options = {
   scenarios: {
     breaking_point_test: {
       executor: 'ramping-arrival-rate',
-      startRate: 100, // 시작부터 100 TPS로 강하게 시작
+      startRate: 100,
       timeUnit: '1s',
 
-      // ⭐ VU 부족해서 테스트 멈추지 않게 넉넉히 설정
       preAllocatedVUs: 1000,
-      maxVUs: 4000,
+      maxVUs: 5000,
 
       stages: [
-        { target: 200, duration: '1m' }, // 1분 동안 200까지 도달 (워밍업)
-        { target: 300, duration: '1m' }, // 300 TPS 구간
-        { target: 400, duration: '2m' }, // ⭐ 마의 400 TPS 구간 (여기서 터질 확률 높음)
-        { target: 500, duration: '1m' }, // 혹시 버티면 500까지 (확인사살)
+        { target: 200, duration: '1m' }, // 워밍업
+        { target: 300, duration: '1m' }, // 300 TPS
+        { target: 400, duration: '2m' }, // 400 TPS (집중 모니터링 구간)
+        { target: 500, duration: '1m' }, // 500 TPS (한계 돌파 시도)
         { target: 0, duration: '30s' },  // 쿨다운
       ],
     },
   },
   thresholds: {
-    'flow_success': ['count>0'],
-    // 2초 넘어가면 사실상 실패로 간주
-    'pay_duration': ['p(95)<1000'],
+    'pay_success_count': ['count>0'],
+    'pay_success_duration': ['p(95)<2000'],
   },
 };
+
+
 export default function () {
   const headers = { 'Content-Type': 'application/json' };
 
-  const uniqueId = (__VU * 10000) + __ITER;
-  const memberId = (uniqueId % 10000) + 1;
+  const uniqueId = Date.now() + (__VU * 100000) + __ITER;
+  const memberId = uniqueId;
 
   const preparePayload = JSON.stringify({
     ticketTypeId: 1,
@@ -55,9 +62,9 @@ export default function () {
 
   req_duration.add(res1.timings.duration);
 
-
-  if (res1.status !== 200) return;
-
+  if (!check(res1, { 'Ticket Request 200': (r) => r.status === 200 })) {
+    return;
+  }
 
   let orderId;
   try {
@@ -79,10 +86,19 @@ export default function () {
     tags: { type: 'PAY' }
   });
 
-  pay_duration.add(res2.timings.duration);
-
 
   if (res2.status === 200) {
-    flow_success.add(1);
+    pay_success_count.add(1);
+    pay_success_trend.add(res2.timings.duration);
+  }
+
+  else if (res2.status === 409 || (res2.body && res2.body.includes("재고"))) {
+    pay_soldout_count.add(1);
+    pay_soldout_trend.add(res2.timings.duration);
+  }
+
+  else {
+    pay_error_count.add(1);
+    console.error(`Error Status: ${res2.status}, Body: ${res2.body}`);
   }
 }
