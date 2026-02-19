@@ -1,13 +1,15 @@
 pipeline {
     agent any
 
+    tools {
+            jdk 'jdk-21'
+    }
+
+
     environment {
         DOCKER_HUB_USER = 'brianchoi506'
         APP_NAME = 'ticket-api-server'
         DOCKER_HUB_PASS = credentials('docker-hub')
-
-        // Credentials ID (Github 토큰 설정이 완료되었다고 가정)
-        // EC2 접속 정보
         EC2_HOST = 'ubuntu@3.26.171.218'
     }
 
