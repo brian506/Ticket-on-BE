@@ -1,4 +1,4 @@
-package com.ticketon.ticketon.config;
+package com.ticketon.ticketon.utils;
 
 
 import de.huxhorn.sulky.ulid.ULID;

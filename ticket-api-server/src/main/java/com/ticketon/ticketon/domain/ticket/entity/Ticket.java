@@ -7,7 +7,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-
 @Table(name = "tickets")
 @Entity
 @Getter
@@ -29,18 +28,17 @@ public class Ticket {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private TicketStatus ticketStatus;
 
-    @Column(name = "price",nullable = false)
+    @Column(name = "price", nullable = false)
     private Integer price;
 
-    @Column(name ="order_id",nullable = false)
+    @Column(name = "order_id", nullable = false)
     private String orderId;
 
-    @Column(name = "expired_at",nullable = false)
+    @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
 
     public Long getTicketTypeId() {
@@ -49,6 +47,14 @@ public class Ticket {
 
     public Long getMemberId() {
         return member.getId();
+    }
+
+    public void markAsPaid() {
+        this.ticketStatus = TicketStatus.PAID;
+    }
+
+    public void markAsConfirmed() {
+        this.ticketStatus = TicketStatus.CONFIRMED;
     }
 
     public void cancel() {
@@ -62,17 +68,17 @@ public class Ticket {
         }
     }
 
-    public static Ticket createNormalTicket(TicketType ticketType, Member member,String orderId) {
-        return Ticket.builder().
-                ticketType(ticketType).
-                member(member).
-                price(ticketType.getPrice()).
-                orderId(orderId).
-                ticketStatus(TicketStatus.SOLD_OUT).
-                build();
+    public static Ticket createNormalTicket(TicketType ticketType, Member member, String orderId) {
+        return Ticket.builder()
+                .ticketType(ticketType)
+                .member(member)
+                .price(ticketType.getPrice())
+                .orderId(orderId)
+                .ticketStatus(TicketStatus.SOLD_OUT)
+                .build();
     }
 
-    public static Ticket createTicket(TicketType ticketType,Member member,String orderId){
+    public static Ticket createTicket(TicketType ticketType, Member member, String orderId) {
         return Ticket.builder()
                 .member(member)
                 .ticketType(ticketType)
@@ -81,6 +87,5 @@ public class Ticket {
                 .ticketStatus(TicketStatus.PENDING)
                 .expiredAt(LocalDateTime.now().plusMinutes(1))
                 .build();
-
     }
 }

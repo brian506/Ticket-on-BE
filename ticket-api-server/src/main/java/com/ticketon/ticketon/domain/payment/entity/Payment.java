@@ -17,8 +17,7 @@ public class Payment {
     @Column(name = "payment_id", nullable = false)
     private Long id;
 
-    @Setter
-    @Column(name = "ticket_id",nullable = true)
+    @Column(name = "ticket_id")
     private Long ticketId;
 
     @Column(name = "ticket_type_id")
@@ -27,10 +26,9 @@ public class Payment {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    @Column(name = "orderId",nullable = false)
+    @Column(name = "orderId", nullable = false)
     private String orderId;
 
-    @Setter
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
 
@@ -40,19 +38,18 @@ public class Payment {
     @Column(name = "payment_key", nullable = false)
     private String paymentKey;
 
-    @Column(name = "requested_at",nullable = false)
+    @Column(name = "requested_at", nullable = false)
     private LocalDateTime requestedAt;
 
-    @Column(name = "approved_at",nullable = true)
+    @Column(name = "approved_at")
     private LocalDateTime approvedAt;
 
-    @Setter
-    @Column(name = "canceled_at",nullable = true)
+    @Column(name = "canceled_at")
     private LocalDateTime canceledAt;
 
-    public void cancelPayment(final LocalDateTime canceledAt){
+    /** 결제를 취소하고 취소 시각을 기록합니다. */
+    public void cancelPayment(final LocalDateTime canceledAt) {
         this.paymentStatus = PaymentStatus.CANCELED;
         this.canceledAt = canceledAt;
     }
-
 }

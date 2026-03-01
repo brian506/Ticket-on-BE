@@ -1,7 +1,7 @@
 package com.ticketon.ticketon.domain.ticket.infra;
 
 import com.ticketon.ticketon.domain.ticket.dto.NewTicketEvent;
-import com.ticketon.ticketon.domain.ticket.service.strategy.TicketIssueStrategy;
+import com.ticketon.ticketon.domain.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,23 +15,19 @@ import java.util.List;
 @Slf4j
 public class TicketConsumer {
 
-    private final TicketIssueStrategy ticketIssueStrategy;
+    private final TicketService ticketService;
 
     @KafkaListener(
             topics = "${kafka.topic-config.ticket.name}",
             groupId = "${kafka.consumer.ticket-group.group-id}",
             containerFactory = "ticketKafkaListenerContainerFactory")
     public void consumeNewTicket(List<NewTicketEvent> ticketEvents, Acknowledgment ack) {
-
         try {
-            ticketIssueStrategy.requestTicketKafka(ticketEvents);
+            ticketService.issueTicketBatch(ticketEvents);
         } catch (Exception e) {
-            log.warn("[Ticket Batch] 티켓 생성 실패");
+            log.warn("[TicketConsumer] 티켓 배치 생성 실패: {}", e.getMessage());
         }
-
-
         ack.acknowledge();
-        log.info("🎫 Ticket Batch 처리 완료 ({}건)", ticketEvents.size());
+        log.info("[TicketConsumer] Ticket Batch 처리 완료: {}건", ticketEvents.size());
     }
-
 }

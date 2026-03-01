@@ -38,7 +38,7 @@ public class TossPaymentGateway implements PaymentGateway {
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     String errorBody = getErrorBody(res);
-                    System.out.println("Toss error response: " + errorBody);
+                    log.error("Toss 결제 승인 오류 응답: {}", errorBody);
                     throw new PaymentConfirmException();
                 })
                 .body(PaymentConfirmResponse.class);

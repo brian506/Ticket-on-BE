@@ -1,7 +1,7 @@
 package com.ticketon.ticketon.domain.member.controller;
 
 import com.ticket.dto.SuccessResponse;
-import com.ticketon.ticketon.domain.member.dto.MemberSingUpRequest;
+import com.ticketon.ticketon.domain.member.dto.MemberSignUpRequest;
 import com.ticketon.ticketon.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<SuccessResponse> signup(@RequestBody MemberSingUpRequest request) {
+    public ResponseEntity<SuccessResponse> signup(@RequestBody MemberSignUpRequest request) {
         memberService.save(request);
         SuccessResponse response = new SuccessResponse(true, "회원가입 성공", null);
         return new ResponseEntity<>(response, HttpStatus.CREATED);

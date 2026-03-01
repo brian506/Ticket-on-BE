@@ -1,6 +1,6 @@
 package com.ticketon.ticketon.domain.member.service;
 
-import com.ticketon.ticketon.domain.member.dto.MemberSingUpRequest;
+import com.ticketon.ticketon.domain.member.dto.MemberSignUpRequest;
 import com.ticketon.ticketon.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,7 +13,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public void save(final MemberSingUpRequest request) {
+    public void save(final MemberSignUpRequest request) {
         memberRepository.save(request.toEntity(bCryptPasswordEncoder));
     }
 }
