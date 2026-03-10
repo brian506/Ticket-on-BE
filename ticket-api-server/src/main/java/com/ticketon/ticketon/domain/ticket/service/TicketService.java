@@ -41,6 +41,7 @@ public class TicketService {
     private final PaymentRepository paymentRepository;
     private final StringRedisTemplate redisTemplate;
     private final TicketIssueStrategy ticketIssueStrategy;
+    private final TicketExpiryProcessor ticketExpiryProcessor;
 
     public TicketReadyResponse purchaseTicket(TicketRequest ticketRequest, String orderId) {
         TicketReadyResponse response = ticketIssueStrategy.issue(ticketRequest, orderId);
@@ -109,27 +110,25 @@ public class TicketService {
 
     public void removePendingTickets() {
         LocalDateTime now = LocalDateTime.now();
+
         List<ExpiredTicket> expiredTickets = findExpiredTickets(now);
         if (expiredTickets.isEmpty()) return;
 
         List<Long> cancelTicketIds = new ArrayList<>();
+        List<ExpiredTicket> ticketsToRestore = new ArrayList<>();
+
         for (ExpiredTicket ticket : expiredTickets) {
             boolean isPaid = Boolean.TRUE.equals(redisTemplate.hasKey("payment_success:" + ticket.orderId()));
             if (isPaid) continue;
 
-            redisTemplate.opsForValue().increment("issued_quantity:" + ticket.ticketTypeId(), 1);
             cancelTicketIds.add(ticket.ticketId());
+            ticketsToRestore.add(ticket);
         }
 
         if (!cancelTicketIds.isEmpty()) {
-            updateExpiredTickets(cancelTicketIds, now);
+            ticketExpiryProcessor.processExpiredTickets(cancelTicketIds, now, ticketsToRestore);
         }
         log.info("[Ticket] 결제 미완료 재고 복구 완료: {}건", cancelTicketIds.size());
-    }
-
-    @Transactional
-    public void updateExpiredTickets(List<Long> cancelTicketIds, LocalDateTime now) {
-        ticketRepository.bulkUpdateStatusToExpiredByIds(cancelTicketIds, now);
     }
 
     public List<ExpiredTicket> findExpiredTickets(LocalDateTime now) {
