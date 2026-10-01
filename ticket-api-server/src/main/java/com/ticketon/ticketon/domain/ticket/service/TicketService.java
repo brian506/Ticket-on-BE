@@ -14,6 +14,7 @@ import com.ticketon.ticketon.domain.ticket.entity.TicketStatus;
 import com.ticketon.ticketon.domain.ticket.entity.TicketType;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketPurchaseRequest;
 import com.ticketon.ticketon.domain.ticket.entity.dto.TicketResponse;
+import com.ticketon.ticketon.domain.ticket.repository.TicketJdbcRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketRepository;
 import com.ticketon.ticketon.domain.ticket.repository.TicketTypeRepository;
 import com.ticketon.ticketon.utils.OptionalUtil;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final TicketJdbcRepository ticketJdbcRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final MemberRepository memberRepository;
     private final PaymentRepository paymentRepository;
@@ -104,7 +106,9 @@ public class TicketService {
             }
             tickets.add(Ticket.createTicket(ticketType, member, event.getOrderId()));
         }
-        ticketRepository.saveAll(tickets);
+        if (tickets.isEmpty()) return;
+
+        ticketJdbcRepository.batchInsert(tickets);
         log.info("[TicketBatch] 티켓 배치 저장 완료: {}건", tickets.size());
     }
 
