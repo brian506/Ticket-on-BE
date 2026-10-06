@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TossPaymentGateway implements PaymentGateway {
 
+    private static final String IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
+
     private final PaymentProperties paymentProperties;
 
     private final RestClient restClient;
@@ -33,6 +35,7 @@ public class TossPaymentGateway implements PaymentGateway {
         TossConfirmRequest tossRequest = request.toTossConfirmRequest();
         return restClient.method(HttpMethod.POST)
                 .uri(paymentProperties.getConfirmUrl())
+                .header(IDEMPOTENCY_KEY_HEADER, request.getOrderId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(tossRequest)
                 .retrieve()
@@ -50,6 +53,7 @@ public class TossPaymentGateway implements PaymentGateway {
     public PaymentCancelResponse requestPaymentCancel(PaymentCancelRequest request) {
         return restClient.method(HttpMethod.POST)
                 .uri(paymentProperties.getCancelUrl(request.getPaymentKey()))
+                .header(IDEMPOTENCY_KEY_HEADER, "cancel-" + request.getPaymentKey() + "-" + request.getCancelAmount())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
